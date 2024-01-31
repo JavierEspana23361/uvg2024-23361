@@ -22,7 +22,7 @@ public class Calculator implements ICalculator {
         return n1 / n2;
 
     }
-    public int resudue(int n1, int n2){
+    public int residue(int n1, int n2){
         return n1 % n2;
 
     }
@@ -85,15 +85,15 @@ public class Calculator implements ICalculator {
     private int performOperation(int n1, int n2, String operator) {
         switch (operator) {
             case "+":
-                add(n1, n2);
+                return add(n1, n2);
             case "-":
-                substract(n1, n2);
+                return substract(n1, n2);
             case "*":
-                multiplication(n1, n2);
+                return multiplication(n1, n2);
             case "/":
-                division(n1, n2);
+                return division(n1, n2);
             case "%":
-                resudue(n1, n2);
+                return residue(n1, n2);
             default:
                 throw new IllegalArgumentException("Error: Invalid operator");
         }
