@@ -38,7 +38,7 @@ public class CalculatorTest {
 
     public void testResidue() {
         Calculator calculator = new Calculator();
-        int result = calculator.resudue(17, 4);
+        int result = calculator.residue(17, 4);
         assert result == 1 : "Residue test failed";
     }
 
