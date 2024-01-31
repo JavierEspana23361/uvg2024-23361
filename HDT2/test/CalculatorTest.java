@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 
-public class CalculatorTests {
 
-    public static void main(String[] args) {
-        CalculatorTests calculatorTests = new CalculatorTests();
+public class CalculatorTest {
+    public static void main(String[] args) throws Exception {
+        CalculatorTest calculatorTests = new CalculatorTest();
         calculatorTests.testAdd();
         calculatorTests.testSubtract();
         calculatorTests.testMultiplication();
@@ -20,7 +20,7 @@ public class CalculatorTests {
 
     public void testSubtract() {
         Calculator calculator = new Calculator();
-        int result = calculator.subtract(10, 4);
+        int result = calculator.substract(10, 4);
         assert result == 6 : "Subtraction test failed";
     }
 
@@ -38,7 +38,7 @@ public class CalculatorTests {
 
     public void testResidue() {
         Calculator calculator = new Calculator();
-        int result = calculator.residue(17, 4);
+        int result = calculator.resudue(17, 4);
         assert result == 1 : "Residue test failed";
     }
 
