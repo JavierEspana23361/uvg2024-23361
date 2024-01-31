@@ -2,11 +2,13 @@ import java.util.ArrayList;
 
 public class Stack<T> implements IStack<T> {
 
+    Calculator calc = new Calculator();
     private ArrayList<T> stack;
 
     public Stack() {
         stack = new ArrayList<>();
     }
+    
 
     @Override
     public int count() {
