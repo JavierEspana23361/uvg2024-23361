@@ -3,8 +3,19 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 
 
+
+/**
+ * La clase Calculator implementa la interfaz ICalculator y proporciona métodos para realizar operaciones aritméticas básicas.
+ */
+
 public class Calculator implements ICalculator {
 
+    
+    /** 
+     * @param n1
+     * @param n2
+     * @return int
+     */
     public int add(int n1, int n2){
 
         return n1 + n2;
