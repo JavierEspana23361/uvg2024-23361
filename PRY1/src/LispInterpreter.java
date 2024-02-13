@@ -172,6 +172,7 @@ public class LispInterpreter {
         }
         return result;
     }
+    
 
     private int multiplication(ArrayList<Object> operands) {
         int product = 1;
@@ -192,7 +193,7 @@ public class LispInterpreter {
         int result = (int) operands.get(0);
         for (int i = 1; i < operands.size(); i++) {
             Object operand = operands.get(i);
-            if (operand instanceof Integer) {
+            if (operand instanceof Integer && (int) operand != 0) {
                 result /= (int) operand;
             } else {
                 throw new IllegalArgumentException("Error: Invalid operands for division");
