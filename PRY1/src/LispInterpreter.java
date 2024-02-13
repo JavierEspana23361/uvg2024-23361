@@ -1,117 +1,31 @@
 import java.util.ArrayList;
-
+import java.util.Stack;
 public class LispInterpreter {
-    public int add(int n1, int n2){
-
-        return n1 + n2;
-    }
-
-    public int substract(int n1, int n2){
-        return n1 - n2;
-
-    }
-
-    public int multiplication(int n1, int n2){
-        return n1 * n2;
-
-    }
-
-    public int division(int n1, int n2){
-        return n1 / n2;
-
-    }
-
-    public int QUOTE(int n1){
-        return n1;
-    }
-
-    public int DEFUN(int n1, int n2){
-        return n1;
-    }
-
-    public int SETQ(int n1, int n2){
-        return n1;
-    }
-
-    public int ATOM(int n1){
-        return n1;
-    }
-
-    public int LIST(int n1){
-        return n1;
-    }
-
-    public int EQUAL(int n1, int n2){
-        return n1;
-    }
-
-    public String LESS(int n1, int n2){
-        String X = "True";
-        String Y = "False";
-        if (n1 < n2){
-        
-            return X;
-        }
-        else{
-            return Y;
-        }
-    }
-
-    public String GREATER(int n1, int n2){
-        String X = "True";
-        String Y = "False";
-        if (n1 > n2){
-        
-            return X;
-        }
-        else{
-            return Y;
-        }
-    }
-    public int COND(int n1, int n2){
-        return n1;
-    
-    }
-    
-       
-
-    public ArrayList<String> {
-            
-        ArrayList<String> elements = new ArrayList<>();
-        //Añadir el lector de LISP
-        
-           
-        return elements;
-    }
-
-
-    //Hay que adaptarlo, para que lea LISP
-    public int solve(ArrayList<String> elements) throws Exception {
-        Stack<Integer> stack = new Stack<>();
+    public Object eval(ArrayList<String> elements) throws Exception {
+        Stack<Object> stack = new Stack<>();
 
         for (String element : elements) {
             if (isOperand(element)) {
                 stack.push(Integer.parseInt(element));
             } else if (isOperator(element)) {
-                if (stack.count() < 2) {
+                if (stack.size() < 2) {
                     throw new IllegalArgumentException("Error: Insufficient operands");
                 }
-                int n2 = stack.pop();
-                int n1 = stack.pop();
-                int result = performOperation(n1, n2, element);
+                Object n2 = stack.pop();
+                Object n1 = stack.pop();
+                Object result = performOperation(n1, n2, element);
                 stack.push(result);
             }
         }
 
-        if (stack.count() != 1) {
+        if (stack.size() != 1) {
             throw new IllegalArgumentException("Error: Invalid expression");
         }
 
-        int finalResult = stack.pop();
+        Object finalResult = stack.pop();
         System.out.println("Resultado: " + finalResult);
         return finalResult;
     }
-
 
     private boolean isOperand(String element) {
         try {
@@ -123,11 +37,12 @@ public class LispInterpreter {
     }
 
     private boolean isOperator(String element) {
-        return element.equals("+") || element.equals("-") || element.equals("*") || element.equals("/") || 
-        element.equals("QUOTE") || element.equals("DEFUN") || element.equals("SETQ") || element.equals("ATOM") || element.equals("LIST")
-        || element.equals("EQUAL") || element.equals("<") || element.equals(">") || element.equals("COND");
+        return element.equals("+") || element.equals("-") || element.equals("*") || element.equals("/") ||
+                element.equals("QUOTE") || element.equals("DEFUN") || element.equals("SETQ") || element.equals("ATOM") || element.equals("LIST")
+                || element.equals("EQUAL") || element.equals("<") || element.equals(">") || element.equals("COND");
     }
-    private int performOperation(int n1, int n2, String operator) {
+
+    private Object performOperation(Object n1, Object n2, String operator) {
         switch (operator) {
             case "+":
                 return add(n1, n2);
@@ -145,7 +60,7 @@ public class LispInterpreter {
                 return SETQ(n1, n2);
             case "ATOM":
                 return ATOM(n1);
-            case "LIST":   
+            case "LIST":
                 return LIST(n1);
             case "EQUAL":
                 return EQUAL(n1, n2);
@@ -155,10 +70,88 @@ public class LispInterpreter {
                 return GREATER(n1, n2);
             case "COND":
                 return COND(n1, n2);
-            
             default:
                 throw new IllegalArgumentException("Error: Invalid operator");
         }
     }
+
+    private int add(Object n1, Object n2) {
+        if (n1 instanceof Integer && n2 instanceof Integer) {
+            return (int) n1 + (int) n2;
+        } else {
+            throw new IllegalArgumentException("Error: Invalid operands for addition");
+        }
+    }
+
+    private int substract(Object n1, Object n2) {
+        if (n1 instanceof Integer && n2 instanceof Integer) {
+            return (int) n1 - (int) n2;
+        } else {
+            throw new IllegalArgumentException("Error: Invalid operands for subtraction");
+        }
+    }
+
+    private int multiplication(Object n1, Object n2) {
+        if (n1 instanceof Integer && n2 instanceof Integer) {
+            return (int) n1 * (int) n2;
+        } else {
+            throw new IllegalArgumentException("Error: Invalid operands for multiplication");
+        }
+    }
+
+    private int division(Object n1, Object n2) {
+        if (n1 instanceof Integer && n2 instanceof Integer) {
+            return (int) n1 / (int) n2;
+        } else {
+            throw new IllegalArgumentException("Error: Invalid operands for division");
+        }
+    }
+
+    private Object QUOTE(Object n1) {
+        return n1;
+    }
+
+    private Object DEFUN(Object n1, Object n2) {
+        return n1;
+    }
+
+    private Object SETQ(Object n1, Object n2) {
+        return n1;
+    }
+
+    private Object ATOM(Object n1) {
+        return n1;
+    }
+
+    private Object LIST(Object n1) {
+        return n1;
+    }
+
+    private Object EQUAL(Object n1, Object n2) {
+        return n1;
+    }
+
+    private String LESS(Object n1, Object n2) {
+        String X = "True";
+        String Y = "False";
+        if ((int) n1 < (int) n2) {
+            return X;
+        } else {
+            return Y;
+        }
+    }
+
+    private String GREATER(Object n1, Object n2) {
+        String X = "True";
+        String Y = "False";
+        if ((int) n1 > (int) n2) {
+            return X;
+        } else {
+            return Y;
+        }
+    }
+
+    private Object COND(Object n1, Object n2) {
+        return n1;
+    }
 }
-     
