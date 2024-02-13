@@ -70,6 +70,8 @@ public class LispInterpreter {
         return elements;
     }
 
+
+    //Hay que adaptarlo, para que lea LISP
     public int solve(ArrayList<String> elements) throws Exception {
         Stack<Integer> stack = new Stack<>();
 
@@ -146,3 +148,4 @@ public class LispInterpreter {
     }
 }
      
+}
