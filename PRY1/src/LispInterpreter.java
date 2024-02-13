@@ -56,10 +56,14 @@ public class LispInterpreter {
         }
         else{
             return Y;
+        }
     }
     public int COND(int n1, int n2){
         return n1;
+    
     }
+    
+       
 
     public ArrayList<String> {
             
@@ -113,7 +117,8 @@ public class LispInterpreter {
         element.equals("QUOTE") || element.equals("DEFUN") || element.equals("SETQ") || element.equals("ATOM") || element.equals("LIST")
         || element.equals("EQUAL") || element.equals("<") || element.equals(">") || element.equals("COND");
     }
-    private int performOperation(int n1, int n2, String operator) {
+
+    private String performOperation(int n1, int n2, String operator) {
         switch (operator) {
             case "+":
                 return add(n1, n2);
@@ -145,7 +150,8 @@ public class LispInterpreter {
             default:
                 throw new IllegalArgumentException("Error: Invalid operator");
         }
+    
     }
-}
      
 }
+   
