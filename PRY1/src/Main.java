@@ -5,19 +5,19 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         LispInterpreter lisp = new LispInterpreter();
         System.out.println("Ingrese la expresión a evaluar: ");
-        //180 Es la temperatura en grados farenheit
+        // 180 Es la temperatura en grados farenheit
         String expression = "(* (/ (- 180 32) 9) 5)";
-        
-        System.out.println("Resultado: " + lisp.tokenize(expression));
+
         try {
-            System.out.println("Resultado de farenheit a celcious: " + lisp.eval(lisp.tokenize(expression)));
+            // Tokeniza la expresión antes de evaluarla
+            ArrayList<String> tokens = lisp.tokenize(expression);
+            System.out.println("Tokens: " + tokens);
+
+            // Evalúa la expresión tokenizada
+            System.out.println("Resultado de farenheit a celsius: " + lisp.eval(tokens));
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
-          
     }
-        
 }
-

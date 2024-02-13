@@ -3,17 +3,31 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.function.BiFunction;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class LispInterpreter {
+public class LispInterpreter{
 
-    //DEFUN
-    private Map<String, BiFunction<Integer, Integer, Integer>> functions;
+    private Map<String, BiFunction<Double, Double, Double>> functions;
 
     public LispInterpreter() {
         functions = new HashMap<>();
+        initializeFunctions(); 
     }
 
-    public Object DEFUN(String functionName, BiFunction<Integer, Integer, Integer> function) {
+    private void initializeFunctions() {
+        functions.put("QUOTE", (a, b) -> 0.0);
+        functions.put("DEFUN", (a, b) -> 0.0);
+        functions.put("SETQ", (a, b) -> 0.0);
+        functions.put("ATOM", (a, b) -> 0.0);
+        functions.put("LIST", (a, b) -> 0.0);
+        functions.put("EQUAL", (a, b) -> 0.0);
+        functions.put("<", (a, b) -> 0.0);
+        functions.put(">", (a, b) -> 0.0);
+        functions.put("COND", (a, b) -> 0.0);
+    }
+
+    public Object DEFUN(String functionName, BiFunction<Double, Double, Double> function) {
         System.out.println("Definiendo función: " + functionName);
 
         if (functions.containsKey(functionName)) {
@@ -30,7 +44,7 @@ public class LispInterpreter {
 
         for (String element : elements) {
             if (isOperand(element)) {
-                stack.push(Integer.parseInt(element));
+                stack.push(Double.parseDouble(element));
             } else if (element.equals("(")) {
                 stack.push(element);
             } else if (isOperator(element)) {
@@ -42,7 +56,7 @@ public class LispInterpreter {
                 while (!stack.isEmpty() && !stack.peek().equals("(")) {
                     Object top = stack.pop();
 
-                    if (top instanceof Integer) {
+                    if (top instanceof Double) {
                         operands.add(0, top);
                     } else if (top instanceof String) {
                         operator = top;
@@ -50,13 +64,25 @@ public class LispInterpreter {
                 }
 
                 if (stack.isEmpty() || !stack.peek().equals("(")) {
-                    throw new IllegalArgumentException("Error: Invalid expression");
+                    throw new IllegalArgumentException("Error: Expresión inválida");
                 }
 
-                stack.pop(); 
+                stack.pop();
 
                 if (operator == null) {
-                    throw new IllegalArgumentException("Error: Operator not found");
+                    throw new IllegalArgumentException("Error: Operador no encontrado");
+                }
+
+                if (operator.equals("DEFUN")) {
+                    String functionName = (String) operands.get(0);
+                    Object potentialFunction = operands.get(1);
+                
+                    if (potentialFunction instanceof BiFunction) {
+                        BiFunction<Double, Double, Double> function = (BiFunction<Double, Double, Double>) potentialFunction;
+                        return DEFUN(functionName, function);
+                    } else {
+                        throw new IllegalArgumentException("Error: La función no es del tipo BiFunction<Double, Double, Double>");
+                    }
                 }
 
                 Object result = performOperation(operands, operator);
@@ -64,75 +90,49 @@ public class LispInterpreter {
             }
         }
 
-        if (stack.size() != 1) {
-            throw new IllegalArgumentException("Error: Invalid expression");
+        if (stack.size() == 1 && stack.peek() instanceof Double) {
+            return stack.pop();
+        } else {
+            throw new IllegalArgumentException("Error: Expresión inválida");
         }
-
-        Object finalResult = stack.pop();
-        System.out.println("Resultado: " + finalResult);
-        return finalResult;
     }
 
     private boolean isOperand(String element) {
         try {
-            Integer.parseInt(element);
+            Double.parseDouble(element);
             return true;
         } catch (NumberFormatException e) {
             return false;
         }
     }
 
+    private boolean isOperator(String element) {
+        return element.equals("+") || element.equals("-") || element.equals("*") || element.equals("/") || element.equals("QUOTE") || element.equals("DEFUN") || element.equals("SETQ") || element.equals("ATOM") || element.equals("LIST") || element.equals("EQUAL") || element.equals("<") || element.equals(">") || element.equals("COND");
+    }
+
     public ArrayList<String> tokenize(String expression) {
         ArrayList<String> tokens = new ArrayList<>();
-        String[] elements = expression.replaceAll("\\(", " ( ").replaceAll("\\)", " ) ").split("\\s+");
 
-        for (String element : elements) {
-            if (!element.isEmpty()) {
-                tokens.addAll(tokenizeElement(element));
-            }
+        // Patrón para identificar números, operadores y paréntesis
+        Pattern pattern = Pattern.compile("\\d+\\.\\d+|\\d+|[+\\-*/()<>=]");
+        Matcher matcher = pattern.matcher(expression);
+
+        // Agregar cada coincidencia al ArrayList de tokens
+        while (matcher.find()) {
+            tokens.add(matcher.group());
         }
 
         return tokens;
     }
 
-    private ArrayList<String> tokenizeElement(String element) {
-        ArrayList<String> tokens = new ArrayList<>();
-        StringBuilder token = new StringBuilder();
-
-        for (char c : element.toCharArray()) {
-            if (c == '(' || c == ')') {
-                if (token.length() > 0) {
-                    tokens.add(token.toString());
-                    token.setLength(0);
-                }
-                tokens.add(String.valueOf(c));
-            } else {
-                token.append(c);
-            }
-        }
-
-        if (token.length() > 0) {
-            tokens.add(token.toString());
-        }
-
-        return tokens;
-    }
-
-
-    private boolean isOperator(String element) {
-        return element.equals("+") || element.equals("-") || element.equals("*") || element.equals("/") ||
-                element.equals("QUOTE") || element.equals("DEFUN") || element.equals("SETQ") || element.equals("ATOM") || element.equals("LIST")
-                || element.equals("EQUAL") || element.equals("<") || element.equals(">") || element.equals("COND");
-    }
-
-    private Object performOperation(ArrayList<Object> operands, Object operator) {
+    private double performOperation(ArrayList<Object> operands, Object operator) {
         if (operator instanceof String) {
             String op = (String) operator;
             switch (op) {
                 case "+":
                     return add(operands);
                 case "-":
-                    return substract(operands);
+                    return subtract(operands);
                 case "*":
                     return multiplication(operands);
                 case "/":
@@ -145,11 +145,11 @@ public class LispInterpreter {
         }
     }
 
-    private int add(ArrayList<Object> operands) {
-        int sum = 0;
+    private double add(ArrayList<Object> operands) {
+        double sum = 0;
         for (Object operand : operands) {
-            if (operand instanceof Integer) {
-                sum += (int) operand;
+            if (operand instanceof Double) {
+                sum += (double) operand;
             } else {
                 throw new IllegalArgumentException("Error: Invalid operands for addition");
             }
@@ -157,28 +157,27 @@ public class LispInterpreter {
         return sum;
     }
 
-    private int substract(ArrayList<Object> operands) {
+    private double subtract(ArrayList<Object> operands) {
         if (operands.size() < 2) {
             throw new IllegalArgumentException("Error: Invalid operands for subtraction");
         }
-        int result = (int) operands.get(0);
+        double result = (double) operands.get(0);
         for (int i = 1; i < operands.size(); i++) {
             Object operand = operands.get(i);
-            if (operand instanceof Integer) {
-                result -= (int) operand;
+            if (operand instanceof Double) {
+                result -= (double) operand;
             } else {
                 throw new IllegalArgumentException("Error: Invalid operands for subtraction");
             }
         }
         return result;
     }
-    
 
-    private int multiplication(ArrayList<Object> operands) {
-        int product = 1;
+    private double multiplication(ArrayList<Object> operands) {
+        double product = 1;
         for (Object operand : operands) {
-            if (operand instanceof Integer) {
-                product *= (int) operand;
+            if (operand instanceof Double) {
+                product *= (double) operand;
             } else {
                 throw new IllegalArgumentException("Error: Invalid operands for multiplication");
             }
@@ -186,59 +185,19 @@ public class LispInterpreter {
         return product;
     }
 
-    private int division(ArrayList<Object> operands) {
+    private double division(ArrayList<Object> operands) {
         if (operands.size() < 2) {
             throw new IllegalArgumentException("Error: Invalid operands for division");
         }
-        int result = (int) operands.get(0);
+        double result = (double) operands.get(0);
         for (int i = 1; i < operands.size(); i++) {
             Object operand = operands.get(i);
-            if (operand instanceof Integer && (int) operand != 0) {
-                result /= (int) operand;
+            if (operand instanceof Double && (double) operand != 0) {
+                result /= (double) operand;
             } else {
                 throw new IllegalArgumentException("Error: Invalid operands for division");
             }
         }
         return result;
-    }
-
-    private Object SETQ(Object n1, Object n2) {
-        return n1;
-    }
-
-    private Object ATOM(Object n1) {
-        return n1;
-    }
-
-    private Object LIST(Object n1) {
-        return n1;
-    }
-
-    private Object EQUAL(Object n1, Object n2) {
-        return n1;
-    }
-
-    private String LESS(Object n1, Object n2) {
-        String X = "True";
-        String Y = "False";
-        if ((int) n1 < (int) n2) {
-            return X;
-        } else {
-            return Y;
-        }
-    }
-
-    private String GREATER(Object n1, Object n2) {
-        String X = "True";
-        String Y = "False";
-        if ((int) n1 > (int) n2) {
-            return X;
-        } else {
-            return Y;
-        }
-    }
-
-    private Object COND(Object n1, Object n2) {
-        return n1;
     }
 }
