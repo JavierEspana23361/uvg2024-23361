@@ -25,31 +25,41 @@ public class LispInterpreter {
         return "Función definida: " + functionName;
     }
 
-    public Integer executeFunction(String functionName, int n1, int n2) {
-        BiFunction<Integer, Integer, Integer> function = functions.get(functionName);
-
-        if (function != null) {
-            return function.apply(n1, n2);
-        } else {
-            System.out.println("Error: La función '" + functionName + "' no está definida.");
-            return null;
-        }
-    }
-    //.....................................................
-
     public Object eval(ArrayList<String> elements) throws Exception {
         Stack<Object> stack = new Stack<>();
 
         for (String element : elements) {
             if (isOperand(element)) {
                 stack.push(Integer.parseInt(element));
+            } else if (element.equals("(")) {
+                stack.push(element);
             } else if (isOperator(element)) {
-                if (stack.size() < 2) {
-                    throw new IllegalArgumentException("Error: Insufficient operands");
+                stack.push(element);
+            } else if (element.equals(")")) {
+                ArrayList<Object> operands = new ArrayList<>();
+                Object operator = null;
+
+                while (!stack.isEmpty() && !stack.peek().equals("(")) {
+                    Object top = stack.pop();
+
+                    if (top instanceof Integer) {
+                        operands.add(0, top);
+                    } else if (top instanceof String) {
+                        operator = top;
+                    }
                 }
-                Object n2 = stack.pop();
-                Object n1 = stack.pop();
-                Object result = performOperation(n1, n2, element);
+
+                if (stack.isEmpty() || !stack.peek().equals("(")) {
+                    throw new IllegalArgumentException("Error: Invalid expression");
+                }
+
+                stack.pop(); 
+
+                if (operator == null) {
+                    throw new IllegalArgumentException("Error: Operator not found");
+                }
+
+                Object result = performOperation(operands, operator);
                 stack.push(result);
             }
         }
@@ -72,83 +82,123 @@ public class LispInterpreter {
         }
     }
 
+    public ArrayList<String> tokenize(String expression) {
+        ArrayList<String> tokens = new ArrayList<>();
+        String[] elements = expression.replaceAll("\\(", " ( ").replaceAll("\\)", " ) ").split("\\s+");
+
+        for (String element : elements) {
+            if (!element.isEmpty()) {
+                tokens.addAll(tokenizeElement(element));
+            }
+        }
+
+        return tokens;
+    }
+
+    private ArrayList<String> tokenizeElement(String element) {
+        ArrayList<String> tokens = new ArrayList<>();
+        StringBuilder token = new StringBuilder();
+
+        for (char c : element.toCharArray()) {
+            if (c == '(' || c == ')') {
+                if (token.length() > 0) {
+                    tokens.add(token.toString());
+                    token.setLength(0);
+                }
+                tokens.add(String.valueOf(c));
+            } else {
+                token.append(c);
+            }
+        }
+
+        if (token.length() > 0) {
+            tokens.add(token.toString());
+        }
+
+        return tokens;
+    }
+
+
     private boolean isOperator(String element) {
         return element.equals("+") || element.equals("-") || element.equals("*") || element.equals("/") ||
                 element.equals("QUOTE") || element.equals("DEFUN") || element.equals("SETQ") || element.equals("ATOM") || element.equals("LIST")
                 || element.equals("EQUAL") || element.equals("<") || element.equals(">") || element.equals("COND");
     }
 
-    private Object performOperation(Object n1, Object n2, String operator) {
-        switch (operator) {
-            case "+":
-                return add(n1, n2);
-            case "-":
-                return substract(n1, n2);
-            case "*":
-                return multiplication(n1, n2);
-            case "/":
-                return division(n1, n2);
-            case "QUOTE":
-                return QUOTE(n1);
-            case "DEFUN":
-                return DEFUN(n1, n2);
-            case "SETQ":
-                return SETQ(n1, n2);
-            case "ATOM":
-                return ATOM(n1);
-            case "LIST":
-                return LIST(n1);
-            case "EQUAL":
-                return EQUAL(n1, n2);
-            case "<":
-                return LESS(n1, n2);
-            case ">":
-                return GREATER(n1, n2);
-            case "COND":
-                return COND(n1, n2);
-            default:
-                throw new IllegalArgumentException("Error: Invalid operator");
+    private Object performOperation(ArrayList<Object> operands, Object operator) {
+        if (operator instanceof String) {
+            String op = (String) operator;
+            switch (op) {
+                case "+":
+                    return add(operands);
+                case "-":
+                    return substract(operands);
+                case "*":
+                    return multiplication(operands);
+                case "/":
+                    return division(operands);
+                default:
+                    throw new IllegalArgumentException("Error: Invalid operator");
+            }
+        } else {
+            throw new IllegalArgumentException("Error: Invalid operator");
         }
     }
 
-    private int add(Object n1, Object n2) {
-        if (n1 instanceof Integer && n2 instanceof Integer) {
-            return (int) n1 + (int) n2;
-        } else {
-            throw new IllegalArgumentException("Error: Invalid operands for addition");
+    private int add(ArrayList<Object> operands) {
+        int sum = 0;
+        for (Object operand : operands) {
+            if (operand instanceof Integer) {
+                sum += (int) operand;
+            } else {
+                throw new IllegalArgumentException("Error: Invalid operands for addition");
+            }
         }
+        return sum;
     }
 
-    private int substract(Object n1, Object n2) {
-        if (n1 instanceof Integer && n2 instanceof Integer) {
-            return (int) n1 - (int) n2;
-        } else {
+    private int substract(ArrayList<Object> operands) {
+        if (operands.size() < 2) {
             throw new IllegalArgumentException("Error: Invalid operands for subtraction");
         }
-    }
-
-    private int multiplication(Object n1, Object n2) {
-        if (n1 instanceof Integer && n2 instanceof Integer) {
-            return (int) n1 * (int) n2;
-        } else {
-            throw new IllegalArgumentException("Error: Invalid operands for multiplication");
+        int result = (int) operands.get(0);
+        for (int i = 1; i < operands.size(); i++) {
+            Object operand = operands.get(i);
+            if (operand instanceof Integer) {
+                result -= (int) operand;
+            } else {
+                throw new IllegalArgumentException("Error: Invalid operands for subtraction");
+            }
         }
+        return result;
     }
 
-    private int division(Object n1, Object n2) {
-        if (n1 instanceof Integer && n2 instanceof Integer) {
-            return (int) n1 / (int) n2;
-        } else {
+    private int multiplication(ArrayList<Object> operands) {
+        int product = 1;
+        for (Object operand : operands) {
+            if (operand instanceof Integer) {
+                product *= (int) operand;
+            } else {
+                throw new IllegalArgumentException("Error: Invalid operands for multiplication");
+            }
+        }
+        return product;
+    }
+
+    private int division(ArrayList<Object> operands) {
+        if (operands.size() < 2) {
             throw new IllegalArgumentException("Error: Invalid operands for division");
         }
-    }
-
-    private Object QUOTE(Object n1) {
-        return n1;
-    }
-
-    private Object DEFUN(Object n1, Object n2) {
-        return n1;
+        int result = (int) operands.get(0);
+        for (int i = 1; i < operands.size(); i++) {
+            Object operand = operands.get(i);
+            if (operand instanceof Integer) {
+                result /= (int) operand;
+            } else {
+                throw new IllegalArgumentException("Error: Invalid operands for division");
+            }
+        }
+        return result;
     }
 
     private Object SETQ(Object n1, Object n2) {
