@@ -78,8 +78,8 @@ public class LispInterpreter{
                 if (operator.equals("DEFUN")) {
                     String functionName = (String) operands.get(0);
                     Object potentialFunction = operands.get(1);
-                
-                    if (potentialFunction instanceof BiFunction) {
+
+                    if (potentialFunction instanceof BiFunction<?, ?, ?>) {
                         BiFunction<Double, Double, Double> function = (BiFunction<Double, Double, Double>) potentialFunction;
                         return DEFUN(functionName, function);
                     } else {
