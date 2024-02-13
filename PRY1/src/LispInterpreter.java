@@ -10,32 +10,41 @@ public class LispInterpreter {
         return n1 - n2;
 
     }
+
     public int multiplication(int n1, int n2){
         return n1 * n2;
 
     }
+
     public int division(int n1, int n2){
         return n1 / n2;
 
     }
+
     public int QUOTE(int n1){
         return n1;
     }
+
     public int DEFUN(int n1, int n2){
         return n1;
     }
+
     public int SETQ(int n1, int n2){
         return n1;
     }
+
     public int ATOM(int n1){
         return n1;
     }
+
     public int LIST(int n1){
         return n1;
     }
+
     public int EQUAL(int n1, int n2){
         return n1;
     }
+
     public String LESS(int n1, int n2){
         String X = "True";
         String Y = "False";
@@ -47,6 +56,7 @@ public class LispInterpreter {
             return Y;
         }
     }
+
     public String GREATER(int n1, int n2){
         String X = "True";
         String Y = "False";
@@ -56,8 +66,10 @@ public class LispInterpreter {
         }
         else{
             return Y;
+        }
     }
-    public int COND(int n1, int n2){
+
+    public int COND(int n1, int n2) {
         return n1;
     }
 
@@ -113,6 +125,7 @@ public class LispInterpreter {
         element.equals("QUOTE") || element.equals("DEFUN") || element.equals("SETQ") || element.equals("ATOM") || element.equals("LIST")
         || element.equals("EQUAL") || element.equals("<") || element.equals(">") || element.equals("COND");
     }
+
     private int performOperation(int n1, int n2, String operator) {
         switch (operator) {
             case "+":
@@ -145,7 +158,5 @@ public class LispInterpreter {
             default:
                 throw new IllegalArgumentException("Error: Invalid operator");
         }
-    }
-}
-     
+    }   
 }
