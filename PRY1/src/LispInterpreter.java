@@ -1,6 +1,42 @@
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
+import java.util.function.BiFunction;
+
 public class LispInterpreter {
+
+    //DEFUN
+    private Map<String, BiFunction<Integer, Integer, Integer>> functions;
+
+    public LispInterpreter() {
+        functions = new HashMap<>();
+    }
+
+    public Object DEFUN(String functionName, BiFunction<Integer, Integer, Integer> function) {
+        System.out.println("Definiendo función: " + functionName);
+
+        if (functions.containsKey(functionName)) {
+            return "Error: La función '" + functionName + "' ya está definida.";
+        }
+
+        functions.put(functionName, function);
+
+        return "Función definida: " + functionName;
+    }
+
+    public Integer executeFunction(String functionName, int n1, int n2) {
+        BiFunction<Integer, Integer, Integer> function = functions.get(functionName);
+
+        if (function != null) {
+            return function.apply(n1, n2);
+        } else {
+            System.out.println("Error: La función '" + functionName + "' no está definida.");
+            return null;
+        }
+    }
+    //.....................................................
+
     public Object eval(ArrayList<String> elements) throws Exception {
         Stack<Object> stack = new Stack<>();
 
