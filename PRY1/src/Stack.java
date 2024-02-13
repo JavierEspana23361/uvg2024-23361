@@ -7,7 +7,7 @@ import java.util.ArrayList;
  */
 public class Stack<T> implements IStack<T> {
 
-    //Calculator calc = new Calculator();
+    LispInterpreter lisp = new LispInterpreter();
     private ArrayList<T> stack;
 
     /**
