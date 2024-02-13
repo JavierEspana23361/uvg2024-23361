@@ -25,6 +25,8 @@ public class LispInterpreter{
         functions.put("<", (a, b) -> 0.0);
         functions.put(">", (a, b) -> 0.0);
         functions.put("COND", (a, b) -> 0.0);
+        functions.put("ROOT", (a, b) -> Math.pow(a, 1/b));
+        functions.put("EXP", (a, b) -> Math.pow(a, b));
     }
 
     public Object DEFUN(String functionName, BiFunction<Double, Double, Double> function) {
@@ -107,14 +109,17 @@ public class LispInterpreter{
     }
 
     private boolean isOperator(String element) {
-        return element.equals("+") || element.equals("-") || element.equals("*") || element.equals("/") || element.equals("QUOTE") || element.equals("DEFUN") || element.equals("SETQ") || element.equals("ATOM") || element.equals("LIST") || element.equals("EQUAL") || element.equals("<") || element.equals(">") || element.equals("COND");
+        return element.equals("+") || element.equals("-") || element.equals("*") || element.equals("/") 
+        || element.equals("QUOTE") || element.equals("DEFUN") || element.equals("SETQ") || element.equals("ATOM") 
+        || element.equals("LIST") || element.equals("EQUAL") || element.equals("<") || element.equals(">") || element.equals("COND")
+        || element.equals("ROOT") || element.equals("EXP");
     }
 
     public ArrayList<String> tokenize(String expression) {
         ArrayList<String> tokens = new ArrayList<>();
 
         // Patrón para identificar números, operadores y paréntesis
-        Pattern pattern = Pattern.compile("\\d+\\.\\d+|\\d+|[+\\-*/()<>=]");
+        Pattern pattern = Pattern.compile("\\d+\\.\\d+|\\d+|[+\\-*/()<>=]|ROOT|EXP");
         Matcher matcher = pattern.matcher(expression);
 
         // Agregar cada coincidencia al ArrayList de tokens
@@ -137,6 +142,10 @@ public class LispInterpreter{
                     return multiplication(operands);
                 case "/":
                     return division(operands);
+                case "ROOT":
+                    return root(operands);
+                case "EXP":
+                    return exponentiation(operands);
                 default:
                     throw new IllegalArgumentException("Error: Invalid operator");
             }
@@ -199,5 +208,23 @@ public class LispInterpreter{
             }
         }
         return result;
+    }
+
+    private double root(ArrayList<Object> operands) {
+        if (operands.size() != 2) {
+            throw new IllegalArgumentException("Error: Invalid operands for root");
+        }
+        double base = (double) operands.get(0);
+        double exponent = (double) operands.get(1);
+        return Math.pow(base, 1/exponent);
+    }
+
+    private double exponentiation(ArrayList<Object> operands) {
+        if (operands.size() != 2) {
+            throw new IllegalArgumentException("Error: Invalid operands for exponentiation");
+        }
+        double base = (double) operands.get(0);
+        double exponent = (double) operands.get(1);
+        return Math.pow(base, exponent);
     }
 }
