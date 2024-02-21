@@ -13,41 +13,47 @@ public class Student implements IUser{
 
         stm.csvReader("Grades.csv", Grades);
         stm.csvReader("Payments.csv", Payments);
-        System.out.println("1. Ver calificaciones");
-        System.out.println("2. Pagar curso");
-        System.out.println("3. Ver pagos");
-        int option = sc.nextInt();
+        int option = 0;
 
-        if (option == 1) {
-            System.out.println("Ingrese el nombre del curso:");
-            String courseName = sc.next();
-            checkGrades(courseName, username, Grades);
+        while (option != 4){     
+            System.out.println("1. Ver calificaciones");
+            System.out.println("2. Pagar curso");
+            System.out.println("3. Ver pagos");
+            System.out.println("4. Salir");
+            option = sc.nextInt();
 
-        } else if (option == 2) {
-            System.out.println("Ingrese el nombre del curso:");
-            String courseName = sc.next();
-            doPayment("Payments.csv", courseName, Payments);
-            
-        } else if (option == 3) {
-            checkPayments("Payments.csv", Payments);
+            if (option == 1) {
+                System.out.println("Ingrese el nombre del curso:");
+                String courseName = sc.next();
+                checkGrades(courseName, username, Grades);
 
-        } else {
-            System.out.println("Opción no válida.");
+            } else if (option == 2) {
+                System.out.println("Ingrese el nombre del curso:");
+                String courseName = sc.next();
+                doPayment("Payments.csv", courseName, Payments);
+                
+            } else if (option == 3) {
+                checkPayments("Payments.csv", Payments);
+
+            } else {
+                System.out.println("Opción no válida.");
+            }
         }
     }
     
     //Se imprime la nota dado el curso dado el estudiante.
 
     public void checkGrades(String courseName, String studentName, Map<String, Object> dataMap) {
+
         String key = studentName + "," + courseName;
         String grade = (String) dataMap.get(key);
+
         if (grade != null) {
             System.out.println("Grade for " + studentName + " in " + courseName + ": " + grade);
         } else {
             System.out.println("No grade found for " + studentName + " in " + courseName);
         }
     }
-    
     //Se realiza el pago de un curso dado el estudiante.
 
     public void doPayment(String csvFile, String courseName, Map<String, Object> dataMap) {

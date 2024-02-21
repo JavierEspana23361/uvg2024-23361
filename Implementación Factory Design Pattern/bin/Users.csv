@@ -1,9 +1,10 @@
-User, type
-Juan, student
-Peter, teacher
-Alfonso, teacher
-Luis, teacher
-Pedro, student
-Paco, student
-Manolo, external
-Jose, admin
+User,type
+Jose,admin
+Mauricio,student
+Alfonso,teacher
+Luis,teacher
+Manolo,external
+Paco,student
+Pedro,student
+Juan,student
+Peter,teacher
