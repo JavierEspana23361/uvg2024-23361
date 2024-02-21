@@ -3,11 +3,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
 import java.io.FileWriter;
-
-
+import java.util.Scanner;
 
 public class UniSystem {
-    public void csvReader(String csvFile, Map<String, String> dataMap) {
+    Scanner sc = new Scanner(System.in);
+
+    public void csvReader(String csvFile, Map<String, Object> dataMap) {
         String line = "";
         String csvSplitBy = ",";
 
@@ -21,18 +22,16 @@ public class UniSystem {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }    
+    }  
 
-    }
-    
-
-    public void reWritecsv(String csvFile, Map<String, String> dataMap) {
+    public void reWritecsv(String csvFile, Map<String, Object> dataMap) {
         try {
             FileWriter writer = new FileWriter(csvFile);
-            for (Map.Entry<String, String> entry : dataMap.entrySet()) {
+            for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
                 writer.append(entry.getKey());
                 writer.append(",");
-                writer.append(entry.getValue());
+                writer.append(String.valueOf(entry.getValue())); 
                 writer.append("\n");
             }
             writer.flush();
@@ -41,15 +40,46 @@ public class UniSystem {
             e.printStackTrace();
         }
     }
-    
-    
-   
-    public void addGradesforaStudentinCourse (String csvFile, String studentName, String courseName, String grade, Map<String, String> dataMap) {
-        String key = studentName + "," + courseName;
-        dataMap.put(key, grade);
-        reWritecsv(csvFile, dataMap);
+
+    public String login(Map<String, Object> dataMap) {
+        System.out.println("Ingrese el nombre de usuario:");
+        String username = sc.next();
+        if (dataMap.containsKey(username)) {
+            return username;
+        } else {
+            System.out.println("El usuario no existe en el sistema.");
+            return null;
+        }
     }
-    
+
+    public String evalType(String username, Map<String, Object> dataMap) {
+        if (dataMap.containsKey(username)) {
+            return (String) dataMap.get(username);
+        } else {
+            return null;
+        }
+    }
+
+    public void register(Map<String, Object> dataMap) {
+        System.out.println("Ingrese el nombre de usuario: ");
+        String username = sc.next();
+        System.out.println("Ingrese el tipo de usuario (student/teacher/admin/external): ");
+        String usertype = sc.next();
+        if (dataMap.containsKey(username)) {
+            System.out.println("El usuario ya existe en el sistema.");
+            return;
+        } else {
+            if (usertype.equals("student") || usertype.equals("teacher") || usertype.equals("admin") || usertype.equals("external")) {
+                dataMap.put(username, usertype);
+                reWritecsv("Users.csv", dataMap);
+            } else {
+                System.out.println("Tipo de usuario no válido.");
+                return;
+            }
+            dataMap.put(username, usertype);
+            reWritecsv("Users.csv", dataMap);
+        }
+    }
 }
     
 

@@ -1,3 +1,3 @@
 public interface IUser {
-    public void showOptions();
+    public void showOptions(String username);
 }
