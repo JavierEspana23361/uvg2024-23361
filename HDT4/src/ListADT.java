@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 
 public class ListADT<E> implements IListADT<E> {
+    infixRead inread = new infixRead();
+    postfixCalc ptcalc = new postfixCalc();
     protected ArrayList<E> elementos;
 
     public ListADT() {

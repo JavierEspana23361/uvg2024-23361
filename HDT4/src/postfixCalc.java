@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.util.Stack;
 
 public class postfixCalc implements ICalculator {
 

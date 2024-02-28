@@ -1,15 +1,21 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class infixRead implements ICalculator{
     
     public void doOperation(ListADT<String> list) throws IOException{
         postfixCalcFactory factory = new postfixCalcFactory();
-        ListADT<String> postfix = new ListADT<>();
+        ListADT<String> postList = new ListADT<>();
+        ListADT<String> infix = new ListADT<>();
+        ArrayList<String> arrinfix = new ArrayList<>();
         String file = "datos.txt";
-        postfix = infixToPostfix(read(file));
-        factory.getCalculator().doOperation(postfix);
+        infix = read(file);
+        arrinfix = ListADTtoArraylist(infix);
+        String postfix = infixToPostfix(arrinfix);
+        postList = stringtoListADT(postfix);
+        factory.getCalculator().doOperation(postList);
     }
     
     public ListADT<String> read(String file) throws IOException{
@@ -17,41 +23,71 @@ public class infixRead implements ICalculator{
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                infix.agregar(line);
+                String[] elements = line.split("");
+                for (String element : elements) {
+                    infix.agregar(element);
+                }
             }
         }
+        System.out.println("La operación obtenida de datos.txt es: " + infix.toString());
         return infix;
     }
+    
+    public ArrayList<String> ListADTtoArraylist(ListADT<String> list){
+        ArrayList<String> elements = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            elements.add(list.obtener(i));
+        }
+        System.out.println("La operación obtenida de datos.txt es: " + elements);
+        return elements;
+    }
+    
+    public ListADT<String> stringtoListADT(String str){
+        ListADT<String> list = new ListADT<>();
+        String[] words = str.split(" ");
+        for (String word : words) {
+            list.agregar(word);
+        }
+        return list;
+    }
 
-    public ListADT<String> infixToPostfix(ListADT<String> infix) {
-        ListADT<String> postfix = new ListADT<>();
+
+    public String infixToPostfix(ArrayList<String> elements) {
         PileADT<String> pile = new PileADT<>();
-
-        for (int i = 0; i < infix.size(); i++) {
-            String token = infix.obtener(i);
-
-            if (isOperand(token)) {
-                postfix.agregar(token);
-            } else if (isOperator(token)) {
-                while (!pile.isEmpty() && !pile.peek().equals("(") && hasHigherPrecedence(pile.peek(), token)) {
-                    postfix.agregar(pile.pop());
+        StringBuilder postfix = new StringBuilder();
+    
+        for (String element : elements) {
+            if (isOperand(element)) {
+                postfix.append(element).append(" ");
+            } else if (isOperator(element)) {
+                while (!pile.isEmpty() && !pile.peek().equals("(") && hasHigherPrecedence(pile.peek(), element)) {
+                    postfix.append(pile.pop()).append(" ");
                 }
-                pile.push(token);
-            } else if (token.equals("(")) {
+                pile.push(element);
+            } else if (element.equals("(")) {
                 pile.push("(");
-            } else if (token.equals(")")) {
+            } else if (element.equals(")")) {
                 while (!pile.isEmpty() && !pile.peek().equals("(")) {
-                    postfix.agregar(pile.pop());
+                    postfix.append(pile.pop()).append(" ");
                 }
-                pile.pop();
+                if (!pile.isEmpty() && pile.peek().equals("(")) {
+                    pile.pop(); 
+                } else {
+                    throw new IllegalArgumentException("Paréntesis desbalanceados en la expresión infix");
+                }
             }
         }
-
+    
         while (!pile.isEmpty()) {
-            postfix.agregar(pile.pop());
+            if (pile.peek().equals("(")) {
+                throw new IllegalArgumentException("Paréntesis desbalanceados en la expresión infix");
+            }
+            postfix.append(pile.pop()).append(" ");
         }
-
-        return postfix;
+    
+        String postfixExpression = postfix.toString().trim();
+        System.out.println("La operación en notación postfija es: " + postfixExpression);
+        return postfixExpression;
     }
 
     public boolean isOperand(String element) {
@@ -62,6 +98,13 @@ public class infixRead implements ICalculator{
         return element.equals("+") || element.equals("-") || element.equals("*") || element.equals("/");
     }
 
+    /**
+     * Checks if the first operator has a higher precedence than the second operator.
+     * 
+     * @param op1 the first operator
+     * @param op2 the second operator
+     * @return true if op1 has higher precedence than op2, false otherwise
+     */
     private boolean hasHigherPrecedence(String op1, String op2) {
         return (op1.equals("*") || op1.equals("/")) && (op2.equals("+") || op2.equals("-"));
     }
