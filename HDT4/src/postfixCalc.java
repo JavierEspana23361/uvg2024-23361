@@ -1,7 +1,14 @@
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Stack;
 
 public class postfixCalc implements ICalculator {
-    infixRead infix = new infixRead();
+
+    public void doOperation(ListADT<String> list) throws IOException{
+        String postfix = ListADTtoString(list);
+        ListADT<String> elements = postfixreader(postfix);
+        int result = solvePostfix(elements);
+        System.out.println("El resultado de la operación obtenida de datos.txt es: " + result);
+    }
 
     public int add(int n1, int n2){
 
@@ -28,6 +35,14 @@ public class postfixCalc implements ICalculator {
 
     }
     
+    public String ListADTtoString(ListADT<String> list){
+        String result = "";
+        for (int i = 0; i < list.size(); i++) {
+            result += list.obtener(i) + " ";
+        }
+        return result;
+    }
+
     public ListADT<String> postfixreader(String pstfxexpression) {
         ListADT<String> elements = new ListADT<>();
         String[] words = pstfxexpression.split(" ");
@@ -37,7 +52,7 @@ public class postfixCalc implements ICalculator {
         return elements;
     }
 
-    private boolean isOperand(String element) {
+    public boolean isOperand(String element) {
         try {
             Integer.parseInt(element);
             return true;
@@ -46,7 +61,7 @@ public class postfixCalc implements ICalculator {
         }
     }
 
-    private boolean isOperator(String element) {
+    public boolean isOperator(String element) {
         return element.equals("+") || element.equals("-") || element.equals("*") || element.equals("/") || element.equals("%");
     }
 
@@ -66,32 +81,22 @@ public class postfixCalc implements ICalculator {
                 throw new IllegalArgumentException("Error: Invalid operator");
         }
     }
-
-
     
-    public int solve(ArrayList<String> elements) throws Exception {
+    public int solvePostfix(ListADT<String> elements) {
         PileADT<Integer> pile = new PileADT<>();
 
-        for (String element : elements) {
+        for (int i = 0; i < elements.size(); i++) {
+            String element = elements.obtener(i);
             if (isOperand(element)) {
                 pile.push(Integer.parseInt(element));
             } else if (isOperator(element)) {
-                if (pile.count() < 2) {
-                    throw new IllegalArgumentException("Error: Insufficient operands");
-                }
                 int n2 = pile.pop();
                 int n1 = pile.pop();
                 int result = performOperation(n1, n2, element);
                 pile.push(result);
             }
         }
-
-        if (pile.count() != 1) {
-            throw new IllegalArgumentException("Error: Invalid expression");
-        }
-
-        int finalResult = pile.pop();
-        System.out.println("Resultado: " + finalResult);
-        return finalResult;
+        return pile.pop();
     }
+
 }

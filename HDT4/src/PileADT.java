@@ -1,47 +1,51 @@
 import java.util.ArrayList;
-import java.util.EmptyStackException;
 
 public class PileADT<E> implements IPileADT<E> {
-    ArrayList<E> elementos;
 
-    public PileADT() {
-        elementos = new ArrayList<>();
+    postfixCalc ptcalc = new postfixCalc();
+    infixRead inread = new infixRead();
+
+    ArrayList<E> elements;
+
+    public PileADT(){
+        elements = new ArrayList<E>();
     }
-    
+
     @Override
     public int count() {
-        return elementos.size();
-    }
-
-    @Override
-    public void push(E elemento) {
-        elementos.add(elemento);
-    }
-
-    @Override
-    public E pop() {
-        if (isEmpty()) {
-            throw new EmptyStackException();
-        }
-        return elementos.remove(elementos.size() - 1);
-    }
-
-    @Override
-    public E peek() {
-        if (isEmpty()) {
-            throw new EmptyStackException();
-        }
-        return elementos.get(elementos.size() - 1);
-    }
-
-    @Override
-    public int size() {
-        return elementos.size();
+        return elements.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return elementos.isEmpty();
+        return elements.isEmpty();
+    }
+
+    
+    @Override
+    public void push(E value) {
+        
+            elements.add(value);
+        
+    }
+
+    @Override
+    public E pop() {
+        E tempValue = null;
+        if (elements.size() > 0){
+            tempValue = elements.remove(elements.size() - 1);
+        }
+        
+        return tempValue;
+    }
+
+    @Override
+    public E peek() {
+        E tempValue = null;
+        if (elements.size() > 0){
+            tempValue = elements.get(elements.size() - 1);
+        }
+        return tempValue;
     }
 
 
