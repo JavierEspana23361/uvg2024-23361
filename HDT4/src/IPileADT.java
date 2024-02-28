@@ -4,4 +4,5 @@ public interface IPileADT<E> {
     E peek();
     int size();
     boolean isEmpty();
+    int count();
 } 

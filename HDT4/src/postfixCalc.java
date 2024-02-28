@@ -1,6 +1,4 @@
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
 
 public class postfixCalc implements ICalculator {
     infixRead infix = new infixRead();
@@ -30,12 +28,11 @@ public class postfixCalc implements ICalculator {
 
     }
     
-    public static List<String> postfixreader(String pstfxexpression) {
-        ListADT list = new ListADT();
-        List<String> elements = new ArrayList<>();
+    public ListADT<String> postfixreader(String pstfxexpression) {
+        ListADT<String> elements = new ListADT<>();
         String[] words = pstfxexpression.split(" ");
         for (String word : words) {
-            elements.add(word);
+            elements.agregar(word);
         }
         return elements;
     }
@@ -73,27 +70,27 @@ public class postfixCalc implements ICalculator {
 
     
     public int solve(ArrayList<String> elements) throws Exception {
-        Stack<Integer> stack = new Stack<>();
+        PileADT<Integer> pile = new PileADT<>();
 
         for (String element : elements) {
             if (isOperand(element)) {
-                stack.push(Integer.parseInt(element));
+                pile.push(Integer.parseInt(element));
             } else if (isOperator(element)) {
-                if (stack.count() < 2) {
+                if (pile.count() < 2) {
                     throw new IllegalArgumentException("Error: Insufficient operands");
                 }
-                int n2 = stack.pop();
-                int n1 = stack.pop();
+                int n2 = pile.pop();
+                int n1 = pile.pop();
                 int result = performOperation(n1, n2, element);
-                stack.push(result);
+                pile.push(result);
             }
         }
 
-        if (stack.count() != 1) {
+        if (pile.count() != 1) {
             throw new IllegalArgumentException("Error: Invalid expression");
         }
 
-        int finalResult = stack.pop();
+        int finalResult = pile.pop();
         System.out.println("Resultado: " + finalResult);
         return finalResult;
     }

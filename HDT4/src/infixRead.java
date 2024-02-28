@@ -1,49 +1,50 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.Stack;
+import java.io.IOException;
 
 public class infixRead implements ICalculator{
     
-    public String read(String file) throws Exception{
-        StringBuilder infix = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            infix.append(line);
+    
+    public ListADT<String> read(String file) throws IOException {
+        ListADT<String> infix = new ListADT<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                infix.agregar(line);
+            }
         }
-        reader.close();
-        return infix.toString();
+        return infix;
     }
 
-    public String infixToPostfix(String infix) {
-        StringBuilder postfix = new StringBuilder();
-        Stack<Character> stack = new Stack<>();
+    public ListADT<String> infixToPostfix(ListADT<String> infix) {
+        ListADT<String> postfix = new ListADT<>();
+        PileADT<Character> pile = new PileADT<>();
 
-        for (int i = 0; i < infix.length(); i++) {
-            char c = infix.charAt(i);
+        for (int i = 0; i < infix.size(); i++) {
+            String token = infix.obtener(i);
 
-            if (isOperand(c)) {
-                postfix.append(c).append(" ");
-            } else if (isOperator(c)) {
-                while (!stack.isEmpty() && stack.peek() != '(' && hasHigherPrecedence(stack.peek(), c)) {
-                    postfix.append(stack.pop()).append(" ");
+            if (isOperand(token.charAt(0))) {
+                postfix.agregar(token);
+            } else if (isOperator(token.charAt(0))) {
+                while (!pile.isEmpty() && pile.peek() != '(' && hasHigherPrecedence(pile.peek(), token.charAt(0))) {
+                    postfix.agregar(Character.toString(pile.pop()));
                 }
-                stack.push(c);
-            } else if (c == '(') {
-                stack.push(c);
-            } else if (c == ')') {
-                while (!stack.isEmpty() && stack.peek() != '(') {
-                    postfix.append(stack.pop()).append(" ");
+                pile.push(token.charAt(0));
+            } else if (token.equals("(")) {
+                pile.push('(');
+            } else if (token.equals(")")) {
+                while (!pile.isEmpty() && pile.peek() != '(') {
+                    postfix.agregar(Character.toString(pile.pop()));
                 }
-                stack.pop(); 
+                pile.pop();
             }
         }
 
-        while (!stack.isEmpty()) {
-            postfix.append(stack.pop()).append(" ");
+        while (!pile.isEmpty()) {
+            postfix.agregar(Character.toString(pile.pop()));
         }
 
-        return postfix.toString().trim();
+        return postfix;
     }
 
     private boolean isOperand(char c) {

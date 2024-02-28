@@ -2,10 +2,15 @@ import java.util.ArrayList;
 import java.util.EmptyStackException;
 
 public class PileADT<E> implements IPileADT<E> {
-    protected ArrayList<E> elementos;
+    ArrayList<E> elementos;
 
     public PileADT() {
         elementos = new ArrayList<>();
+    }
+    
+    @Override
+    public int count() {
+        return elementos.size();
     }
 
     @Override
@@ -38,4 +43,6 @@ public class PileADT<E> implements IPileADT<E> {
     public boolean isEmpty() {
         return elementos.isEmpty();
     }
+
+
 }
