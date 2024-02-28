@@ -84,7 +84,6 @@ public class infixRead implements ICalculator{
         }
     
         String postfixExpression = postfix.toString().trim();
-        System.out.println("La operación en notación postfija es: " + postfixExpression);
         return postfixExpression;
     }
 
