@@ -29,7 +29,6 @@ public class infixRead implements ICalculator{
                 }
             }
         }
-        System.out.println("La operación obtenida de datos.txt es: " + infix.toString());
         return infix;
     }
     
@@ -38,7 +37,6 @@ public class infixRead implements ICalculator{
         for (int i = 0; i < list.size(); i++) {
             elements.add(list.obtener(i));
         }
-        System.out.println("La operación obtenida de datos.txt es: " + elements);
         return elements;
     }
     
