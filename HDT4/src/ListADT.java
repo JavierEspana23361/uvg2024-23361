@@ -1,5 +1,12 @@
 import java.util.ArrayList;
 
+/**
+ * This class represents a generic list data structure that implements the IListADT interface.
+ * It provides methods to add, retrieve, and remove elements from the list, as well as check its size and emptiness.
+ * The list is implemented using an ArrayList.
+ *
+ * @param <E> the type of elements stored in the list
+ */
 public class ListADT<E> implements IListADT<E> {
     infixRead inread = new infixRead();
     postfixCalc ptcalc = new postfixCalc();

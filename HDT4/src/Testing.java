@@ -2,7 +2,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import java.io.IOException;
 
-public class infixReadTest {
+public class Testing {
     
     @Test
     public void testInfixToPostfix() {        
