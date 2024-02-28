@@ -4,7 +4,7 @@ import java.util.Stack;
 
 public class infixRead implements ICalculator{
     
-    public String read(String file) throws Exception{
+    public String read(String file1) throws Exception{
         StringBuilder infix = new StringBuilder();
         BufferedReader reader = new BufferedReader(new FileReader(file));
         String line;
