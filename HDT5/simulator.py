@@ -4,8 +4,8 @@ import statistics
 
 
 RAM = 100
-CPU = 1
-LIMIT = 1
+CPU = 2
+LIMIT = 6
 
 class Process:
     def __init__(self, env, name, ram, cpu, completion_times):
