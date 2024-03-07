@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -140,7 +141,7 @@ public class LispInterpreter{
         ArrayList<String> tokens = new ArrayList<>();
 
         // Patrón para identificar números, operadores y paréntesis
-        Pattern pattern = Pattern.compile("\\d+\\.\\d+|\\d+|[+\\-*/()<>=]|ROOT|EXP|EQUAL|ATOM|QUOTE|SETQ");
+        Pattern pattern = Pattern.compile("\\d+\\.\\d+|\\d+|[+\\-*/()<>=]|ROOT|EXP|EQUAL|ATOM|QUOTE|SETQ|LIST");
         Matcher matcher = pattern.matcher(expression);
 
         // Agregar cada coincidencia al ArrayList de tokens
@@ -187,6 +188,8 @@ public class LispInterpreter{
                     } else {
                         throw new IllegalArgumentException("Error: Invalid operands for SETQ");
                     }
+                case "LIST":
+                    return List(operands);
                 default:
                     throw new IllegalArgumentException("Error: Operador no válido");
             }
@@ -317,7 +320,13 @@ public class LispInterpreter{
         return value;
     }
     
-    
+    public ArrayList<Object> List(ArrayList<Object> elements) {
+        ArrayList<Object> lispList = new ArrayList<Object>();
+        for (Object element : elements) {
+            lispList.add(element);
+        }
+        return lispList;
+    }
 
     /*  Aun no funciona ATOM
     private String isAtom(ArrayList<Object> operands) {

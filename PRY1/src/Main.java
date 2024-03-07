@@ -8,7 +8,7 @@ public class Main {
 
         // 180 Es la temperatura en grados farenheit, f es la cantidad de grados farenheit
         // String expression = "(* (/ (- f 32) 9) 5)";
-        String expression = "(+ 5 2)";
+        String expression = "(LIST 2 3 a b c 3 1)";
 
 
         // Esta es la base para sacar la sucesión de fibonacci, n es el número buscado en suceción
