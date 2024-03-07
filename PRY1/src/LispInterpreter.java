@@ -9,9 +9,12 @@ import java.util.regex.Pattern;
 public class LispInterpreter{
 
     private Map<String, BiFunction<Double, Double, Double>> functions;
+    private Map<String, Double> variables;
+
 
     public LispInterpreter() {
         functions = new HashMap<>();
+        variables = new HashMap<>();
         initializeFunctions(); 
     }
 
@@ -85,14 +88,28 @@ public class LispInterpreter{
                     } else {
                         throw new IllegalArgumentException("Error: La función no es del tipo BiFunction<Double, Double, Double>");
                     }
+                } else if (operator.equals("QUOTE")) {
+                    return operands;
+                } else if (operator.equals("SETQ")) {
+                    String variableName = (String) operands.get(0);
+                    Object value = operands.get(1);
+                    return SETQ(variableName, value);
                 }
 
                 Object result = performOperation(operands, operator);
-                stack.push(result);
+                if (result instanceof Double) {
+                    stack.push(result);
+                } else if (result instanceof String) {
+                    stack.push(result.equals("T") ? "True" : "False");
+                }
+            } else if (isVariable(element)) {
+                stack.push(variables.get(element));
             }
         }
 
         if (stack.size() == 1 && stack.peek() instanceof Double) {
+            return stack.pop();
+        } else if (stack.size() == 1 && stack.peek() instanceof String) {
             return stack.pop();
         } else {
             throw new IllegalArgumentException("Error: Expresión inválida");
@@ -115,11 +132,15 @@ public class LispInterpreter{
         || element.equals("ROOT") || element.equals("EXP");
     }
 
+    private boolean isVariable(String element) {
+        return variables.containsKey(element);
+    }
+
     public ArrayList<String> tokenize(String expression) {
         ArrayList<String> tokens = new ArrayList<>();
 
         // Patrón para identificar números, operadores y paréntesis
-        Pattern pattern = Pattern.compile("\\d+\\.\\d+|\\d+|[+\\-*/()<>=]|ROOT|EXP");
+        Pattern pattern = Pattern.compile("\\d+\\.\\d+|\\d+|[+\\-*/()<>=]|ROOT|EXP|EQUAL|ATOM|QUOTE|SETQ");
         Matcher matcher = pattern.matcher(expression);
 
         // Agregar cada coincidencia al ArrayList de tokens
@@ -130,7 +151,7 @@ public class LispInterpreter{
         return tokens;
     }
 
-    private double performOperation(ArrayList<Object> operands, Object operator) {
+    private Object performOperation(ArrayList<Object> operands, Object operator) {
         if (operator instanceof String) {
             String op = (String) operator;
             switch (op) {
@@ -146,11 +167,31 @@ public class LispInterpreter{
                     return root(operands);
                 case "EXP":
                     return exponentiation(operands);
+                case "<":
+                    return isMinor(operands).equals("T") ? "T" : "NIL";
+                case ">":
+                    return isMajor(operands).equals( "T") ? "T" : "NIL";
+                case "EQUAL":
+                    return isEqual(operands).equals("T") ? "T" : "NIL";
+                //case "ATOM": return isAtom(operands).equals("T") ? "T" : "NIL";
+                case "QUOTE":
+                    return QUOTE(operands);
+                case "SETQ":
+                    if (operands.size() != 2) {
+                        throw new IllegalArgumentException("Error: SETQ solo puede tener dos operandos");
+                    }
+                    if (operands.get(0) instanceof String) {
+                        String variableName = (String) operands.get(0);
+                        Object value = operands.get(1);
+                        return SETQ(variableName, value);
+                    } else {
+                        throw new IllegalArgumentException("Error: Invalid operands for SETQ");
+                    }
                 default:
-                    throw new IllegalArgumentException("Error: Invalid operator");
+                    throw new IllegalArgumentException("Error: Operador no válido");
             }
         } else {
-            throw new IllegalArgumentException("Error: Invalid operator");
+            throw new IllegalArgumentException("Error: Operador no válido");
         }
     }
 
@@ -227,4 +268,68 @@ public class LispInterpreter{
         double exponent = (double) operands.get(1);
         return Math.pow(base, exponent);
     }
+
+    private String isMajor(ArrayList<Object> operands) {
+        if (operands.size() != 2) {
+            throw new IllegalArgumentException("Error: Invalid operands for comparison");
+        }
+        double a = (double) operands.get(0);
+        double b = (double) operands.get(1);
+        if (a > b) {
+            return "T";
+        } else {
+            return "NIL";
+        }
+    }
+
+    private String isMinor(ArrayList<Object> operands) {
+        if (operands.size() != 2) {
+            throw new IllegalArgumentException("Error: Invalid operands for comparison");
+        }
+        double a = (double) operands.get(0);
+        double b = (double) operands.get(1);
+        if (a < b) {
+            return "T";
+        } else {
+            return "NIL";
+        }
+    }
+
+    private String isEqual(ArrayList<Object> operands) {
+        if (operands.size() != 2) {
+            throw new IllegalArgumentException("Error: Invalid operands for comparison");
+        }
+        double a = (double) operands.get(0);
+        double b = (double) operands.get(1);
+        if (a == b) {
+            return "T";
+        } else {
+            return "NIL";
+        }
+    }
+
+    private ArrayList<Object> QUOTE(ArrayList<Object> operands) {
+        return operands;
+    }
+
+    public Object SETQ(String variableName, Object value) {
+        variables.put(variableName, (Double) value);
+        return value;
+    }
+    
+    
+
+    /*  Aun no funciona ATOM
+    private String isAtom(ArrayList<Object> operands) {
+        if (operands.size() != 1) {
+            throw new IllegalArgumentException("Error: Invalid operands for atom");
+        }
+        Object operand = operands.get(0);
+        if (operand instanceof Double || operand instanceof String) {
+            return "T";
+        } else {
+            return "NIL";
+        }
+    }
+    */
 }

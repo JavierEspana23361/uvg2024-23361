@@ -8,12 +8,12 @@ public class Main {
 
         // 180 Es la temperatura en grados farenheit, f es la cantidad de grados farenheit
         // String expression = "(* (/ (- f 32) 9) 5)";
-        String expression = "(* (/ (- 180 32) 9) 5)";
+        String expression = "(+ 5 2)";
 
 
         // Esta es la base para sacar la sucesión de fibonacci, n es el número buscado en suceción
         //String fibonacci = "(* (/ 1 (ROOT 5 2)) (- (EXP (/ (+ 1 (ROOT 5 2)) 2) n ) (EXP (/ (- 1 (ROOT 5 2)) 2) n ) ))";
-        String fibonacci = "(* (/ 1 (ROOT 5 2)) (- (EXP (/ (+ 1 (ROOT 5 2)) 2) 7 ) (EXP (/ (- 1 (ROOT 5 2)) 2) 7 ) ))";
+        String fibonacci = "(+ 4 (* 3 2 1) 7)";
       
         try {
             // Tokeniza la expresión antes de evaluarla
