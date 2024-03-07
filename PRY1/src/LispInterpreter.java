@@ -95,6 +95,11 @@ public class LispInterpreter{
                     String variableName = (String) operands.get(0);
                     Object value = operands.get(1);
                     return SETQ(variableName, value);
+                } else if (operator.equals("LIST")) {
+                    ArrayList<Object> additions = LIST(operands);
+                    for (Object addition : additions) {
+                        stack.push(addition);
+                    }
                 }
 
                 Object result = performOperation(operands, operator);
@@ -189,7 +194,7 @@ public class LispInterpreter{
                         throw new IllegalArgumentException("Error: Invalid operands for SETQ");
                     }
                 case "LIST":
-                    return List(operands);
+                    return LIST(operands);
                 default:
                     throw new IllegalArgumentException("Error: Operador no válido");
             }
@@ -320,7 +325,7 @@ public class LispInterpreter{
         return value;
     }
     
-    public ArrayList<Object> List(ArrayList<Object> elements) {
+    public ArrayList<Object> LIST(ArrayList<Object> elements) {
         ArrayList<Object> lispList = new ArrayList<Object>();
         for (Object element : elements) {
             lispList.add(element);
