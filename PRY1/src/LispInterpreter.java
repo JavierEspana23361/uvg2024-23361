@@ -1,4 +1,4 @@
-import java.lang.reflect.Array;
+import java.lang.reflect.Array; 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,21 +16,6 @@ public class LispInterpreter{
     public LispInterpreter() {
         functions = new HashMap<>();
         variables = new HashMap<>();
-        initializeFunctions(); 
-    }
-
-    private void initializeFunctions() {
-        functions.put("QUOTE", (a, b) -> 0.0);
-        functions.put("DEFUN", (a, b) -> 0.0);
-        functions.put("SETQ", (a, b) -> 0.0);
-        functions.put("ATOM", (a, b) -> 0.0);
-        functions.put("LIST", (a, b) -> 0.0);
-        functions.put("EQUAL", (a, b) -> 0.0);
-        functions.put("<", (a, b) -> 0.0);
-        functions.put(">", (a, b) -> 0.0);
-        functions.put("COND", (a, b) -> 0.0);
-        functions.put("ROOT", (a, b) -> Math.pow(a, 1/b));
-        functions.put("EXP", (a, b) -> Math.pow(a, b));
     }
 
     public Object DEFUN(String functionName, BiFunction<Double, Double, Double> function) {
