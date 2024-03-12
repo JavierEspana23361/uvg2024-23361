@@ -73,12 +73,15 @@ public class LispInterpreter{
                     } else {
                         throw new IllegalArgumentException("Error: La función no es del tipo BiFunction<Double, Double, Double>");
                     }
+
                 } else if (operator.equals("QUOTE")) {
                     return operands;
+
                 } else if (operator.equals("SETQ")) {
                     String variableName = (String) operands.get(0);
                     Object value = operands.get(1);
                     return SETQ(variableName, value);
+                    
                 } else if (operator.equals("LIST")) {
                     ArrayList<Object> additions = LIST(operands);
                     for (Object addition : additions) {
