@@ -57,6 +57,8 @@ public class LispInterpreter{
                             operator = top;
                         } else if (isOperator((String) top)) {
                             operator = top;
+                        } else {
+                            operands.add(top);
                         }
                     }
                 }
@@ -83,8 +85,9 @@ public class LispInterpreter{
                     }
 
                 } else if (operator.equals("QUOTE")) {
-                    return operands;
-
+                    for (Object obj : operands) {
+                        stack.push(obj);
+                    }
                 } else if (operator.equals("SETQ")) {
                     String variableName = (String) operands.get(0);
                     Object value = operands.get(1);
@@ -95,6 +98,8 @@ public class LispInterpreter{
                     for (Object addition : additions) {
                         stack.push(addition);
                     }
+                } else if (operator.equals("COND")) {
+                    stack.push(COND(operands));
                 }
 
                 Object result = performOperation(operands, operator);
@@ -105,7 +110,8 @@ public class LispInterpreter{
                 }
             } else if (isVariable(element)) {
                 stack.push(variables.get(element));
-            }
+            } else
+                stack.push(element);
         }
 
         if (stack.size() == 1 && stack.peek() instanceof Double) {
@@ -335,15 +341,17 @@ public class LispInterpreter{
         return lispList;
     }
 
-    private Boolean COND(ArrayList<Object> operands) {
-        if (operands.size() != 1) {
+    private String COND(ArrayList<Object> operands) {
+        if (operands.size() != 3) {
             throw new IllegalArgumentException("Error: Invalid operands for cond");
         }
-        Object operand = operands.get(0);
-        if (operand instanceof Boolean) {
-            return (Boolean) operand;
+        String clause = (String) operands.get(0);
+        String trueValue = (String) operands.get(1);
+        String falseValue = (String) operands.get(2);
+        if (clause.equals("T")) {
+            return trueValue;
         } else {
-            throw new IllegalArgumentException("Error: Invalid operands for cond");
+            return falseValue;
         }
     }
     
