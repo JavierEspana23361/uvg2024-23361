@@ -39,6 +39,8 @@ public class LispInterpreter{
                 stack.push(element);
             } else if (isOperator(element)) {
                 stack.push(element);
+            } else if (isClause(element)) {
+                stack.push(element.equals("True") ? "T" : "NIL");
             } else if (element.equals(")")) {
                 ArrayList<Object> operands = new ArrayList<>();
                 Object operator = null;
@@ -49,7 +51,13 @@ public class LispInterpreter{
                     if (top instanceof Double) {
                         operands.add(0, top);
                     } else if (top instanceof String) {
-                        operator = top;
+                        if (top.equals("True") || top.equals("False")) {
+                            operands.add(0, top.equals("True") ? "T" : "NIL");
+                        } else if (functions.containsKey(top)) {
+                            operator = top;
+                        } else if (isOperator((String) top)) {
+                            operator = top;
+                        }
                     }
                 }
 
@@ -125,24 +133,29 @@ public class LispInterpreter{
         || element.equals("ROOT") || element.equals("EXP");
     }
 
+    private boolean isClause(String element) {
+        return element.equals("True") || element.equals("False");
+    }
+
     private boolean isVariable(String element) {
         return variables.containsKey(element);
     }
 
     public ArrayList<String> tokenize(String expression) {
         ArrayList<String> tokens = new ArrayList<>();
-
-        // Patrón para identificar números, operadores y paréntesis
-        Pattern pattern = Pattern.compile("\\d+\\.\\d+|\\d+|[+\\-*/()<>=]|ROOT|EXP|EQUAL|ATOM|QUOTE|SETQ|LIST");
+    
+        // Patrón para identificar números, operadores, paréntesis, y strings entre comillas dobles
+        Pattern pattern = Pattern.compile("\"[^\"]*\"|\\(|\\)|\\w+|[+\\-*/()<>=]|ROOT|EXP|EQUAL|ATOM|QUOTE|SETQ|LIST|COND");
         Matcher matcher = pattern.matcher(expression);
-
+    
         // Agregar cada coincidencia al ArrayList de tokens
         while (matcher.find()) {
             tokens.add(matcher.group());
         }
-
+    
         return tokens;
     }
+    
 
     private Object performOperation(ArrayList<Object> operands, Object operator) {
         if (operator instanceof String) {
@@ -182,6 +195,8 @@ public class LispInterpreter{
                     }
                 case "LIST":
                     return LIST(operands);
+                case "COND":
+                    return COND(operands);
                 default:
                     throw new IllegalArgumentException("Error: Operador no válido");
             }
@@ -307,18 +322,31 @@ public class LispInterpreter{
         return operands;
     }
 
-    public Object SETQ(String variableName, Object value) {
+    private Object SETQ(String variableName, Object value) {
         variables.put(variableName, (Double) value);
         return value;
     }
     
-    public ArrayList<Object> LIST(ArrayList<Object> elements) {
+    private ArrayList<Object> LIST(ArrayList<Object> elements) {
         ArrayList<Object> lispList = new ArrayList<Object>();
         for (Object element : elements) {
             lispList.add(element);
         }
         return lispList;
     }
+
+    private Boolean COND(ArrayList<Object> operands) {
+        if (operands.size() != 1) {
+            throw new IllegalArgumentException("Error: Invalid operands for cond");
+        }
+        Object operand = operands.get(0);
+        if (operand instanceof Boolean) {
+            return (Boolean) operand;
+        } else {
+            throw new IllegalArgumentException("Error: Invalid operands for cond");
+        }
+    }
+    
 
     /*  Aun no funciona ATOM
     private String isAtom(ArrayList<Object> operands) {
