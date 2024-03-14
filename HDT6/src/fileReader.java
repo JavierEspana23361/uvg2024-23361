@@ -2,25 +2,17 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class fileReader {
-    public List<Student> leerEstudiantesDesdeJSON(String rutaArchivo) {
-        List<Student> estudiantes = new ArrayList<>();
-        JSONParser parser = new JSONParser();
+    public Arraylist<String> leerEstudiantesDesdeJSON(String rutaArchivo) {
+        ArrayList<String> estudiantes = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
 
         try (FileReader reader = new FileReader(rutaArchivo)) {
-            Object obj = parser.parse(reader);
-            JSONArray listaEstudiantes = (JSONArray) obj;
-
-            for (Object estudianteObj : listaEstudiantes) {
-                JSONObject estudianteJSON = (JSONObject) estudianteObj;
-                String nombre = (String) estudianteJSON.get("nombre");
-                String nacionalidad = (String) estudianteJSON.get("nacionalidad");
-                Student estudiante = new Student(nombre, nacionalidad);
-                estudiantes.add(estudiante);
-            }
-        } catch (IOException | ParseException e) {
+            Student[] estudiantesArray = objectMapper.readValue(reader, Student[].class);
+            estudiantes.addAll(Arrays.asList(estudiantesArray));
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
