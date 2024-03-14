@@ -1,24 +1,28 @@
+import java.util.Map;
+import java.util.HashMap;
+import java.util.TreeMap;
+import java.util.LinkedHashMap;
+
 public class MapFactory {
-    
-    public static final int CSV_TYPE = 0;
-    public static final int XML_TYPE = 1;
-    public static final int JSON_TYPE = 2;
-    public static final int TXT_TYPE = 2;
+    public enum MapType {
+        HASH_MAP,
+        TREE_MAP,
+        LINKED_HASH_MAP
+    }
 
-    public static IDataSource getDataSourceInstance(int fomarType){
-        switch (fomarType) {
-            case CSV_TYPE:
-                return new CSVDataSource();    
-
-            case XML_TYPE:
-                return new XMLDataSource();
-
-            case JSON_TYPE:
-                return new JSONDataSource();
-        
+    public static Map<String, String> createMap(MapType type) {
+        switch (type) {
+            case HASH_MAP:
+                return new HashMap<>();
+            case TREE_MAP:
+                return new TreeMap<>();
+            case LINKED_HASH_MAP:
+                return new LinkedHashMap<>();
             default:
-                return new CSVDataSource();
+                throw new IllegalArgumentException("Unsupported map type: " + type);
         }
     }
+
+    // Implementación del MapFactory, ejemplo: Map<String, String> map = MapFactory.createMap(MapFactory.MapType.HASH_MAP);
 
 }

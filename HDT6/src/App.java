@@ -1,5 +1,4 @@
 public class App {
-
     /*Objetivos:
 a. Utilización de Java Collection Framework: uso de la interface MAP y sus (tres) implementaciones, uso de algoritmos para función hash MD5 y SHA-1, (Otro a su elección).
 b. Uso de algoritmos polimórficos proporcionados por el Java Collection Framework.
@@ -41,8 +40,7 @@ Estudiante 1:
 Estudiante 2:
 - Creación del método de búsqueda de los estudiantes a través de la llave seleccionada
 - Creación del método de búsqueda de los estudiantes a través de su nacionalidad
-- Creación de la interfaz gráfica.
-Yo soy el estudiante 2 */
+- Creación de la interfaz gráfica.*/
     public static void main(String[] args) throws Exception {
         System.out.println("Hello, World!");
     }
