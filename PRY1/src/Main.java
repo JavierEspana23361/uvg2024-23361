@@ -4,8 +4,8 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         LispInterpreter lisp = new LispInterpreter();
-      
-        while (true){
+        
+        while (true) {
             System.out.println("< ");
             String operation = sc.nextLine();
             try {

@@ -3,7 +3,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 
-public class LispInterpreterTest {
+public class TestingLISP {
     @Test
     public void testTokenize() {
         LispInterpreter interpreter = new LispInterpreter();
