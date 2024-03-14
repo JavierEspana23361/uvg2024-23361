@@ -1,17 +1,17 @@
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ArrayList;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.TreeMap;
 
 public class fileReader {
-    public HashMap<String, String> readtoHasMap(String rutaArchivo) {
+    public HashMap<String, String> readtoHashMap(String rutaArchivo) {
         HashMap<String, String> map = new HashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
             String line;
@@ -72,20 +72,21 @@ public class fileReader {
         }
         return null;
     }
-    
-    public List<String> buscarEstudiantesPorNacionalidad(String rutaArchivo, String nacionalidad) {
-    List<String> estudiantesEncontrados = new ArrayList<>();
-    try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
-        String line;
-        while ((line = br.readLine()) != null) {
-            String[] parts = line.split(":");
-            if (parts.length == 3 && parts[1].trim().equalsIgnoreCase(nacionalidad)) {
-                estudiantesEncontrados.add(parts[0].trim()); // Agregar el nombre del estudiante encontrado
+
+     public List<String> buscarEstudiantesPorNacionalidad(String rutaArchivo, String nacionalidad) {
+        List<String> estudiantesEncontrados = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(":");
+                if (parts.length == 3 && parts[1].trim().equalsIgnoreCase(nacionalidad)) {
+                    estudiantesEncontrados.add(parts[0].trim()); // Agregar el nombre del estudiante encontrado
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-    return estudiantesEncontrados;
-    }
+        return estudiantesEncontrados;
+        }
+
 }
