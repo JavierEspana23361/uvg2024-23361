@@ -100,6 +100,8 @@ public class LispInterpreter{
                     }
                 } else if (operator.equals("COND")) {
                     stack.push(COND(operands));
+                } else if (operator.equals("ATOM")) {
+                    stack.push(ATOM(operands));
                 } else {
                     Object result = performOperation(operands, operator);
                     if (result instanceof Double) {
@@ -334,6 +336,14 @@ public class LispInterpreter{
             return falseValue;
         } else {
             return trueValue;
+        }
+    }
+
+    private String ATOM(ArrayList<Object> operands) {
+        if (operands.size() != 1) {
+            return "NIL";
+        } else {
+            return "T";
         }
     }
 }

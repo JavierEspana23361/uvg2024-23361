@@ -16,7 +16,7 @@ public class Main {
         String fibonacci = "(+ 4 (* 3 2 1) 7)";
 
         String condString = "(COND (EQUAL 4 4) (QUOTE hola) (QUOTE adios))";
-        String atomString = "(ATOM (QUOTE hola))";
+        String atomString = "(ATOM (QUOTE 1 2 3))";
       
         try {
             // Tokeniza la expresión antes de evaluarla
