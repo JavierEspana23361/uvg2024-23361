@@ -100,13 +100,13 @@ public class LispInterpreter{
                     }
                 } else if (operator.equals("COND")) {
                     stack.push(COND(operands));
-                }
-
-                Object result = performOperation(operands, operator);
-                if (result instanceof Double) {
-                    stack.push(result);
-                } else if (result instanceof String) {
-                    stack.push(result.equals("T") ? "True" : "False");
+                } else {
+                    Object result = performOperation(operands, operator);
+                    if (result instanceof Double) {
+                        stack.push(result);
+                    } else if (result instanceof String) {
+                        stack.push(result.equals("T") ? "True" : "False");
+                    }
                 }
             } else if (isVariable(element)) {
                 stack.push(variables.get(element));
@@ -185,24 +185,6 @@ public class LispInterpreter{
                     return isMajor(operands).equals( "T") ? "T" : "NIL";
                 case "EQUAL":
                     return isEqual(operands).equals("T") ? "T" : "NIL";
-                //case "ATOM": return isAtom(operands).equals("T") ? "T" : "NIL";
-                case "QUOTE":
-                    return QUOTE(operands);
-                case "SETQ":
-                    if (operands.size() != 2) {
-                        throw new IllegalArgumentException("Error: SETQ solo puede tener dos operandos");
-                    }
-                    if (operands.get(0) instanceof String) {
-                        String variableName = (String) operands.get(0);
-                        Object value = operands.get(1);
-                        return SETQ(variableName, value);
-                    } else {
-                        throw new IllegalArgumentException("Error: Invalid operands for SETQ");
-                    }
-                case "LIST":
-                    return LIST(operands);
-                case "COND":
-                    return COND(operands);
                 default:
                     throw new IllegalArgumentException("Error: Operador no válido");
             }
@@ -349,9 +331,9 @@ public class LispInterpreter{
         String trueValue = (String) operands.get(1);
         String falseValue = (String) operands.get(2);
         if (clause.equals("T")) {
-            return trueValue;
-        } else {
             return falseValue;
+        } else {
+            return trueValue;
         }
     }
     
