@@ -10,33 +10,36 @@ public class LispInterpreter{
 
     private Map<String, BiFunction<Double, Double, Double>> functions;
     private Map<String, Object> variables;
-
+    private Map<String, ArrayList<String>> defunctions;
 
     public LispInterpreter() {
         functions = new HashMap<>();
         variables = new HashMap<>();
     }
 
-    public Object DEFUN(String functionName, BiFunction<Double, Double, Double> function) {
-        System.out.println("Definiendo función: " + functionName);
-
-        if (functions.containsKey(functionName)) {
-            return "Error: La función '" + functionName + "' ya está definida.";
-        }
-
-        functions.put(functionName, function);
-
-        return "Función definida: " + functionName;
+    public void setDEFUN(String functionName, ArrayList<String> functionBody) {
+        defunctions.put(functionName, functionBody);
     }
+
+    public void getDEFUN(String element) {
+        ArrayList<String> function = defunctions.get(element);
+        try {
+            eval(function);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error: Función no encontrada");
+        }
+    }
+        
 
     public Object eval(ArrayList<String> elements) throws Exception {
         Stack<Object> stack = new Stack<>();
 
         for (String element : elements) {
-            if (isOperand(element)) {
-                stack.push(Double.parseDouble(element));
-            } else if (isVariable(element)) {
+            
+            if (isVariable(element)) {
                 stack.push(variables.get(element));
+            } else if (isOperand(element)) {
+                stack.push(Double.parseDouble(element));
             } else if (element.equals("(")) {
                 stack.push(element);
             } else if (isOperator(element)) {
@@ -76,15 +79,14 @@ public class LispInterpreter{
                 }
 
                 if (operator.equals("DEFUN")) {
-                    String functionName = (String) operands.get(0);
-                    Object potentialFunction = operands.get(1);
-
-                    if (potentialFunction instanceof BiFunction<?, ?, ?>) {
-                        BiFunction<Double, Double, Double> function = (BiFunction<Double, Double, Double>) potentialFunction;
-                        return DEFUN(functionName, function);
-                    } else {
-                        throw new IllegalArgumentException("Error: La función no es del tipo BiFunction<Double, Double, Double>");
+                    String variable = (String) operands.get(1);
+                    ArrayList<String> functionBody = new ArrayList<>();
+                    for (int i = 2; i < operands.size(); i++) {
+                        functionBody.add((String) operands.get(i));
                     }
+                    System.out.println(variable);
+                    System.out.println(functionBody);
+                    setDEFUN(variable, functionBody);
 
                 } else if (operator.equals("QUOTE")) {
                     QUOTE(operands);
@@ -114,8 +116,10 @@ public class LispInterpreter{
                         stack.push(result.equals("T") ? "True" : "False");
                     }
                 }
-            } else
-                stack.push(element);
+            } else if (isFunction(element)) {
+                getDEFUN(element);
+            } else {
+                stack.push(element); }
         }
 
         if (stack.size() == 1 && stack.peek() instanceof Double) {
@@ -151,6 +155,10 @@ public class LispInterpreter{
 
     private boolean isVariable(String element) {
         return variables.containsKey(element);
+    }
+
+    private boolean isFunction(String element) {
+        return defunctions.containsKey(element);
     }
 
     public ArrayList<String> tokenize(String expression) {
