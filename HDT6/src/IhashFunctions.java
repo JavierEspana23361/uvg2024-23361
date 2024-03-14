@@ -1,0 +1,7 @@
+/**
+ * hashFunctions
+ */
+public interface IhashFunctions {
+
+    
+}
