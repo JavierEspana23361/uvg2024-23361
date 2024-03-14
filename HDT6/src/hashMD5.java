@@ -1,4 +1,3 @@
-// Crear las clases para la implementación de la función Hash Organica, MD5 y SHA-1.
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
