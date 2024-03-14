@@ -336,19 +336,4 @@ public class LispInterpreter{
             return trueValue;
         }
     }
-    
-
-    /*  Aun no funciona ATOM
-    private String isAtom(ArrayList<Object> operands) {
-        if (operands.size() != 1) {
-            throw new IllegalArgumentException("Error: Invalid operands for atom");
-        }
-        Object operand = operands.get(0);
-        if (operand instanceof Double || operand instanceof String) {
-            return "T";
-        } else {
-            return "NIL";
-        }
-    }
-    */
 }
