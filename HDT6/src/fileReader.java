@@ -55,4 +55,20 @@ public class fileReader {
         }
         return map;
     }
+
+    public String buscarEstudiantePorClave(String rutaArchivo, String clave) {
+        try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(":");
+                if (parts.length == 2 && parts[0].trim().equals(clave)) {
+                    return parts[1].trim();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
 }
