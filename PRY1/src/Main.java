@@ -15,7 +15,7 @@ public class Main {
         //String fibonacci = "(* (/ 1 (ROOT 5 2)) (- (EXP (/ (+ 1 (ROOT 5 2)) 2) n ) (EXP (/ (- 1 (ROOT 5 2)) 2) n ) ))";
         String fibonacci = "(+ 4 (* 3 2 1) 7)";
 
-        String condString = "(COND (> 4 5) (QUOTE hola) (QUOTE adios))";
+        String condString = "(COND (EQUAL 4 4) (QUOTE hola) (QUOTE adios))";
       
         try {
             // Tokeniza la expresión antes de evaluarla
