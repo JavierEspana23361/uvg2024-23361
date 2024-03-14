@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class LispInterpreter{
 
     private Map<String, BiFunction<Double, Double, Double>> functions;
-    private Map<String, Double> variables;
+    private Map<String, Object> variables;
 
 
     public LispInterpreter() {
@@ -35,6 +35,8 @@ public class LispInterpreter{
         for (String element : elements) {
             if (isOperand(element)) {
                 stack.push(Double.parseDouble(element));
+            } else if (isVariable(element)) {
+                stack.push(variables.get(element));
             } else if (element.equals("(")) {
                 stack.push(element);
             } else if (isOperator(element)) {
@@ -85,13 +87,15 @@ public class LispInterpreter{
                     }
 
                 } else if (operator.equals("QUOTE")) {
+                    QUOTE(operands);
                     for (Object obj : operands) {
                         stack.push(obj);
                     }
                 } else if (operator.equals("SETQ")) {
-                    String variableName = (String) operands.get(0);
-                    Object value = operands.get(1);
-                    return SETQ(variableName, value);
+                    String variable = (String) operands.get(1);
+                    Object value = operands.get(0);
+                    SETQ(variable, value);
+                    stack.push("Variable set: " + variable +  " = " + value);
                     
                 } else if (operator.equals("LIST")) {
                     ArrayList<Object> additions = LIST(operands);
@@ -110,8 +114,6 @@ public class LispInterpreter{
                         stack.push(result.equals("T") ? "True" : "False");
                     }
                 }
-            } else if (isVariable(element)) {
-                stack.push(variables.get(element));
             } else
                 stack.push(element);
         }
@@ -124,6 +126,8 @@ public class LispInterpreter{
             throw new IllegalArgumentException("Error: Expresión inválida");
         }
     }
+
+    
 
     private boolean isOperand(String element) {
         try {
@@ -309,12 +313,23 @@ public class LispInterpreter{
     }
 
     private ArrayList<Object> QUOTE(ArrayList<Object> operands) {
-        return operands;
+        return null;
     }
 
-    private Object SETQ(String variableName, Object value) {
-        variables.put(variableName, (Double) value);
-        return value;
+    private void SETQ(String variable, Object value) {
+        if (value instanceof Double) {
+            variables.put(variable, (Double) value);
+        } else if (value instanceof String) {
+            if (value.equals("T")) {
+                variables.put(variable, 1.0);
+            } else if (value.equals("NIL")) {
+                variables.put(variable, 0.0);
+            } else {
+                throw new IllegalArgumentException("Error: Valor no válido para SETQ");
+            }
+        } else {
+            throw new IllegalArgumentException("Error: Valor no válido para SETQ");
+        }
     }
     
     private ArrayList<Object> LIST(ArrayList<Object> elements) {
