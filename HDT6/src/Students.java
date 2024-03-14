@@ -1,12 +1,11 @@
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.TreeMap;
 import java.util.Scanner;
 
-public class Students {
-    private Map<String, String> studentsMap;
 
-    public void mapType(){
+public class Students {
+    public Object mapType(){
         Scanner sc = new Scanner(System.in);
         fileReader fr = new fileReader();
         System.out.println("Selecciona el tipo de mapa que deseas utilizar: ");
@@ -14,25 +13,25 @@ public class Students {
         System.out.println("2. TreeMap");
         System.out.println("3. LinkedHashMap");
         int option = sc.nextInt();
-        sc.nextLine(); // Consumir el salto de línea después del número
+        sc.close();
         switch(option){
             case 1:
-                studentsMap = fr.readtoHasMap("estudiantes.json");
-                break;
+                HashMap<String, String> hashmap = new HashMap<>();
+                hashmap = fr.readtoHasMap("estudiantes.json");
+                return hashmap;
             case 2:
-                studentsMap = fr.readtoTreeMap("estudiantes.json");
-                break;
+                TreeMap<String, String> treemap = new TreeMap<>();
+                treemap = fr.readtoTreeMap("estudiantes.json");
+                return treemap;
             case 3:
-                studentsMap = fr.readtoLinkedHashMap("estudiantes.json");
-                break;
+                LinkedHashMap<String, String> linkedmap = new LinkedHashMap<>();
+                linkedmap = fr.readtoLinkedHashMap("estudiantes.json");
+                return linkedmap;
             default:
                 System.out.println("Opción no válida");
-                break;
+                return null;
+                
         }
-        sc.close();
-    }
-
-    public Map<String, String> getStudentsMap() {
-        return studentsMap;
+        
     }
 }
