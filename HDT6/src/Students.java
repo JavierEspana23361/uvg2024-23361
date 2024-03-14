@@ -1,4 +1,6 @@
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.TreeMap;
 import java.util.Scanner;
 
 
@@ -14,15 +16,17 @@ public class Students {
         sc.close();
         switch(option){
             case 1:
-                HashMap<String, String> map = new HashMap<>();
-                map = fr.readtoHasMap("estudiantes.json");
-                return null;
+                HashMap<String, String> hashmap = new HashMap<>();
+                hashmap = fr.readtoHasMap("estudiantes.json");
+                return hashmap;
             case 2:
-                fr.readtoTreeMap("estudiantes.json");
-                return null;
+                TreeMap<String, String> treemap = new TreeMap<>();
+                treemap = fr.readtoTreeMap("estudiantes.json");
+                return treemap;
             case 3:
-                fr.readtoLinkedHashMap("estudiantes.json");
-                return null;
+                LinkedHashMap<String, String> linkedmap = new LinkedHashMap<>();
+                linkedmap = fr.readtoLinkedHashMap("estudiantes.json");
+                return linkedmap;
             default:
                 System.out.println("Opción no válida");
                 return null;

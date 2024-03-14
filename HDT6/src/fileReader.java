@@ -1,7 +1,6 @@
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.util.LinkedHashMap;
@@ -9,8 +8,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.TreeMap;
 
 public class fileReader {
-    public Map<String, String> readtoHasMap(String rutaArchivo) {
-        Map<String, String> map = new HashMap<>();
+    public HashMap<String, String> readtoHasMap(String rutaArchivo) {
+        HashMap<String, String> map = new HashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -27,8 +26,8 @@ public class fileReader {
         return map;
     }
 
-    public Map<String, String> readtoTreeMap(String rutaArchivo) {
-        Map<String, String> map = new TreeMap<>();
+    public TreeMap<String, String> readtoTreeMap(String rutaArchivo) {
+        TreeMap<String, String> map = new TreeMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -45,8 +44,8 @@ public class fileReader {
         return map;
     }
 
-    public Map<String, String> readtoLinkedHashMap(String rutaArchivo) {
-        Map<String, String> map = new LinkedHashMap<>();
+    public LinkedHashMap<String, String> readtoLinkedHashMap(String rutaArchivo) {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
             ObjectMapper objectMapper = new ObjectMapper();
             map = objectMapper.readValue(br, new TypeReference<LinkedHashMap<String, String>>() {});
