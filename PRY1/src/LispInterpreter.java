@@ -12,23 +12,30 @@ public class LispInterpreter{
     private Map<String, Object> variables;
     private Map<String, ArrayList<String>> defunctions;
 
+
+
     public LispInterpreter() {
         functions = new HashMap<>();
         variables = new HashMap<>();
+        defunctions = new HashMap<>();
     }
 
     public void setDEFUN(String functionName, ArrayList<String> functionBody) {
         defunctions.put(functionName, functionBody);
     }
 
-    public void getDEFUN(String element) {
-        ArrayList<String> function = defunctions.get(element);
-        try {
-            eval(function);
-        } catch (Exception e) {
+    public Object getDEFUN(String functionName) {
+        ArrayList<String> function = defunctions.get(functionName);
+        if (function != null) {
+            try {
+                return eval(function); // Devuelve el resultado de la evaluación de la función
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Error al evaluar la función: " + e.getMessage());
+            }
+        } else {
             throw new IllegalArgumentException("Error: Función no encontrada");
         }
-    }
+    }    
         
 
     public Object eval(ArrayList<String> elements) throws Exception {
