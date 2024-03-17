@@ -328,7 +328,7 @@ public class LispInterpreter{
     }
 
     private ArrayList<Object> QUOTE(ArrayList<Object> operands) {
-        return null;
+        return operands;
     }
 
     private void SETQ(String variable, Object value) {
