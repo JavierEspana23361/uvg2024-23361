@@ -1,20 +1,26 @@
 import java.util.ArrayList;
-import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        LispInterpreter lisp = new LispInterpreter();
-        
-        while (true) {
-            System.out.println("< ");
-            String operation = sc.nextLine();
-            try {
-                ArrayList<String> tokens = lisp.tokenize(operation);
-                System.out.println(lisp.eval(tokens));
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-            System.out.println("> ");
+        LispInterpreter interpreter = new LispInterpreter();
+
+        // Define una función personalizada
+        ArrayList<String> customFunction = new ArrayList<>();
+        customFunction.add("*");
+        customFunction.add("a");
+        customFunction.add("b");
+        interpreter.setDEFUN("MULTIPLICACION", customFunction);
+
+        // Llama a la función definida
+        ArrayList<String> expression = new ArrayList<>();
+        expression.add("MULTIPLICACION");
+        expression.add("2");
+        expression.add("3");
+        try {
+            Object result = interpreter.getDEFUN("MULTIPLICACION");
+            System.out.println("Resultado de la función MULTIPLICACION: " + result);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }
