@@ -24,42 +24,22 @@ public class LispInterpreter{
         defunctions.put(functionName, functionBody);
     }
 
-    public Object getDEFUN(String functionName) {
-        ArrayList<Object> function = defunctions.get(functionName);
-        if (function != null) {
-            try {
-                Map<String, Object> localVariables = new HashMap<>();
-                return eval(function, localVariables); 
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Error al evaluar la función: " + e.getMessage());
-            }
-        } else {
-            throw new IllegalArgumentException("Error: Función no encontrada");
-        }
-    }
-
     public Object getDEFUN(String functionName, ArrayList<Object> arguments) {
         ArrayList<Object> functionBody = defunctions.get(functionName);
         if (functionBody != null) {
-            // Imprimir el cuerpo de la función antes de evaluarlo
-            System.out.println("Cuerpo de la función '" + functionName + "': " + functionBody);
             try {
-                // Crear un mapa para almacenar las variables locales
                 Map<String, Object> localVariables = new HashMap<>();
-                // Agregar los argumentos al mapa de variables locales
                 for (int i = 0; i < arguments.size(); i++) {
                     localVariables.put("ARG" + i, arguments.get(i));
                 }
-                // Evaluar la función con los argumentos y el mapa de variables locales
-                Object result = eval(functionBody, localVariables);
-                return result; // No se hace ninguna conversión aquí
+                return eval(functionBody, localVariables);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Error al evaluar la función: " + e.getMessage());
             }
         } else {
             throw new IllegalArgumentException("Error: Función no encontrada");
         }
-    }         
+    }        
     
     public Object eval(ArrayList<Object> elements, Map<String, Object> localVariables) throws Exception {
         try {
