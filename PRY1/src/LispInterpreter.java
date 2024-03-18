@@ -106,15 +106,21 @@ public class LispInterpreter{
                         } else if (isFunction(strElement)) {
                             // Obtener el cuerpo de la función
                             ArrayList<Object> functionBody = defunctions.get(strElement);
-    
-                            // Crear una nueva instancia de LispInterpreter para evaluar el cuerpo de la función
-                            LispInterpreter functionInterpreter = new LispInterpreter();
-    
-                            // Evaluar el cuerpo de la función usando la nueva instancia de LispInterpreter
-                            Object result = functionInterpreter.eval(functionBody, localVariables);
-    
+                        
+                            // Crear un nuevo mapa para las variables locales de la función
+                            Map<String, Object> functionLocalVariables = new HashMap<>(localVariables);
+                        
+                            // Asignar valores a los argumentos de la función
+                            for (int i = 0; i < operands.size(); i++) {
+                                functionLocalVariables.put("ARG" + i, operands.get(i));
+                            }
+                        
+                            // Evaluar el cuerpo de la función usando las variables locales de la función
+                            Object result = eval(functionBody, functionLocalVariables);
+                        
                             // Empujar el resultado al stack
                             stack.push(result);
+                                                                     
                         } else if (operator.equals("QUOTE")) {
                             QUOTE(operands);
                             for (Object obj : operands) {
@@ -146,8 +152,16 @@ public class LispInterpreter{
                         }
     
                     } else {
-                        stack.push(element);
+                        if (strElement.startsWith("ARG")) {
+                            // Obtener el índice del argumento
+                            int argIndex = Integer.parseInt(strElement.substring(3));
+                            // Obtener el valor del argumento de las variables locales de la función
+                            stack.push(localVariables.get("ARG" + argIndex));
+                        } else {
+                            stack.push(strElement);
+                        }
                     }
+                    
                 }
             }
     
