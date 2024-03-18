@@ -1,68 +1,81 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import java.util.ArrayList;
 
 public class GUI extends JFrame {
     private JTextField entradaTextField;
-    private JTextArea salidaTextArea;
+    private JTextArea historialTextArea;
     private LispInterpreter interpreter;
 
     public GUI() {
         super("Intérprete de Lisp");
-
         interpreter = new LispInterpreter();
-
-        setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
+        JPanel panelPrincipal = new JPanel(new BorderLayout());
+        int margenWidth = 250;
+        JPanel margenPanel = new JPanel(new BorderLayout());
+        margenPanel.setPreferredSize(new Dimension(margenWidth, 600));
+        margenPanel.setBackground(new Color(52, 73, 94)); // Establecer color de fondo
+
+        JPanel panel = new JPanel(new BorderLayout());
 
         entradaTextField = new JTextField();
-        entradaTextField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String comando = entradaTextField.getText();
-                ejecutarComando(comando);
-            }
-        });
-        panel.add(entradaTextField, BorderLayout.SOUTH);
+        entradaTextField.addActionListener(e -> ejecutarComando(entradaTextField.getText()));
+        historialTextArea = new JTextArea();
+        historialTextArea.setEditable(false);
 
-        salidaTextArea = new JTextArea();
-        salidaTextArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(salidaTextArea);
+        JScrollPane scrollPane = new JScrollPane(historialTextArea);
+        panel.add(entradaTextField, BorderLayout.SOUTH);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        add(panel);
+        panelPrincipal.add(panel, BorderLayout.CENTER);
 
+        JPanel imagePanel = new JPanel();
+        imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.Y_AXIS)); // Cambiar a BoxLayout con eje vertical
+        JLabel imageLabel = new JLabel();
+        try {
+            Image image = ImageIO.read(new File("resources/Logo.jpg"));
+            ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(margenWidth, -1, Image.SCALE_DEFAULT));
+            imageLabel.setIcon(imageIcon);
+            imagePanel.add(imageLabel);
+            // Agregar panel de imagen al panel del margen
+            margenPanel.add(imagePanel, BorderLayout.NORTH);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        // Agregar margenPanel al panel principal
+        panelPrincipal.add(margenPanel, BorderLayout.WEST);
+        add(panelPrincipal);
+
+        setSize(800, 600);
+        setMinimumSize(new Dimension(800 + margenWidth, 600));
         setVisible(true);
 
         entradaTextField.requestFocusInWindow();
     }
 
     private void ejecutarComando(String comando) {
-        salidaTextArea.setText("");
-
         ArrayList<String> tokens = interpreter.tokenize(comando);
-
+        actualizarHistorial("Entrada: " + comando);
         try {
             Object resultado = interpreter.eval(tokens);
-            salidaTextArea.append("Salida: " + resultado.toString() + "\n");
+            actualizarHistorial("Salida: " + resultado);
         } catch (Exception e) {
-            salidaTextArea.append("Error: " + e.getMessage() + "\n");
+            actualizarHistorial("Error: " + e.getMessage());
         }
-
         entradaTextField.setText("");
     }
 
+    private void actualizarHistorial(String texto) {
+        historialTextArea.append(texto + "\n");
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new GUI();
-            }
-        });
+        SwingUtilities.invokeLater(GUI::new);
     }
 }
