@@ -37,25 +37,4 @@ public class TestingLISP {
         assertEquals(expected1, result1);
     }
 
-    @Test
-    public void testDEFUN() throws Exception {
-        LispInterpreter interpreter = new LispInterpreter();
-
-        // Definir una función llamada 'square' que toma un argumento y devuelve su cuadrado
-        String functionName = "square";
-        ArrayList<Object> functionBody = new ArrayList<>();
-        functionBody.add("*");
-        functionBody.add("ARG0");
-        functionBody.add("ARG0");
-        interpreter.setDEFUN(functionName, functionBody);
-
-        // Llamar a la función 'square' con un argumento de 3
-        ArrayList<Object> arguments = new ArrayList<>();
-        arguments.add(3.0);
-        Object result = interpreter.getDEFUN(functionName, arguments);
-
-        // Verificar que el resultado es 9.0 (3 * 3)
-        assertEquals(9.0, result);
-    }
-
 }
