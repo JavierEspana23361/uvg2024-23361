@@ -21,6 +21,12 @@ public class GUI extends JFrame {
         margenPanel.setPreferredSize(new Dimension(margenWidth, 600));
         margenPanel.setBackground(new Color(52, 73, 94)); // Establecer color de fondo
 
+        // Título elegante
+        JLabel titleLabel = new JLabel("Lisp Interpreter", SwingConstants.CENTER);
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setFont(new Font("Georgia", Font.BOLD, 24));
+        margenPanel.add(titleLabel, BorderLayout.CENTER);
+
         JPanel panel = new JPanel(new BorderLayout());
 
         entradaTextField = new JTextField();
