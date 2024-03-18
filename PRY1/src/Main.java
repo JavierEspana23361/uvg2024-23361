@@ -13,7 +13,7 @@ public class Main {
             System.out.println("< ");
             String operation = sc.nextLine();
             try {
-                ArrayList<String> tokens = lisp.tokenize(operation);
+                ArrayList<Object> tokens = lisp.tokenize(operation);
                 Object result = lisp.eval(tokens, new HashMap<>());
                 System.out.println("Resultado: " + result);
             } catch (Exception e) {

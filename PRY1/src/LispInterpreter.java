@@ -10,7 +10,7 @@ public class LispInterpreter{
 
     private Map<String, BiFunction<Double, Double, Double>> functions;
     private Map<String, Object> variables;
-    private Map<String, ArrayList<String>> defunctions;
+    private Map<String, ArrayList<Object>> defunctions;
 
 
 
@@ -20,12 +20,12 @@ public class LispInterpreter{
         defunctions = new HashMap<>();
     }
 
-    public void setDEFUN(String functionName, ArrayList<String> functionBody) {
+    public void setDEFUN(String functionName, ArrayList<Object> functionBody) {
         defunctions.put(functionName, functionBody);
     }
 
     public Object getDEFUN(String functionName) {
-        ArrayList<String> function = defunctions.get(functionName);
+        ArrayList<Object> function = defunctions.get(functionName);
         if (function != null) {
             try {
                 Map<String, Object> localVariables = new HashMap<>();
@@ -37,109 +37,157 @@ public class LispInterpreter{
             throw new IllegalArgumentException("Error: Función no encontrada");
         }
     }
-    
-    
-    private Object applyFunction(String functionName, ArrayList<Object> args) {
-        ArrayList<String> functionBody = defunctions.get(functionName);
-        Map<String, Object> localVariables = new HashMap<>();
-    
-        // Asignar los argumentos a las variables locales
-        for (int i = 0; i < args.size(); i++) {
-            localVariables.put(functionBody.get(i + 1), args.get(i)); // El primer elemento de functionBody es el nombre de la función
+
+    public Object getDEFUN(String functionName, ArrayList<Object> arguments) {
+        ArrayList<Object> functionBody = defunctions.get(functionName);
+        if (functionBody != null) {
+            // Imprimir el cuerpo de la función antes de evaluarlo
+            System.out.println("Cuerpo de la función '" + functionName + "': " + functionBody);
+            try {
+                // Crear un mapa para almacenar las variables locales
+                Map<String, Object> localVariables = new HashMap<>();
+                // Agregar los argumentos al mapa de variables locales
+                for (int i = 0; i < arguments.size(); i++) {
+                    localVariables.put("ARG" + i, arguments.get(i));
+                }
+                // Evaluar la función con los argumentos y el mapa de variables locales
+                Object result = eval(functionBody, localVariables);
+                return result; // No se hace ninguna conversión aquí
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Error al evaluar la función: " + e.getMessage());
+            }
+        } else {
+            throw new IllegalArgumentException("Error: Función no encontrada");
         }
+    }         
     
-        // Evaluar el cuerpo de la función en el contexto de las variables locales
+    public Object eval(ArrayList<Object> elements, Map<String, Object> localVariables) throws Exception {
         try {
-            return eval(functionBody, localVariables);
+            Stack<Object> stack = new Stack<>();
+    
+            for (Object element : elements) {
+                if (element instanceof String) {
+                    String strElement = (String) element;
+                    if (isVariable(strElement)) {
+                        // Si es una variable, intenta obtener su valor de las variables locales primero,
+                        // y luego de las variables globales si no se encuentra en las locales
+                        stack.push(localVariables.getOrDefault(strElement, variables.get(strElement)));
+                    } else if (isOperand(strElement)) {
+                        // Si es un operando, simplemente agrégalo a la pila
+                        stack.push(Double.parseDouble(strElement));
+                    } else if (strElement.equals("(")) {
+                        stack.push(strElement);
+                    } else if (isOperator(strElement)) {
+                        stack.push(strElement);
+                    } else if (isClause(strElement)) {
+                        stack.push(strElement.equals("True") ? "T" : "NIL");
+                    } else if (strElement.equals(")")) {
+                        ArrayList<Object> operands = new ArrayList<>();
+                        Object operator = null;
+    
+                        while (!stack.isEmpty() && !stack.peek().equals("(")) {
+                            Object top = stack.pop();
+    
+                            if (top instanceof Double) {
+                                operands.add(0, top);
+                            } else if (top instanceof String) {
+                                if (top.equals("True") || top.equals("False")) {
+                                    operands.add(0, top.equals("True") ? "T" : "NIL");
+                                } else if (functions.containsKey(top)) {
+                                    operator = top;
+                                } else if (isOperator((String) top)) {
+                                    operator = top;
+                                } else {
+                                    operands.add(top);
+                                }
+                            }
+                        }
+    
+                        if (stack.isEmpty() || !stack.peek().equals("(")) {
+                            throw new IllegalArgumentException("Error: Expresión inválida 1.0");
+                        }
+    
+                        stack.pop();
+    
+                        if (operator == null) {
+                            throw new IllegalArgumentException("Error: Operador no encontrado");
+                        }
+    
+                        if (operator.equals("DEFUN")) {
+                            if (operands.size() < 2) {
+                                throw new IllegalArgumentException("Error: Sintaxis incorrecta para DEFUN");
+                            }
+                            String functionName = (String) operands.get(0);
+                            ArrayList<Object> functionBody = new ArrayList<>();
+                            for (int i = 1; i < operands.size(); i++) {
+                                functionBody.add(operands.get(i));
+                            }
+                            setDEFUN(functionName, functionBody);
+                        } else if (isFunction(strElement)) {
+                            // Obtener el cuerpo de la función
+                            ArrayList<Object> functionBody = defunctions.get(strElement);
+    
+                            // Crear una nueva instancia de LispInterpreter para evaluar el cuerpo de la función
+                            LispInterpreter functionInterpreter = new LispInterpreter();
+    
+                            // Evaluar el cuerpo de la función usando la nueva instancia de LispInterpreter
+                            Object result = functionInterpreter.eval(functionBody, localVariables);
+    
+                            // Empujar el resultado al stack
+                            stack.push(result);
+                        } else if (operator.equals("QUOTE")) {
+                            QUOTE(operands);
+                            for (Object obj : operands) {
+                                stack.push(obj);
+                            }
+                        } else if (operator.equals("SETQ")) {
+                            String variable = (String) operands.get(1);
+                            Object value = operands.get(0);
+                            SETQ(variable, value, localVariables);
+                            stack.push("Variable set: " + variable + " = " + value);
+    
+                        } else if (operator.equals("LIST")) {
+                            ArrayList<Object> additions = LIST(operands);
+                            for (Object addition : additions) {
+                                stack.push(addition);
+                            }
+                        } else if (operator.equals("COND")) {
+                            stack.push(COND(operands));
+                        } else if (operator.equals("ATOM")) {
+                            stack.push(ATOM(operands));
+                        } else {
+                            // Llamada a una función incorporada
+                            Object result = performOperation(operands, operator);
+                            if (result instanceof Double) {
+                                stack.push(result);
+                            } else if (result instanceof String) {
+                                stack.push(result.equals("T") ? "True" : "False");
+                            }
+                        }
+    
+                    } else {
+                        stack.push(element);
+                    }
+                }
+            }
+    
+            System.out.println("Tamaño de la pila stack: " + stack.size());
+            System.out.println("Elemento en la cima de la pila stack: " + stack.peek());
+    
+            Object result = stack.pop();
+            if (result instanceof Double) {
+                return (Double) result;
+            } else if (result instanceof String) {
+                return (String) result;
+            } else {
+                throw new IllegalArgumentException("Error: Expresión inválida 2.0");
+            }
+    
         } catch (Exception e) {
-            throw new IllegalArgumentException("Error al evaluar la función: " + e.getMessage());
+            // Manejar cualquier excepción que pueda surgir durante la evaluación
+            throw new Exception("Error durante la evaluación: " + e.getMessage());
         }
     }
-    
-        
-
-    public Object eval(ArrayList<String> elements, Map<String, Object> localVariables) throws Exception {
-        Stack<Object> stack = new Stack<>();
-    
-        for (String element : elements) {
-            if (isVariable(element)) {
-                stack.push(localVariables.get(element));
-            } else if (isOperand(element)) {
-                stack.push(Double.parseDouble(element));
-            } else if (element.equals("(")) {
-                stack.push(element);
-            } else if (isOperator(element)) {
-                stack.push(element);
-            } else if (isClause(element)) {
-                stack.push(element.equals("True") ? "T" : "NIL");
-            } else if (isFunction(element)) {
-                ArrayList<String> functionBody = defunctions.get(element);
-                ArrayList<Object> args = new ArrayList<>();
-                for (int i = 1; i < stack.size(); i++) {
-                    args.add(stack.get(i));
-                }
-                stack.clear();
-            
-                // Crear un nuevo contexto de variables locales para la función llamada
-                Map<String, Object> newLocalVariables = new HashMap<>(localVariables);
-            
-                // Evaluar recursivamente el cuerpo de la función en el nuevo contexto
-                for (String bodyElement : functionBody) {
-                    if (isVariable(bodyElement)) {
-                        stack.push(newLocalVariables.get(bodyElement));
-                    } else if (isOperand(bodyElement)) {
-                        stack.push(Double.parseDouble(bodyElement));
-                    } else {
-                        stack.push(bodyElement);
-                    }
-                }
-            } else if (element.equals(")")) {
-                ArrayList<Object> operands = new ArrayList<>();
-                Object operator = null;
-    
-                while (!stack.isEmpty() && !stack.peek().equals("(")) {
-                    Object top = stack.pop();
-    
-                    if (top instanceof Double) {
-                        operands.add(0, top);
-                    } else if (top instanceof String) {
-                        if (top.equals("True") || top.equals("False")) {
-                            operands.add(0, top.equals("True") ? "T" : "NIL");
-                        } else if (functions.containsKey(top)) {
-                            operator = top;
-                        } else if (isOperator((String) top)) {
-                            operator = top;
-                        } else {
-                            operands.add(top);
-                        }
-                    }
-                }
-    
-                if (stack.isEmpty() || !stack.peek().equals("(")) {
-                    throw new IllegalArgumentException("Error: Expresión inválida");
-                }
-    
-                stack.pop();
-    
-                if (operator == null) {
-                    throw new IllegalArgumentException("Error: Operador no encontrado");
-                }
-    
-                Object result = performOperation(operands, operator);
-                stack.push(result);
-            } else {
-                stack.push(element);
-            }
-        }
-    
-        if (stack.size() == 1 && stack.peek() instanceof Double) {
-            return stack.pop();
-        } else if (stack.size() == 1 && stack.peek() instanceof String) {
-            return stack.pop();
-        } else {
-            throw new IllegalArgumentException("Error: Expresión inválida");
-        }
-    }                
   
     private boolean isOperand(String element) {
         try {
@@ -169,8 +217,8 @@ public class LispInterpreter{
         return defunctions.containsKey(element);
     }
 
-    public ArrayList<String> tokenize(String expression) {
-        ArrayList<String> tokens = new ArrayList<>();
+    public ArrayList<Object> tokenize(String expression) {
+        ArrayList<Object> tokens = new ArrayList<>();
     
         // Patrón para identificar números, operadores y paréntesis
         Pattern pattern = Pattern.compile("\\(|\\)|[+\\-*/()<>=]|\\d+|\\w+");
@@ -332,14 +380,14 @@ public class LispInterpreter{
         return operands;
     }
 
-    private void SETQ(String variable, Object value) {
+    private void SETQ(String variable, Object value, Map<String, Object> localVariables) {
         if (value instanceof Double) {
-            variables.put(variable, (Double) value);
+            localVariables.put(variable, (Double) value);
         } else if (value instanceof String) {
             if (value.equals("T")) {
-                variables.put(variable, 1.0);
+                localVariables.put(variable, 1.0);
             } else if (value.equals("NIL")) {
-                variables.put(variable, 0.0);
+                localVariables.put(variable, 0.0);
             } else {
                 throw new IllegalArgumentException("Error: Valor no válido para SETQ");
             }
