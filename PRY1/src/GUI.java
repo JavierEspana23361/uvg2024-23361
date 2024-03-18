@@ -2,38 +2,67 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class GUI extends JFrame {
-    private JTextField textField;
-    private JButton saveButton;
-    private String message;
+    private JTextField entradaTextField;
+    private JTextArea salidaTextArea;
+    private LispInterpreter interpreter;
 
     public GUI() {
-        setTitle("Message GUI");
+        super("Intérprete de Lisp");
+
+        interpreter = new LispInterpreter();
+
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(300, 200);
-        setLayout(new FlowLayout());
 
-        // Create the text field
-        textField = new JTextField(20);
-        add(textField);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
 
-        // Create the save button
-        saveButton = new JButton("Save");
-        saveButton.addActionListener(new ActionListener() {
+        entradaTextField = new JTextField();
+        entradaTextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                message = textField.getText();
-                JOptionPane.showMessageDialog(null, "Message saved: " + message);
+                String comando = entradaTextField.getText();
+                ejecutarComando(comando);
             }
         });
-        add(saveButton);
+        panel.add(entradaTextField, BorderLayout.SOUTH);
 
- 
+        salidaTextArea = new JTextArea();
+        salidaTextArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(salidaTextArea);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        add(panel);
+
         setVisible(true);
+
+        entradaTextField.requestFocusInWindow();
+    }
+
+    private void ejecutarComando(String comando) {
+        salidaTextArea.setText("");
+
+        ArrayList<String> tokens = interpreter.tokenize(comando);
+
+        try {
+            Object resultado = interpreter.eval(tokens);
+            salidaTextArea.append("Salida: " + resultado.toString() + "\n");
+        } catch (Exception e) {
+            salidaTextArea.append("Error: " + e.getMessage() + "\n");
+        }
+
+        entradaTextField.setText("");
     }
 
     public static void main(String[] args) {
-        GUI gui = new GUI();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new GUI();
+            }
+        });
     }
 }
