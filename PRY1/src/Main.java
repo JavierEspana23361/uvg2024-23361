@@ -1,26 +1,25 @@
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        LispInterpreter interpreter = new LispInterpreter();
-
-        // Define una función personalizada
-        ArrayList<String> customFunction = new ArrayList<>();
-        customFunction.add("*");
-        customFunction.add("a");
-        customFunction.add("b");
-        interpreter.setDEFUN("MULTIPLICACION", customFunction);
-
-        // Llama a la función definida
-        ArrayList<String> expression = new ArrayList<>();
-        expression.add("MULTIPLICACION");
-        expression.add("2");
-        expression.add("3");
-        try {
-            Object result = interpreter.getDEFUN("MULTIPLICACION");
-            System.out.println("Resultado de la función MULTIPLICACION: " + result);
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+        // Entrada para probar el interprete con definir funciones defun: (DEFUN factorial (n) (COND ((EQUAL n 0) 1) (T (* n (factorial (- n 1))))))
+        // Entrada para probar el interprete con ejecutar funciones defun: (factorial 5)
+        Scanner sc = new Scanner(System.in);
+        LispInterpreter lisp = new LispInterpreter();
+        
+        while (true) {
+            System.out.println("< ");
+            String operation = sc.nextLine();
+            try {
+                ArrayList<String> tokens = lisp.tokenize(operation);
+                Object result = lisp.eval(tokens, new HashMap<>());
+                System.out.println("Resultado: " + result);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+            System.out.println("> ");
         }
     }
 }

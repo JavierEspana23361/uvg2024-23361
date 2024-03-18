@@ -12,6 +12,8 @@ public class LispInterpreter{
     private Map<String, Object> variables;
     private Map<String, ArrayList<String>> defunctions;
 
+
+
     public LispInterpreter() {
         functions = new HashMap<>();
         variables = new HashMap<>();
@@ -19,36 +21,49 @@ public class LispInterpreter{
     }
 
     public void setDEFUN(String functionName, ArrayList<String> functionBody) {
-        // Revisamos si la función ya está definida
-        if (isFunction(functionName)) {
-            throw new IllegalArgumentException("Error: La función '" + functionName + "' ya está definida");
-        }
-        // Agregamos la nueva función al mapa de funciones definidas por el usuario
         defunctions.put(functionName, functionBody);
     }
 
     public Object getDEFUN(String functionName) {
-        ArrayList<String> functionBody = defunctions.get(functionName);
-        if (functionBody != null) {
-            // Imprimir el cuerpo de la función antes de evaluarlo
-            System.out.println("Cuerpo de la función '" + functionName + "': " + functionBody);
+        ArrayList<String> function = defunctions.get(functionName);
+        if (function != null) {
             try {
-                return eval(functionBody); 
+                Map<String, Object> localVariables = new HashMap<>();
+                return eval(function, localVariables); 
             } catch (Exception e) {
                 throw new IllegalArgumentException("Error al evaluar la función: " + e.getMessage());
             }
         } else {
             throw new IllegalArgumentException("Error: Función no encontrada");
         }
-    }    
+    }
+    
+    
+    private Object applyFunction(String functionName, ArrayList<Object> args) {
+        ArrayList<String> functionBody = defunctions.get(functionName);
+        Map<String, Object> localVariables = new HashMap<>();
+    
+        // Asignar los argumentos a las variables locales
+        for (int i = 0; i < args.size(); i++) {
+            localVariables.put(functionBody.get(i + 1), args.get(i)); // El primer elemento de functionBody es el nombre de la función
+        }
+    
+        // Evaluar el cuerpo de la función en el contexto de las variables locales
+        try {
+            return eval(functionBody, localVariables);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error al evaluar la función: " + e.getMessage());
+        }
+    }
+    
         
 
-    public Object eval(ArrayList<String> elements) throws Exception {
+    public Object eval(ArrayList<String> elements, Map<String, Object> localVariables) throws Exception {
         Stack<Object> stack = new Stack<>();
     
         for (String element : elements) {
             if (isVariable(element)) {
-                stack.push(variables.get(element));
+                stack.push(localVariables.get(element));
             } else if (isOperand(element)) {
                 stack.push(Double.parseDouble(element));
             } else if (element.equals("(")) {
@@ -57,6 +72,27 @@ public class LispInterpreter{
                 stack.push(element);
             } else if (isClause(element)) {
                 stack.push(element.equals("True") ? "T" : "NIL");
+            } else if (isFunction(element)) {
+                ArrayList<String> functionBody = defunctions.get(element);
+                ArrayList<Object> args = new ArrayList<>();
+                for (int i = 1; i < stack.size(); i++) {
+                    args.add(stack.get(i));
+                }
+                stack.clear();
+            
+                // Crear un nuevo contexto de variables locales para la función llamada
+                Map<String, Object> newLocalVariables = new HashMap<>(localVariables);
+            
+                // Evaluar recursivamente el cuerpo de la función en el nuevo contexto
+                for (String bodyElement : functionBody) {
+                    if (isVariable(bodyElement)) {
+                        stack.push(newLocalVariables.get(bodyElement));
+                    } else if (isOperand(bodyElement)) {
+                        stack.push(Double.parseDouble(bodyElement));
+                    } else {
+                        stack.push(bodyElement);
+                    }
+                }
             } else if (element.equals(")")) {
                 ArrayList<Object> operands = new ArrayList<>();
                 Object operator = null;
@@ -80,7 +116,7 @@ public class LispInterpreter{
                 }
     
                 if (stack.isEmpty() || !stack.peek().equals("(")) {
-                    throw new IllegalArgumentException("Error: Expresión inválida 1.0");
+                    throw new IllegalArgumentException("Error: Expresión inválida");
                 }
     
                 stack.pop();
@@ -88,76 +124,23 @@ public class LispInterpreter{
                 if (operator == null) {
                     throw new IllegalArgumentException("Error: Operador no encontrado");
                 }
-                if (operator.equals("DEFUN")) {
-                    if (operands.size() < 2) {
-                        throw new IllegalArgumentException("Error: Sintaxis incorrecta para DEFUN");
-                    }
-                    String functionName = (String) operands.get(0);
-                    ArrayList<String> functionBody = new ArrayList<>();
-                    for (int i = 1; i < operands.size(); i++) {
-                        functionBody.add((String) operands.get(i));
-                    }
-                    setDEFUN(functionName, functionBody);                
-                } else if (isFunction(element)) {
-                    // Obtener el cuerpo de la función
-                    ArrayList<String> functionBody = defunctions.get(element);
-                    
-                    // Crear una nueva instancia de LispInterpreter para evaluar el cuerpo de la función
-                    LispInterpreter functionInterpreter = new LispInterpreter();
-                    
-                    // Evaluar el cuerpo de la función usando la nueva instancia de LispInterpreter
-                    Object result = functionInterpreter.eval(functionBody);
-                    
-                    // Empujar el resultado al stack
-                    stack.push(result);
-                } else if (operator.equals("QUOTE")) {
-                    QUOTE(operands);
-                    for (Object obj : operands) {
-                        stack.push(obj);
-                    }
-                } else if (operator.equals("SETQ")) {
-                    String variable = (String) operands.get(1);
-                    Object value = operands.get(0);
-                    SETQ(variable, value);
-                    stack.push("Variable set: " + variable +  " = " + value);
-                    
-                } else if (operator.equals("LIST")) {
-                    ArrayList<Object> additions = LIST(operands);
-                    for (Object addition : additions) {
-                        stack.push(addition);
-                    }
-                } else if (operator.equals("COND")) {
-                    stack.push(COND(operands));
-                } else if (operator.equals("ATOM")) {
-                    stack.push(ATOM(operands));
-                } else {
-                    // Llamada a una función incorporada
-                    Object result = performOperation(operands, operator);
-                    if (result instanceof Double) {
-                        stack.push(result);
-                    } else if (result instanceof String) {
-                        stack.push(result.equals("T") ? "True" : "False");
-                    }
-                }
-                
+    
+                Object result = performOperation(operands, operator);
+                stack.push(result);
             } else {
-                stack.push(element); 
+                stack.push(element);
             }
         }
-
-        System.out.println("Tamaño de la pila stack: " + stack.size());
-        System.out.println("Elemento en la cima de la pila stack: " + stack.peek());
-        
+    
         if (stack.size() == 1 && stack.peek() instanceof Double) {
             return stack.pop();
         } else if (stack.size() == 1 && stack.peek() instanceof String) {
             return stack.pop();
         } else {
-            throw new IllegalArgumentException("Error: Expresión inválida 2.0");
+            throw new IllegalArgumentException("Error: Expresión inválida");
         }
-    }
-    
-
+    }                
+  
     private boolean isOperand(String element) {
         try {
             Double.parseDouble(element);
@@ -189,8 +172,8 @@ public class LispInterpreter{
     public ArrayList<String> tokenize(String expression) {
         ArrayList<String> tokens = new ArrayList<>();
     
-        // Patrón para identificar números, operadores, paréntesis, y strings entre comillas dobles
-        Pattern pattern = Pattern.compile("\"[^\"]*\"|\\(|\\)|\\w+|[+\\-*/()<>=]|ROOT|EXP|EQUAL|ATOM|QUOTE|SETQ|LIST|COND|DEFUN");
+        // Patrón para identificar números, operadores y paréntesis
+        Pattern pattern = Pattern.compile("\\(|\\)|[+\\-*/()<>=]|\\d+|\\w+");
         Matcher matcher = pattern.matcher(expression);
     
         // Agregar cada coincidencia al ArrayList de tokens
@@ -199,7 +182,7 @@ public class LispInterpreter{
         }
     
         return tokens;
-    }
+    }        
     
 
     private Object performOperation(ArrayList<Object> operands, Object operator) {
