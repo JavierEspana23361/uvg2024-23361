@@ -24,27 +24,47 @@ public class LispInterpreter{
         defunctions.put(functionName, functionBody);
     }
  
-    public void getDEFUN(String functionName) throws Exception {
+    public ArrayList<String> getDEFUN(String functionName) {
         ArrayList<String> functionBody = defunctions.get(functionName);
-        try {
-            eval(functionBody);
-        } catch (Exception e) {
-            throw new Exception("Error: Función no encontrada");
-        }
-    }       
+        return functionBody;
+    }   
+    
 
     public Object eval(ArrayList<String> elements) throws Exception {
         Stack<Object> stack = new Stack<>();
-
+        int brk = 0;
         for (String element : elements) {
             if (isOperand(element)) {
                 stack.push(Double.parseDouble(element));
             } else if (isFunction(element)){
-                getDEFUN(element);
+                ArrayList<String> functions = getDEFUN(element);
+                int index = elements.indexOf(element);
+                elements.remove(index);
+                for (String function : functions) {
+                    elements.add(index, function);
+                    index++;
+                }
+                stack.clear();
+                return eval(elements);
             } else if (isVariable(element)) {
                 stack.push(variables.get(element));
             } else if (element.equals("(")) {
                 stack.push(element);
+            } else if (element.equals("DEFUN")) {
+                stack.clear();
+                brk = 1;
+                String functionName = elements.get(elements.indexOf("DEFUN") + 1);
+                ArrayList<String> functionBody = new ArrayList<>();
+                for (int i = elements.indexOf("DEFUN") + 2; i < elements.size(); i++) {
+                    if (elements.get(i).equals(")")) {
+                        functionBody.add(")");
+                        break;
+                    }
+                    functionBody.add(elements.get(i));
+                }
+                elements.clear();
+                setDEFUN(functionName, functionBody);
+                break;
             } else if (isOperator(element)) {
                 stack.push(element);
             } else if (isClause(element)) {
@@ -79,22 +99,7 @@ public class LispInterpreter{
 
                 if (operator == null) {
                     throw new IllegalArgumentException("Error: Operador no encontrado");
-                }
-
-                if (operator.equals("DEFUN")) {
-                    String functionName = (String) operands.get(0);
-                    System.out.println("Function name: " + functionName);
-                    ArrayList<String> functionBody = new ArrayList<>();
-                    for (int i = 1; i < operands.size(); i++) {
-                        Object operand = operands.get(i);
-                        if (operand instanceof Double) {
-                            functionBody.add(Double.toString((Double) operand));
-                        } else {
-                            functionBody.add((String) operand);
-                        }
-                    }
-                    System.out.println("Function body: " + functionBody);
-                    setDEFUN(functionName, functionBody);
+                    
                 } else if (operator.equals("QUOTE")) {
                     QUOTE(operands);
                     for (Object obj : operands) {
@@ -105,7 +110,6 @@ public class LispInterpreter{
                     Object value = operands.get(0);
                     SETQ(variable, value);
                     stack.push("Variable set: " + variable +  " = " + value);
-                    
                 } else if (operator.equals("LIST")) {
                     ArrayList<Object> additions = LIST(operands);
                     for (Object addition : additions) {
@@ -131,7 +135,10 @@ public class LispInterpreter{
             return stack.pop();
         } else if (stack.size() == 1 && stack.peek() instanceof String) {
             return stack.pop();
-        } else {
+        } else if (brk == 1) {
+           return "Funcion definida ";
+        }
+        else {
             throw new IllegalArgumentException("Error: Expresión inválida");
         }
     }
@@ -170,7 +177,7 @@ public class LispInterpreter{
         ArrayList<String> tokens = new ArrayList<>();
     
         // Patrón para identificar números, operadores, paréntesis, y strings entre comillas dobles
-        Pattern pattern = Pattern.compile("\"[^\"]*\"|\\(|\\)|\\w+|[+\\-*/()<>=]|ROOT|EXP|EQUAL|ATOM|QUOTE|SETQ|LIST|COND");
+        Pattern pattern = Pattern.compile("\"[^\"]*\"|\\(|\\)|\\w+|[+\\-*/()<>=]|ROOT|EXP|EQUAL|ATOM|QUOTE|SETQ|LIST|COND|DEFUN|True|False");
         Matcher matcher = pattern.matcher(expression);
     
         // Agregar cada coincidencia al ArrayList de tokens
@@ -181,7 +188,6 @@ public class LispInterpreter{
         return tokens;
     }
     
-
     private Object performOperation(ArrayList<Object> operands, Object operator) {
         if (operator instanceof String) {
             String op = (String) operator;
