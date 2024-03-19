@@ -288,17 +288,6 @@ public class LispInterpreterTest {
         }
     }
 
-    @Test
-    public void testPerformOperation_InvalidOperandType() {
-        LispInterpreter interpreter = new LispInterpreter();
-        ArrayList<Object> operands = new ArrayList<>();
-        operands.add(2.0);
-        operands.add("3.0");
-        try {
-        } catch (IllegalArgumentException e) {
-            assertEquals("Error: Operador no válido", e.getMessage());
-        }
-    }
 
     @Test
     public void testAdd_ValidOperands() {
