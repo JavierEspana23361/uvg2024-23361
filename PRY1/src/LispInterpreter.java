@@ -75,9 +75,12 @@ public class LispInterpreter{
                 String functionName = elements.get(elements.indexOf("DEFUN") + 1);
                 ArrayList<String> functionBody = new ArrayList<>();
                 for (int i = elements.indexOf("DEFUN") + 2; i < elements.size(); i++) {
-                    if (elements.get(i).equals(")")) {
-                        functionBody.add(")");
+                    if (elements.get(i).equals(")" ) && count == 0) {
                         break;
+                    } else if (elements.get(i).equals("(")) {
+                        count++;
+                    } else if (elements.get(i).equals(")")) {
+                        count--;
                     }
                     functionBody.add(elements.get(i));
                 }
