@@ -50,6 +50,7 @@ public class LispInterpreter{
     public Object eval(ArrayList<String> elements) throws Exception {
         Stack<Object> stack = new Stack<>();
         int brk = 0;
+        int list = 0;
         for (String element : elements) {
             if (isOperand(element)) {
                 stack.push(Double.parseDouble(element));
@@ -132,6 +133,7 @@ public class LispInterpreter{
                     for (Object addition : additions) {
                         stack.push(addition);
                     }
+                    list = 1;
                 } else if (operator.equals("COND")) {
                     stack.push(COND(operands));
                 } else if (operator.equals("ATOM")) {
@@ -154,6 +156,12 @@ public class LispInterpreter{
             return stack.pop();
         } else if (brk == 1) {
            return "Funcion definida ";
+        } else if (list == 1) {
+            ArrayList<String> listResult = new ArrayList<>();
+            while (!stack.isEmpty()) {
+                listResult.add((stack.pop()).toString());
+            }
+            return listResult;
         }
         else {
             throw new IllegalArgumentException("Error: Expresión inválida");
