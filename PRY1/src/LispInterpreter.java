@@ -50,6 +50,7 @@ public class LispInterpreter{
     public Object eval(ArrayList<String> elements) throws Exception {
         Stack<Object> stack = new Stack<>();
         int brk = 0;
+        int prk = 0;
         int list = 0;
         int count = 0;
         for (String element : elements) {
@@ -71,6 +72,7 @@ public class LispInterpreter{
                 stack.push(element);
             } else if (element.equals("SETQ")) {
                 stack.clear();
+                prk = 1;
                 String variable = elements.get(elements.indexOf("SETQ") + 1);
                 Object value = null;
                 ArrayList<String> valueList = new ArrayList<>();
@@ -85,13 +87,11 @@ public class LispInterpreter{
                     valueList.add(elements.get(i));
                 }
                 elements.clear();
-                System.out.println(valueList);
                 if (valueList.size() == 1) {
                     value = valueList.get(0);
                 } else if (valueList.size() > 1) {
                     value = eval(valueList);
                     SETQ(variable, value);
-                    System.out.println(variable + value);
                 }
                 break;
             } else if (element.equals("DEFUN")) {
@@ -180,7 +180,10 @@ public class LispInterpreter{
         } else if (stack.size() == 1 && stack.peek() instanceof String) {
             return stack.pop();
         } else if (brk == 1) {
-           return "Definido exitosamente ";
+           return "Función definida";
+        }  else if (prk == 1){
+            return "Variable definida";
+        
         } else if (list == 1) {
             ArrayList<String> listResult = new ArrayList<>();
             while (!stack.isEmpty()) {
