@@ -51,6 +51,7 @@ public class LispInterpreter{
     public Object eval(ArrayList<String> elements) throws Exception {
         Stack<Object> stack = new Stack<>();
         int brk = 0;
+        int prk = 0;
         int list = 0;
         int count = 0;
 
@@ -77,7 +78,7 @@ public class LispInterpreter{
             } else if (element.equals("(")) {
                 stack.push(element);
             } else if (element.equals("SETQ")) {
-                stack.clear();
+                prk = 1;
                 Object variable = elements.get(elements.indexOf("SETQ") + 1);
                 Double value = null;
                 ArrayList<String> valueList = new ArrayList<>();
@@ -96,21 +97,19 @@ public class LispInterpreter{
                         values = String.valueOf(variables.get(values));
                     } 
                 }
-                System.out.println(valueList);
-
-                elements.clear();
                 if (valueList.size() == 1) {
                     String val = valueList.get(0);
                     value = Double.parseDouble(val);
                     System.out.println(value);
-                    System.out.println(variable);
                     SETQ(variable, value);
-                    return variable + " = " + value;
                 } else if (valueList.size() > 1) {
                     value = (Double) eval(valueList);
-                    System.out.println(value);
                     SETQ(variable, value);
-                    return variable + " = " + value;
+                }
+                elements.remove(elements.indexOf("SETQ"));
+                elements.remove(elements.indexOf(variable));
+                for (int i = 0; i < valueList.size(); i++) {
+                    elements.remove(elements.indexOf(valueList.get(i)));
                 }
                 
             } else if (element.equals("DEFUN")) {
@@ -200,6 +199,8 @@ public class LispInterpreter{
             return stack.pop();
         } else if (brk == 1) {
            return "Función definida";
+        } else if (prk == 1){
+           return "Variable definida";
         } else if (list == 1) {
             ArrayList<String> listResult = new ArrayList<>();
             while (!stack.isEmpty()) {
@@ -554,23 +555,10 @@ public class LispInterpreter{
         String clause = (String) operands.get(0);
         Object trueValue = (Object) operands.get(1);
         Object falseValue = (Object) operands.get(2);
-        if ((trueValue instanceof String) && (falseValue instanceof Double) && clause.equals("T")) {
-            //No funciona este caso, directamente no lo detecta
+        
+        if (clause.equals("T")) {
             return trueValue.toString();
-        } else if ((trueValue instanceof String) && (falseValue instanceof Double) && clause.equals("NIL")) {
-            //No funciona este caso, directamente no lo detecta
-            return falseValue.toString();
-        } else if ((trueValue instanceof Double) && (falseValue instanceof Double) && clause.equals("T")) {
-            return trueValue.toString();
-        } else if ((trueValue instanceof Double) && (falseValue instanceof Double) && clause.equals("NIL")){
-            return falseValue.toString();
-        } else if ((trueValue instanceof String) && (falseValue instanceof String) && (clause.equals("T"))) {
-            return falseValue.toString();
-        } else if ((trueValue instanceof String) && (falseValue instanceof String) && (clause.equals("NIL"))) {
-            return trueValue.toString();
-        } else if ((trueValue instanceof Double) && (falseValue instanceof String) && clause.equals("T")) {
-            return trueValue.toString();
-        } else if ((trueValue instanceof Double) && (falseValue instanceof String) && clause.equals("NIL")) {
+        } else if (clause.equals("NIL")) {
             return falseValue.toString();
         } else {
             throw new IllegalArgumentException("Error: Invalid operands for cond");
