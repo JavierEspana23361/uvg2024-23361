@@ -6,10 +6,11 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class LispInterpreter{
 
     public Map<String, BiFunction<Double, Double, Double>> functions;
-    public Map<String, Object> variables;
+    public Map<String, Double> variables;
     public Map<String, ArrayList<String>> defunctions;
 
     /**
@@ -50,13 +51,12 @@ public class LispInterpreter{
     public Object eval(ArrayList<String> elements) throws Exception {
         Stack<Object> stack = new Stack<>();
         int brk = 0;
-        int prk = 0;
         int list = 0;
         int count = 0;
-        for (String element : elements) {
-            if (isOperand(element)) {
-                stack.push(Double.parseDouble(element));
-            } else if (isFunction(element)){
+
+        
+        for (String element: elements) {
+            if (isFunction(element)){
                 ArrayList<String> functions = getDEFUN(element);
                 int index = elements.indexOf(element);
                 elements.remove(index);
@@ -66,15 +66,20 @@ public class LispInterpreter{
                 }
                 stack.clear();
                 return eval(elements);
-            } else if (isVariable(element)) {
-                stack.push(variables.get(element));
+            }
+        }
+
+        for (String element : elements) {
+            if (isOperand(element)) {
+                stack.push(Double.parseDouble(element));
+            }  else if (isVariable(element)) {
+                stack.push((Double) variables.get(element));
             } else if (element.equals("(")) {
                 stack.push(element);
             } else if (element.equals("SETQ")) {
                 stack.clear();
-                prk = 1;
-                String variable = elements.get(elements.indexOf("SETQ") + 1);
-                Object value = null;
+                Object variable = elements.get(elements.indexOf("SETQ") + 1);
+                Double value = null;
                 ArrayList<String> valueList = new ArrayList<>();
                 for (int i = elements.indexOf("SETQ") + 2; i < elements.size(); i++) {
                     if (elements.get(i).equals(")" ) && count == 0) {
@@ -86,14 +91,28 @@ public class LispInterpreter{
                     }
                     valueList.add(elements.get(i));
                 }
+                for (String values: valueList) {
+                    if (isVariable(values)) {
+                        values = String.valueOf(variables.get(values));
+                    } 
+                }
+                System.out.println(valueList);
+
                 elements.clear();
                 if (valueList.size() == 1) {
-                    value = valueList.get(0);
-                } else if (valueList.size() > 1) {
-                    value = eval(valueList);
+                    String val = valueList.get(0);
+                    value = Double.parseDouble(val);
+                    System.out.println(value);
+                    System.out.println(variable);
                     SETQ(variable, value);
+                    return variable + " = " + value;
+                } else if (valueList.size() > 1) {
+                    value = (Double) eval(valueList);
+                    System.out.println(value);
+                    SETQ(variable, value);
+                    return variable + " = " + value;
                 }
-                break;
+                
             } else if (element.equals("DEFUN")) {
                 stack.clear();
                 brk = 1;
@@ -181,9 +200,6 @@ public class LispInterpreter{
             return stack.pop();
         } else if (brk == 1) {
            return "Función definida";
-        }  else if (prk == 1){
-            return "Variable definida";
-        
         } else if (list == 1) {
             ArrayList<String> listResult = new ArrayList<>();
             while (!stack.isEmpty()) {
@@ -194,7 +210,7 @@ public class LispInterpreter{
         else {
             throw new IllegalArgumentException("Error: Expresión inválida");
         }
-    }
+    } 
 
     /**
      * Checks if the given element is an operand.
@@ -323,6 +339,7 @@ public class LispInterpreter{
      */
     public double add(ArrayList<Object> operands) {
         double sum = 0;
+        System.out.println(operands);
         for (Object operand : operands) {
             if (operand instanceof Double) {
                 sum += (double) operand;
@@ -507,20 +524,10 @@ public class LispInterpreter{
      * @param value the value to assign to the variable
      * @throws IllegalArgumentException if the value is not a valid type for SETQ
      */
-    public void SETQ(String variable, Object value) {
-        if (value instanceof Double) {
-            variables.put(variable, (Double) value);
-        } else if (value instanceof String) {
-            if (value.equals("T")) {
-                variables.put(variable, 1.0);
-            } else if (value.equals("NIL")) {
-                variables.put(variable, 0.0);
-            } else {
-                throw new IllegalArgumentException("Error: Valor no válido para SETQ");
-            }
-        } else {
-            throw new IllegalArgumentException("Error: Valor no válido para SETQ");
-        }
+    public void SETQ(Object variable, Double value) {
+        variables.put((String) variable, (Double) value);
+        System.out.println(variables);
+        
     }
     
     /**
