@@ -12,8 +12,6 @@ public class LispInterpreter{
     private Map<String, Object> variables;
     private Map<String, ArrayList<String>> defunctions;
 
-
-
     public LispInterpreter() {
         functions = new HashMap<>();
         variables = new HashMap<>();
@@ -29,7 +27,6 @@ public class LispInterpreter{
         return functionBody;
     }   
     
-
     public Object eval(ArrayList<String> elements) throws Exception {
         Stack<Object> stack = new Stack<>();
         int brk = 0;
@@ -143,8 +140,6 @@ public class LispInterpreter{
         }
     }
 
-    
-
     private boolean isOperand(String element) {
         try {
             Double.parseDouble(element);
@@ -158,7 +153,7 @@ public class LispInterpreter{
         return element.equals("+") || element.equals("-") || element.equals("*") || element.equals("/") 
         || element.equals("QUOTE") || element.equals("DEFUN") || element.equals("SETQ") || element.equals("ATOM") 
         || element.equals("LIST") || element.equals("EQUAL") || element.equals("<") || element.equals(">") || element.equals("COND")
-        || element.equals("ROOT") || element.equals("EXP");
+        || element.equals("SQRT") || element.equals("EXPT");
     }
 
     private boolean isClause(String element) {
@@ -177,7 +172,7 @@ public class LispInterpreter{
         ArrayList<String> tokens = new ArrayList<>();
     
         // Patrón para identificar números, operadores, paréntesis, y strings entre comillas dobles
-        Pattern pattern = Pattern.compile("\"[^\"]*\"|\\(|\\)|\\w+|[+\\-*/()<>=]|ROOT|EXP|EQUAL|ATOM|QUOTE|SETQ|LIST|COND|DEFUN");
+        Pattern pattern = Pattern.compile("\"[^\"]*\"|\\(|\\)|\\w+|[+\\-*/()<>=]|SQTR|EXPT|EQUAL|ATOM|QUOTE|SETQ|LIST|COND|DEFUN");
         Matcher matcher = pattern.matcher(expression);
     
         // Agregar cada coincidencia al ArrayList de tokens
@@ -200,9 +195,9 @@ public class LispInterpreter{
                     return multiplication(operands);
                 case "/":
                     return division(operands);
-                case "ROOT":
+                case "SQTR":
                     return root(operands);
-                case "EXP":
+                case "EXPT":
                     return exponentiation(operands);
                 case "<":
                     return isMinor(operands).equals("T") ? "T" : "NIL";
