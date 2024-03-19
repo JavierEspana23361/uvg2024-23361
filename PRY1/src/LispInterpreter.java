@@ -177,7 +177,7 @@ public class LispInterpreter{
         ArrayList<String> tokens = new ArrayList<>();
     
         // Patrón para identificar números, operadores, paréntesis, y strings entre comillas dobles
-        Pattern pattern = Pattern.compile("\"[^\"]*\"|\\(|\\)|\\w+|[+\\-*/()<>=]|ROOT|EXP|EQUAL|ATOM|QUOTE|SETQ|LIST|COND|DEFUN|True|False");
+        Pattern pattern = Pattern.compile("\"[^\"]*\"|\\(|\\)|\\w+|[+\\-*/()<>=]|ROOT|EXP|EQUAL|ATOM|QUOTE|SETQ|LIST|COND|DEFUN");
         Matcher matcher = pattern.matcher(expression);
     
         // Agregar cada coincidencia al ArrayList de tokens
@@ -381,3 +381,4 @@ public class LispInterpreter{
         }
     }
 }
+
