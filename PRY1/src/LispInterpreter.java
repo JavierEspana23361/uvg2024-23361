@@ -69,6 +69,31 @@ public class LispInterpreter{
                 stack.push(variables.get(element));
             } else if (element.equals("(")) {
                 stack.push(element);
+            } else if (element.equals("SETQ")) {
+                stack.clear();
+                String variable = elements.get(elements.indexOf("SETQ") + 1);
+                Object value = null;
+                ArrayList<String> valueList = new ArrayList<>();
+                for (int i = elements.indexOf("SETQ") + 2; i < elements.size(); i++) {
+                    if (elements.get(i).equals(")" ) && count == 0) {
+                        break;
+                    } else if (elements.get(i).equals("(")) {
+                        count++;
+                    } else if (elements.get(i).equals(")")) {
+                        count--;
+                    }
+                    valueList.add(elements.get(i));
+                }
+                elements.clear();
+                System.out.println(valueList);
+                if (valueList.size() == 1) {
+                    value = valueList.get(0);
+                } else if (valueList.size() > 1) {
+                    value = eval(valueList);
+                    SETQ(variable, value);
+                    System.out.println(variable + value);
+                }
+                break;
             } else if (element.equals("DEFUN")) {
                 stack.clear();
                 brk = 1;
@@ -128,11 +153,6 @@ public class LispInterpreter{
                     for (Object obj : operands) {
                         stack.push(obj);
                     }
-                } else if (operator.equals("SETQ")) {
-                    String variable = (String) operands.get(1);
-                    Object value = operands.get(0);
-                    SETQ(variable, value);
-                    stack.push("Variable set: " + variable +  " = " + value);
                 } else if (operator.equals("LIST")) {
                     ArrayList<Object> additions = LIST(operands);
                     for (Object addition : additions) {
@@ -160,7 +180,7 @@ public class LispInterpreter{
         } else if (stack.size() == 1 && stack.peek() instanceof String) {
             return stack.pop();
         } else if (brk == 1) {
-           return "Funcion definida ";
+           return "Definido exitosamente ";
         } else if (list == 1) {
             ArrayList<String> listResult = new ArrayList<>();
             while (!stack.isEmpty()) {
