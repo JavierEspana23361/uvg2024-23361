@@ -51,6 +51,7 @@ public class LispInterpreter{
         Stack<Object> stack = new Stack<>();
         int brk = 0;
         int list = 0;
+        int count = 0;
         for (String element : elements) {
             if (isOperand(element)) {
                 stack.push(Double.parseDouble(element));
@@ -82,6 +83,7 @@ public class LispInterpreter{
                 }
                 elements.clear();
                 setDEFUN(functionName, functionBody);
+                count = 0;
                 break;
             } else if (isOperator(element)) {
                 stack.push(element);
@@ -237,7 +239,7 @@ public class LispInterpreter{
         ArrayList<String> tokens = new ArrayList<>();
     
         // Patrón para identificar números, operadores, paréntesis, y strings entre comillas dobles
-        Pattern pattern = Pattern.compile("\"[^\"]*\"|\\(|\\)|\\w+|[+\\-*/()<>=]|SQTR|EXPT|EQUAL|ATOM|QUOTE|SETQ|LIST|COND|DEFUN");
+        Pattern pattern = Pattern.compile("\"[^\"]*\"|\\(|\\)|\\w+|[+\\-*/()<>=]|SQRT|EXPT|EQUAL|ATOM|QUOTE|SETQ|LIST|COND|DEFUN");
         Matcher matcher = pattern.matcher(expression);
     
         // Agregar cada coincidencia al ArrayList de tokens
@@ -268,7 +270,7 @@ public class LispInterpreter{
                     return multiplication(operands);
                 case "/":
                     return division(operands);
-                case "SQTR":
+                case "SQRT":
                     return root(operands);
                 case "EXPT":
                     return exponentiation(operands);
