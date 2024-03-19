@@ -525,10 +525,10 @@ public class LispInterpreter{
         Object trueValue = (Object) operands.get(1);
         Object falseValue = (Object) operands.get(2);
         if ((trueValue instanceof String) && (falseValue instanceof Double) && clause.equals("T")) {
-            //No funciona este caso
+            //No funciona este caso, directamente no lo detecta
             return trueValue.toString();
         } else if ((trueValue instanceof String) && (falseValue instanceof Double) && clause.equals("NIL")) {
-            //No funciona este caso
+            //No funciona este caso, directamente no lo detecta
             return falseValue.toString();
         } else if ((trueValue instanceof Double) && (falseValue instanceof Double) && clause.equals("T")) {
             return trueValue.toString();
@@ -544,7 +544,7 @@ public class LispInterpreter{
             return falseValue.toString();
         } else {
             throw new IllegalArgumentException("Error: Invalid operands for cond");
-        }
+        }  
     }
 
     /**
