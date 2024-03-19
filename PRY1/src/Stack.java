@@ -5,9 +5,10 @@ public class Stack<T> implements IStack<T> {
     private int index;
     ArrayList<T> internalArray;
 
-    public StackWithArray(int qty){
+    public void StackWithArray(int qty){
         index = 0;
         internalArray = new ArrayList<T>(qty);
+
     }
 
     @Override
@@ -46,14 +47,16 @@ public class Stack<T> implements IStack<T> {
         }
         return tempValue;
     }
-
-    @Override
+    
     public T clear() {
         T tempValue = null;
         if (internalArray.size() > 0){
-            tempValue = internalArray.clear();
+            internalArray.clear();
         }
         return tempValue;
     }
-    
+
+    public int size() {
+        return internalArray.size();
+    }
 }
