@@ -524,10 +524,26 @@ public class LispInterpreter{
         String clause = (String) operands.get(0);
         Object trueValue = (Object) operands.get(1);
         Object falseValue = (Object) operands.get(2);
-        if (clause.equals("T")) {
+        if ((trueValue instanceof String) && (falseValue instanceof Double) && clause.equals("T")) {
+            //No funciona este caso
+            return trueValue.toString();
+        } else if ((trueValue instanceof String) && (falseValue instanceof Double) && clause.equals("NIL")) {
+            //No funciona este caso
+            return falseValue.toString();
+        } else if ((trueValue instanceof Double) && (falseValue instanceof Double) && clause.equals("T")) {
+            return trueValue.toString();
+        } else if ((trueValue instanceof Double) && (falseValue instanceof Double) && clause.equals("NIL")){
+            return falseValue.toString();
+        } else if ((trueValue instanceof String) && (falseValue instanceof String) && (clause.equals("T"))) {
+            return falseValue.toString();
+        } else if ((trueValue instanceof String) && (falseValue instanceof String) && (clause.equals("NIL"))) {
+            return trueValue.toString();
+        } else if ((trueValue instanceof Double) && (falseValue instanceof String) && clause.equals("T")) {
+            return trueValue.toString();
+        } else if ((trueValue instanceof Double) && (falseValue instanceof String) && clause.equals("NIL")) {
             return falseValue.toString();
         } else {
-            return trueValue.toString();
+            throw new IllegalArgumentException("Error: Invalid operands for cond");
         }
     }
 
