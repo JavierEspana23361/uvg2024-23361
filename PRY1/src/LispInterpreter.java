@@ -522,12 +522,12 @@ public class LispInterpreter{
             throw new IllegalArgumentException("Error: Invalid operands for cond");
         }
         String clause = (String) operands.get(0);
-        String trueValue = (String) operands.get(1);
-        String falseValue = (String) operands.get(2);
+        Object trueValue = (Object) operands.get(1);
+        Object falseValue = (Object) operands.get(2);
         if (clause.equals("T")) {
-            return falseValue;
+            return falseValue.toString();
         } else {
-            return trueValue;
+            return trueValue.toString();
         }
     }
 
