@@ -83,6 +83,9 @@ public class LispInterpreter{
                 int openParenthesisCount = 0;
                 boolean foundCond = false;
                 String trueorfalse;
+                int countZero = 0;
+                ArrayList<String> trueArrayList = new ArrayList<>();
+                ArrayList<String> falseArrayList = new ArrayList<>();
 
                 for (String elemento : elements) {
                     if (foundCond) {
@@ -91,22 +94,51 @@ public class LispInterpreter{
                         } else if (elemento.equals(")")) {
                             openParenthesisCount--;
                             if (openParenthesisCount == 0) {
+                                trufalse.add(elemento);
                                 break;
                             }
                         }
-                        trufalse.add(element);
+                        trufalse.add(elemento);
                     } else if (elemento.equals("COND")) {
                         foundCond = true;
                     }
                 }
+
+                for (String elemento: elements) {
+                    if (elemento.equals("(")) {
+                        openParenthesisCount++;
+                        if (countZero == 1) {
+                            trueArrayList.add(elemento);
+                        } else if (countZero == 2) {
+                            falseArrayList.add(elemento);
+                        }
+                    } else if (elemento.equals("COND")) {
+                        openParenthesisCount = 0;
+                    } else if (elemento.equals(")")) {
+                        openParenthesisCount--;
+                        if (countZero == 1) {
+                            trueArrayList.add(elemento);
+                        } else if (countZero == 2) {
+                            falseArrayList.add(elemento);
+                        }
+                        if (openParenthesisCount == 0) {
+                            countZero++;
+                        } 
+                    } else if (countZero == 1) {
+                        trueArrayList.add(elemento);
+                    } else if (countZero == 2) {
+                        falseArrayList.add(elemento);
+                    }
+                }
                 
                 trueorfalse = (String) eval(trufalse);
+
                 if (trueorfalse.equals("T")) {
                     elements.clear();
-                    elements.add("True");
+                    elements.addAll(trueArrayList);
                 } else {
                     elements.clear();
-                    elements.add("False");
+                    elements.addAll(falseArrayList);
                 }
                  
 
@@ -574,7 +606,7 @@ public class LispInterpreter{
     /**
      * The String class represents a sequence of characters. In this context, it is used to store and manipulate textual data.
      */
-    public String COND(ArrayList<Object> operands) {
+    /*public String COND(ArrayList<Object> operands) {
         if (operands.size() != 3) {
             throw new IllegalArgumentException("Error: Invalid operands for cond");
         }
@@ -589,7 +621,7 @@ public class LispInterpreter{
         } else {
             throw new IllegalArgumentException("Error: Invalid operands for cond");
         }  
-    }
+    }*/
 
     /**
      * Checks if the given operands represent an atomic value.
