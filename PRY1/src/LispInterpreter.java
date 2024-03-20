@@ -77,6 +77,39 @@ public class LispInterpreter{
                 stack.push((Double) variables.get(element));
             } else if (element.equals("(")) {
                 stack.push(element);
+            } else if (element.equals("COND")) {
+                stack.clear();
+                ArrayList<String> trufalse = new ArrayList<>();
+                int openParenthesisCount = 0;
+                boolean foundCond = false;
+                String trueorfalse;
+
+                for (String elemento : elements) {
+                    if (foundCond) {
+                        if (elemento.equals("(")) {
+                            openParenthesisCount++;
+                        } else if (elemento.equals(")")) {
+                            openParenthesisCount--;
+                            if (openParenthesisCount == 0) {
+                                break;
+                            }
+                        }
+                        trufalse.add(element);
+                    } else if (elemento.equals("COND")) {
+                        foundCond = true;
+                    }
+                }
+                
+                trueorfalse = (String) eval(trufalse);
+                if (trueorfalse.equals("T")) {
+                    elements.clear();
+                    elements.add("True");
+                } else {
+                    elements.clear();
+                    elements.add("False");
+                }
+                 
+
             } else if (element.equals("SETQ")) {
                 prk = 1;
                 Object variable = elements.get(elements.indexOf("SETQ") + 1);
@@ -105,11 +138,6 @@ public class LispInterpreter{
                 } else if (valueList.size() > 1) {
                     value = (Double) eval(valueList);
                     SETQ(variable, value);
-                }
-                elements.remove(elements.indexOf("SETQ"));
-                elements.remove(elements.indexOf(variable));
-                for (int i = 0; i < valueList.size(); i++) {
-                    elements.remove(elements.indexOf(valueList.get(i)));
                 }
                 
             } else if (element.equals("DEFUN")) {
@@ -177,8 +205,6 @@ public class LispInterpreter{
                         stack.push(addition);
                     }
                     list = 1;
-                } else if (operator.equals("COND")) {
-                    stack.push(COND(operands));
                 } else if (operator.equals("ATOM")) {
                     stack.push(ATOM(operands));
                 } else {
