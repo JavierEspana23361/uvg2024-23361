@@ -133,13 +133,13 @@ public class LispInterpreter{
                 
                 trueorfalse = (String) eval(trufalse);
 
-                if (trueorfalse.equals("T")) {
-                    elements.clear();
-                    elements.addAll(trueArrayList);
+                if (trueorfalse.equals("True")) {
+                    return eval(trueArrayList);
                 } else {
                     elements.clear();
-                    elements.addAll(falseArrayList);
+                    return eval(falseArrayList);
                 }
+                
                  
 
             } else if (element.equals("SETQ")) {
@@ -165,13 +165,14 @@ public class LispInterpreter{
                 if (valueList.size() == 1) {
                     String val = valueList.get(0);
                     value = Double.parseDouble(val);
-                    System.out.println(value);
                     SETQ(variable, value);
                 } else if (valueList.size() > 1) {
                     value = (Double) eval(valueList);
                     SETQ(variable, value);
                 }
-                
+                elements.clear();
+                stack.clear();
+                break;
             } else if (element.equals("DEFUN")) {
                 stack.clear();
                 brk = 1;
