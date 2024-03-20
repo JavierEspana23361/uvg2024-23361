@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +12,7 @@ public class LispInterpreter{
 
     public Map<String, BiFunction<Double, Double, Double>> functions;
     public Map<String, Double> variables;
-    public Map<String, ArrayList<String>> defunctions;
+    public Map<String, ArrayList<ArrayList<String>>> defunctions;
 
     /**
      * The LispInterpreter class represents an interpreter for the Lisp programming language.
@@ -30,7 +31,36 @@ public class LispInterpreter{
      * @param functionBody the body of the function as an ArrayList of strings
      */
     public void setDEFUN(String functionName, ArrayList<String> functionBody) {
-        defunctions.put(functionName, functionBody);
+        int openParenthesisCount = 0;
+        int countZero = 0;
+        ArrayList<String> function = new ArrayList<>();
+        ArrayList<String> nameVariables = new ArrayList<>();
+        // Separar los nombres de las variables y la función
+        for (String element: functionBody) {
+            if (element.equals("(")) {
+                openParenthesisCount++;
+            } else if (element.equals(")")) {
+                openParenthesisCount--;
+                if (openParenthesisCount == 0) {
+                    countZero++;
+                }
+            } else {
+                if (countZero == 0) {
+                    nameVariables.add(element);
+                }
+            }
+
+            if (countZero == 1) {
+                function.add(element);
+            }
+        }
+
+        ArrayList<ArrayList<String>> functionList = new ArrayList<>();
+
+        functionList.add(nameVariables);
+        functionList.add(function);
+
+        defunctions.put(functionName, functionList);
     }
  
     /**
@@ -38,9 +68,29 @@ public class LispInterpreter{
      *
      * @param functionName the name of the DEFUN function
      * @return the body of the DEFUN function as an ArrayList of strings
+     * @throws Exception 
      */
-    public ArrayList<String> getDEFUN(String functionName) {
-        ArrayList<String> functionBody = defunctions.get(functionName);
+    public ArrayList<String> getDEFUN(String functionName, ArrayList<String> valVar) throws Exception {
+        ArrayList<String> functionBody = new ArrayList<>();
+        Map<String, Double> variablesFun = new HashMap<>();
+        if (valVar.size() == defunctions.get(functionName).get(0).size()) {
+            for (int i = 0; i < valVar.size(); i++) {
+                variablesFun.put(defunctions.get(functionName).get(0).get(i), Double.parseDouble(valVar.get(i)));
+            }
+        } else {
+            throw new Exception("Error: Número de variables incorrecto");
+        }
+        
+        for (String element: defunctions.get(functionName).get(1)) {
+            for (Map.Entry<String, Double> entry : variablesFun.entrySet()) {
+                if (element.equals(entry.getKey())) {
+                    functionBody.add(entry.getValue().toString());
+                } else {
+                    functionBody.add(element);
+                }
+            }
+        }
+
         return functionBody;
     }   
     
@@ -56,17 +106,63 @@ public class LispInterpreter{
         int count = 0;
 
         
-        for (String element: elements) {
-            if (isFunction(element)){
-                ArrayList<String> functions = getDEFUN(element);
-                int index = elements.indexOf(element);
-                elements.remove(index);
-                for (String function : functions) {
-                    elements.add(index, function);
-                    index++;
+        for (int i = 0; i < elements.size(); i++) {
+            if (isFunction(elements.get(i))) {
+                String functionName = elements.get(i);
+                int indexFunction = i;
+                int openParenthesisCount = 0;
+                int countZero = 0;
+                ArrayList<String> function = new ArrayList<>();
+                ArrayList<String> valorVariables = new ArrayList<>();
+
+                for (int j = indexFunction + 1; j < elements.size(); j++) {
+                    if (elements.get(j).equals("(")) {
+                        openParenthesisCount++;
+                        if (countZero == 0) {
+                            valorVariables.add(elements.get(j));
+                            countZero++;
+                        }
+                    } else if (elements.get(j).equals(")")) {
+                        openParenthesisCount--;
+                        if (openParenthesisCount == 0 && countZero == 0) {
+                            valorVariables.add(elements.get(j));
+                            countZero++;
+                            break;
+                        }
+                    } else if (countZero == 0) {
+                        valorVariables.add(elements.get(j));
+                    }
+
+                    if (elements.get(j).equals("(")) {
+                        openParenthesisCount++;
+                        if (countZero == 1) {
+                            function.add(elements.get(j));
+                            countZero++;
+                        }
+                    } else if (elements.get(j).equals(")")) {
+                        openParenthesisCount--;
+                        if (openParenthesisCount == 0 && countZero == 1) {
+                            function.add(elements.get(j));
+                            countZero++;
+                            break;
+                        }
+                    } else if (countZero == 1) {
+                        function.add(elements.get(j));
+                    }
                 }
-                stack.clear();
-                return eval(elements);
+
+                ArrayList<String> valorVariablesFinal = new ArrayList<>();
+
+                for (String valorVariable: valorVariables) {
+                    if (valorVariable.equals("(") || valorVariable.equals(")")) {
+                        continue;
+                    } else {
+                        valorVariablesFinal.add(valorVariable);
+                    }                   
+                }
+ 
+                ArrayList<String> functionBody = getDEFUN(functionName, valorVariablesFinal);
+                return eval(functionBody);
             }
         }
 
@@ -177,7 +273,9 @@ public class LispInterpreter{
                 stack.clear();
                 brk = 1;
                 String functionName = elements.get(elements.indexOf("DEFUN") + 1);
+
                 ArrayList<String> functionBody = new ArrayList<>();
+
                 for (int i = elements.indexOf("DEFUN") + 2; i < elements.size(); i++) {
                     if (elements.get(i).equals(")" ) && count == 0) {
                         break;
