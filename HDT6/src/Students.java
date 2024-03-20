@@ -1,12 +1,7 @@
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.Map;
 import java.util.Scanner;
 
-
 public class Students {
-
     public int getMapType() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Selecciona el tipo de mapa que deseas utilizar: ");
@@ -18,38 +13,16 @@ public class Students {
         return option;
     }
 
-   
-
-    public Object studentstoMap(int option) {
+    public Map<String, String> studentstoMap(int option, String mapType) {
+        String filePath = "estudiantes.json"; // Ruta del archivo JSON
         fileReader fr = new fileReader();
         switch (option) {
             case 1:
-                HashMap<String, String> hashmap = new HashMap<>();
-                List<String> estudiantesHashMap = fr.buscarEstudiantesPorNacionalidad("estudiantes.json", "nacionalidad");
-                for (String estudiante : estudiantesHashMap) {
-                    String[] parts = estudiante.split(":");
-                    hashmap.put(parts[0].trim(), parts[1].trim());
-                }
-                return hashmap;
-
+                return fr.readToMap(filePath, mapType);
             case 2:
-                TreeMap<String, String> treemap = new TreeMap<>();
-                List<String> estudiantesTreeMap = fr.buscarEstudiantesPorNacionalidad("estudiantes.json", "nacionalidad");
-                for (String estudiante : estudiantesTreeMap) {
-                    String[] parts = estudiante.split(":");
-                    treemap.put(parts[0].trim(), parts[1].trim());
-                }
-                return treemap;
-
+                return fr.readToMap(filePath, mapType);
             case 3:
-                LinkedHashMap<String, String> linkedmap = new LinkedHashMap<>();
-                List<String> estudiantesLinkedMap = fr.buscarEstudiantesPorNacionalidad("estudiantes.json", "nacionalidad");
-                for (String estudiante : estudiantesLinkedMap) {
-                    String[] parts = estudiante.split(":");
-                    linkedmap.put(parts[0].trim(), parts[1].trim());
-                }
-                return linkedmap;
-
+                return fr.readToMap(filePath, mapType);
             default:
                 return null;
         }
