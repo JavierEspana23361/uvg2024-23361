@@ -73,6 +73,8 @@ public class LispInterpreter{
     public ArrayList<String> getDEFUN(String functionName, ArrayList<String> valVar) throws Exception {
         ArrayList<String> functionBody = new ArrayList<>();
         Map<String, Double> variablesFun = new HashMap<>();
+        System.out.println(valVar);
+        System.out.println(defunctions.get(functionName).get(0));
         if (valVar.size() == defunctions.get(functionName).get(0).size()) {
             for (int i = 0; i < valVar.size(); i++) {
                 variablesFun.put(defunctions.get(functionName).get(0).get(i), Double.parseDouble(valVar.get(i)));
@@ -157,6 +159,7 @@ public class LispInterpreter{
                     if (valorVariable.equals("(") || valorVariable.equals(")")) {
                         continue;
                     } else {
+                        System.out.println(valorVariable);
                         valorVariablesFinal.add(valorVariable);
                     }                   
                 }
