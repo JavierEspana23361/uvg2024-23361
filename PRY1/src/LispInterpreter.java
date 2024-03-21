@@ -79,13 +79,14 @@ public class LispInterpreter{
         } else {
             throw new Exception("Error: Número de variables incorrecto");
         }
-        
         for (String element: defunctions.get(functionName).get(1)) {
             for (Map.Entry<String, String> entry : variablesFun.entrySet()) {
                 if (element.equals(entry.getKey())) {
                     functionBody.add(entry.getValue().toString());
-                } else {
+                    break;
+                } else if (!variablesFun.containsKey(element)) {
                     functionBody.add(element);
+                    break;
                 }
             }
         }
@@ -145,6 +146,24 @@ public class LispInterpreter{
                 } else {
                     valueVariables = valorVariables;
                     functionBody = getDEFUN(functionName, valueVariables);
+                    if (defunctions.get(functionName).get(0).size() > 1) {
+                        for (int k = 0; k <= functionBody.size() - 1; k++) {
+                            elements.remove(indexFunction);
+                        }
+                        for (int k = 0; k < functionBody.size(); k++) {
+                            elements.add(functionBody.get(k)); 
+                        }
+                    } else {
+                        for (int k = 0; k <= functionBody.size() - 2; k++) {
+                            elements.remove(indexFunction);
+                        }
+                        for (int k = 0; k < functionBody.size(); k++) {
+                            elements.add(functionBody.get(k)); 
+                        }
+                    }
+                    
+                    
+
                 }
             }
         }
