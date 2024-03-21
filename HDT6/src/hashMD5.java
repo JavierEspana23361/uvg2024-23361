@@ -1,10 +1,7 @@
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class hashMD5{
-    
-
+public class hashMD5 {
     public String md5(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -19,5 +16,4 @@ public class hashMD5{
             return null;
         }
     }
-
 }

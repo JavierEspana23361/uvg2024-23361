@@ -1,28 +1,25 @@
-import java.util.Map;
 import java.util.HashMap;
-import java.util.TreeMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class MapFactory {
     public enum MapType {
-        HASH_MAP,
-        TREE_MAP,
-        LINKED_HASH_MAP
+        HASHMAP,
+        TREEMAP,
+        LINKEDHASHMAP
     }
 
     public static Map<String, String> createMap(MapType type) {
         switch (type) {
-            case HASH_MAP:
+            case HASHMAP:
                 return new HashMap<>();
-            case TREE_MAP:
+            case TREEMAP:
                 return new TreeMap<>();
-            case LINKED_HASH_MAP:
+            case LINKEDHASHMAP:
                 return new LinkedHashMap<>();
             default:
-                throw new IllegalArgumentException("Unsupported map type: " + type);
+                throw new IllegalArgumentException("Tipo de mapa no válido: " + type);
         }
     }
-
-    // Implementación del MapFactory, ejemplo: Map<String, String> map = MapFactory.createMap(MapFactory.MapType.HASH_MAP);
-
 }
