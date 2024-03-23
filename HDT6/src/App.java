@@ -1,10 +1,9 @@
 import java.util.Scanner;
-import java.util.Map;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap; 
-import java.util.Scanner;
+import java.util.HashMap;
+import java.util.Map;
 
 public class App {
     public static void main(String[] args) {
@@ -24,30 +23,29 @@ public class App {
             return;
         }
 
-        // Factories
-        MapFactory<String, Students> mapFactory = new MapFactory<>();
+        MapFactory<String, Students> factoryMaps = new MapFactory<>();
         hashFactory factoryHash = new hashFactory();
 
-        fileReader lectorArchivo = new fileReader(mapFactory);
+        fileReader lectorArchivo = new fileReader(factoryMaps);
 
-        // Instances
         AbstractMap<String, Students> map, mapWithStudents;
-        Ihash hashtype;
+        Ihash hashMethod;
 
-        map = factoryMaps.getInstanceMap(selectionMap);
-        hashtype = factoryHash.getInstanceHash(selectionHash);
+        map = factoryMaps.getMapInstance(selectionMap);
+        hashMethod = factoryHash.gethash(selectionHash)
 
-        mapWithStudents = lectorArchivo.leerArchivo("./Studentss.json", map, hashtype);
+        mapWithStudents = lectorArchivo.readFile("./Students.json", map, hashMethod);
 
         boolean keep = true;
+        
         while (keep) {
             System.out.println("Seleccione una opción: \n1. Buscar Students por nombre\n2. Buscar Studentss por nacionalidad\n3. Salir");
             int choice = scanner.nextInt();
-            scanner.nextLine(); // Consumir la línea nueva restante
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
-                    Students Students = searchStudentbyKey(scanner, hashtype, mapWithStudents);
+                    Students Students = searchStudentbyKey(scanner, hashMethod, mapWithStudents);
                     if (Students != null) {
                         System.out.println(Students);
                     } else {
@@ -81,13 +79,13 @@ public class App {
         System.out.println("3. SHA-1");
     }
 
-    public static Students searchStudentbyKey(Scanner scanner, Ihash hashtype, AbstractMap<String, Students> map) {
+    public static Students searchStudentbyKey(Scanner scanner, Ihash hashMethod, AbstractMap<String, Students> map) {
         String nameStudent;
 
         System.out.println("Ingrese el nombre del Students a buscar:");
         nameStudent = scanner.nextLine();
 
-        String hashName = hashtype.generateHash(nameStudent);
+        String hashName = hashMethod.typehash(nameStudent);
 
         Students searchStudent = map.get(hashName);
         if (searchStudent != null) {
@@ -96,45 +94,45 @@ public class App {
             return null;
         }
     }
-}
 
-public static void searchStudentbyNati(Scanner scanner, AbstractMap<String, Students> map) {
-    System.out.println("Ingrese la nacionalidad de los Studentss a buscar:");
-    String nationality = scanner.nextLine();
-    List<String> studentNames = new ArrayList<>();
+    public static void searchStudentbyNati(Scanner scanner, AbstractMap<String, Students> map) {
+        System.out.println("Ingrese la nacionalidad de los Studentss a buscar:");
+        String nationality = scanner.nextLine();
+        List<String> studentNames = new ArrayList<>();
 
-    for (Map.Entry<String, Students> entry : map.entrySet()) {
-        Students Students = entry.getValue();
-        if (Students.getCountry().equalsIgnoreCase(nationality)) {
-            studentNames.add(Students.getName());
-        }
-    }
-
-    if (studentNames.isEmpty()) {
-        System.out.println("No se encontraron Studentss de la nacionalidad " + nationality);
-        return;
-    }
-
-    AbstractMap<String, List<Students>> studentsByNationality = saveByNationality(map, studentNames);
-
-    studentsByNationality.forEach((key, value) -> {
-        System.out.println("Nacionalidad: " + key);
-        value.forEach(student -> System.out.println("- " + student.getName()));
-    });
-}
-
-public static AbstractMap<String, List<Students>> saveByNationality(AbstractMap<String, Students> map, List<String> studentNames) {
-    AbstractMap<String, List<Students>> mapByNationality = new HashMap<>();
-
-    for (String name : studentNames) {
         for (Map.Entry<String, Students> entry : map.entrySet()) {
             Students Students = entry.getValue();
-            if (Students.getName().equals(name)) {
-                mapByNationality.computeIfAbsent(Students.getCountry(), k -> new ArrayList<>()).add(Students);
-                break;
+            if (Students.getCountry().equalsIgnoreCase(nationality)) {
+                studentNames.add(Students.getName());
             }
         }
+
+        if (studentNames.isEmpty()) {
+            System.out.println("No se encontraron Studentss de la nacionalidad " + nationality);
+            return;
+        }
+
+        AbstractMap<String, List<Students>> studentsByNationality = saveByNationality(map, studentNames);
+
+        studentsByNationality.forEach((key, value) -> {
+            System.out.println("Nacionalidad: " + key);
+            value.forEach(student -> System.out.println("- " + student.getName()));
+        });
     }
 
-    return mapByNationality;
+    public static AbstractMap<String, List<Students>> saveByNationality(AbstractMap<String, Students> map, List<String> studentNames) {
+        AbstractMap<String, List<Students>> mapByNationality = new HashMap<>();
+
+        for (String name : studentNames) {
+            for (Map.Entry<String, Students> entry : map.entrySet()) {
+                Students Students = entry.getValue();
+                if (Students.getName().equals(name)) {
+                    mapByNationality.computeIfAbsent(Students.getCountry(), k -> new ArrayList<>()).add(Students);
+                    break;
+                }
+            }
+        }
+
+        return mapByNationality;
+    }
 }
