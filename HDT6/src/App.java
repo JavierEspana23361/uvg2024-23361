@@ -5,7 +5,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class App {
+    /**
+     * The main method is the entry point of the program.
+     * It prompts the user to select a type of map and a type of hash,
+     * reads a JSON file containing student data, and provides a menu
+     * for searching students by name or nationality.
+     *
+     * @param args The command line arguments passed to the program.
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
@@ -65,6 +74,10 @@ public class App {
         }
     }
 
+    /**
+     * Prints the menu for selecting the type of map to store the Students.
+     * The available options are HashMap, TreeMap, and LinkedHashMap.
+     */
     public static void printMenuMap() {
         System.out.println("Ingrese el tipo de mapa con el que deseea guardar los Studentss:");
         System.out.println("1. HashMap");
@@ -72,6 +85,13 @@ public class App {
         System.out.println("3. LinkedHashMap");
     }
 
+    /**
+     * Prints the menu options for selecting a hash type.
+     * The available hash types are:
+     * 1. Orgánica
+     * 2. MD5
+     * 3. SHA-1
+     */
     public static void printMenuHash() {
         System.out.println("Ingrese el tipo de hash que desea hacer:");
         System.out.println("1. Orgánica");
@@ -79,6 +99,14 @@ public class App {
         System.out.println("3. SHA-1");
     }
 
+    /**
+     * Searches for a student in the map using a given key.
+     * 
+     * @param scanner    the scanner object used to read user input
+     * @param hashMethod the hash method used to generate the key
+     * @param map        the map containing the students
+     * @return the student object if found, null otherwise
+     */
     public static Students searchStudentbyKey(Scanner scanner, Ihash hashMethod, AbstractMap<String, Students> map) {
         String nameStudent;
 
@@ -95,6 +123,12 @@ public class App {
         }
     }
 
+    /**
+     * Searches for students by nationality in the given map and prints the results.
+     *
+     * @param scanner The scanner object used to read user input.
+     * @param map The map containing the students.
+     */
     public static void searchStudentbyNati(Scanner scanner, AbstractMap<String, Students> map) {
         System.out.println("Ingrese la nacionalidad de los Studentss a buscar:");
         String nationality = scanner.nextLine();
@@ -120,6 +154,13 @@ public class App {
         });
     }
 
+    /**
+     * Saves the students from the given map by their nationality.
+     * 
+     * @param map The map containing the students.
+     * @param studentNames The list of student names to save.
+     * @return A map where the keys are the nationalities and the values are lists of students belonging to that nationality.
+     */
     public static AbstractMap<String, List<Students>> saveByNationality(AbstractMap<String, Students> map, List<String> studentNames) {
         AbstractMap<String, List<Students>> mapByNationality = new HashMap<>();
 

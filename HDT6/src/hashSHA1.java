@@ -1,7 +1,17 @@
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class hashSHA1 implements Ihash{
+/**
+ * This class implements the Ihash interface and provides a method to compute the SHA-1 hash of a given string.
+ */
+public class hashSHA1 implements Ihash {
+
+    /**
+     * Computes the SHA-1 hash of the given data.
+     *
+     * @param data the string to compute the hash for
+     * @return the SHA-1 hash of the input data as a hexadecimal string
+     */
     public String typehash(String data) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
