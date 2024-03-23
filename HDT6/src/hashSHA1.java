@@ -1,11 +1,11 @@
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class hashSHA1 {
-    public String sha1(String input) {
+public class hashSHA1 implements Ihash{
+    public String typehash(String data) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] hashBytes = md.digest(input.getBytes());
+            byte[] hashBytes = md.digest(data.getBytes());
             StringBuilder sb = new StringBuilder();
             for (byte b : hashBytes) {
                 sb.append(String.format("%02x", b));

@@ -1,15 +1,20 @@
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.AbstractMap;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class fileReader {
-    private Map<String, Object> map = new LinkedHashMap<>();
-    public static AbstractMap<String, Object> readJsonFile(String filePath) {
+
+    private MapFactory<String, Students> mapFactory;
+
+    public fileReader(MapFactory<String, Students> mapFactory) {
+        this.mapFactory = mapFactory;
+    }
+
+    public static AbstractMap<String, Studen> readJsonFile(String filePath, AbstractMap<String, Students> studentsmap), Ihash hashtype{
         try {
             // Create ObjectMapper instance
             ObjectMapper objectMapper = new ObjectMapper();

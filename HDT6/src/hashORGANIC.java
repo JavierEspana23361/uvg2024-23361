@@ -1,5 +1,5 @@
-public class hashORGANIC {
-    public String hashOrganica(String data) {
+public class hashORGANIC implements Ihash{
+    public String typehash(String data) {
         return data;
     }
 }
