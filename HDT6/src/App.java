@@ -36,14 +36,14 @@ public class App {
 
         mapWithStudents = lectorArchivo.readFile("./Students.json", map, hashMethod);
 
-        boolean keep = true;
+        boolean seguir = true;
 
-        while (keep) {
+        while (seguir) {
             System.out.println("Seleccione una opción: \n1. Buscar Students por nombre\n2. Buscar Studentss por nacionalidad\n3. Salir");
-            int choice = scanner.nextInt();
+            int option = scanner.nextInt();
             scanner.nextLine();
 
-            switch (choice) {
+            switch (option) {
                 case 1:
                     Students Students = searchStudentbyKey(scanner, hashMethod, mapWithStudents);
                     if (Students != null) {
@@ -56,7 +56,7 @@ public class App {
                     searchStudentbyNati(scanner, mapWithStudents);
                     break;
                 case 3:
-                    keep = false;
+                    seguir = false;
                     break;
                 default:
                     System.out.println("Opción no válida.");
