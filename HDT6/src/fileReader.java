@@ -10,9 +10,8 @@ public class fileReader {
     private MapFactory<String, Students> mapFactory;
     private Ihash hashtype;
 
-    public fileReader(MapFactory<String, Students> mapFactory, Ihash hashtype) {
+    public fileReader(MapFactory<String, Students> mapFactory) {
         this.mapFactory = mapFactory;
-        this.hashtype = hashtype;
     }
     
     public AbstractMap<String, Students> readJsonFile(String filePath, AbstractMap<String, Students> studentsmap) {
