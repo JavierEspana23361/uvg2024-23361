@@ -18,33 +18,33 @@ public class App {
         }
 
         // Factories
-        FactoryMaps<String, Estudiante> factoryMaps = new FactoryMaps<>();
-        FactoryHash factoryHash = new FactoryHash();
+        MapFactory<String, Students> factoryMaps = new MapFactory<>();
+        hashFactory factoryHash = new hashFactory();
 
-        LectorArchivo lectorArchivo = new LectorArchivo(factoryMaps);
+        fileReader lectorArchivo = new fileReader(factoryMaps);
 
         // Instances
-        AbstractMap<String, Estudiante> map, mapWithStudents;
+        AbstractMap<String, Students> map, mapWithStudents;
         IHash hashMethod;
 
         map = factoryMaps.getInstanceMap(selectionMap);
         hashMethod = factoryHash.getInstanceHash(selectionHash);
 
-        mapWithStudents = lectorArchivo.leerArchivo("./estudiantes.json", map, hashMethod);
+        mapWithStudents = lectorArchivo.leerArchivo("./Studentss.json", map, hashMethod);
 
         boolean keep = true;
         while (keep) {
-            System.out.println("Seleccione una opción: \n1. Buscar estudiante por nombre\n2. Buscar estudiantes por nacionalidad\n3. Salir");
+            System.out.println("Seleccione una opción: \n1. Buscar Students por nombre\n2. Buscar Studentss por nacionalidad\n3. Salir");
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consumir la línea nueva restante
 
             switch (choice) {
                 case 1:
-                    Estudiante estudiante = searchStudentbyKey(scanner, hashMethod, mapWithStudents);
-                    if (estudiante != null) {
-                        System.out.println(estudiante);
+                    Students Students = searchStudentbyKey(scanner, hashMethod, mapWithStudents);
+                    if (Students != null) {
+                        System.out.println(Students);
                     } else {
-                        System.out.println("Estudiante no encontrado.");
+                        System.out.println("Students no encontrado.");
                     }
                     break;
                 case 2:
@@ -61,7 +61,7 @@ public class App {
     }
 
     public static void printMenuMap() {
-        System.out.println("Ingrese el tipo de mapa con el que deseea guardar los estudiantes:");
+        System.out.println("Ingrese el tipo de mapa con el que deseea guardar los Studentss:");
         System.out.println("1. HashMap");
         System.out.println("2. TreeMap");
         System.out.println("3. LinkedHashMap");
@@ -74,15 +74,15 @@ public class App {
         System.out.println("3. SHA-1");
     }
 
-    public static Estudiante searchStudentbyKey(Scanner scanner, IHash hashMethod, AbstractMap<String, Estudiante> map) {
+    public static Students searchStudentbyKey(Scanner scanner, IHash hashMethod, AbstractMap<String, Students> map) {
         String nameStudent;
 
-        System.out.println("Ingrese el nombre del estudiante a buscar:");
+        System.out.println("Ingrese el nombre del Students a buscar:");
         nameStudent = scanner.nextLine();
 
         String hashName = hashMethod.generateHash(nameStudent);
 
-        Estudiante searchStudent = map.get(hashName);
+        Students searchStudent = map.get(hashName);
         if (searchStudent != null) {
             return searchStudent;
         } else {
@@ -90,24 +90,24 @@ public class App {
         }
     }
 
-    public static void searchStudentbyNati(Scanner scanner, AbstractMap<String, Estudiante> map) {
-        System.out.println("Ingrese la nacionalidad de los estudiantes a buscar:");
+    public static void searchStudentbyNati(Scanner scanner, AbstractMap<String, Students> map) {
+        System.out.println("Ingrese la nacionalidad de los Studentss a buscar:");
         String nationality = scanner.nextLine();
         List<String> studentNames = new ArrayList<>();
 
-        for (Map.Entry<String, Estudiante> entry : map.entrySet()) {
-            Estudiante estudiante = entry.getValue();
-            if (estudiante.getCountry().equalsIgnoreCase(nationality)) {
-                studentNames.add(estudiante.getName());
+        for (Map.Entry<String, Students> entry : map.entrySet()) {
+            Students Students = entry.getValue();
+            if (Students.getCountry().equalsIgnoreCase(nationality)) {
+                studentNames.add(Students.getName());
             }
         }
 
         if (studentNames.isEmpty()) {
-            System.out.println("No se encontraron estudiantes de la nacionalidad " + nationality);
+            System.out.println("No se encontraron Studentss de la nacionalidad " + nationality);
             return;
         }
 
-        AbstractMap<String, List<Estudiante>> studentsByNationality = saveByNationality(map, studentNames);
+        AbstractMap<String, List<Students>> studentsByNationality = saveByNationality(map, studentNames);
 
         studentsByNationality.forEach((key, value) -> {
             System.out.println("Nacionalidad: " + key);
@@ -115,14 +115,14 @@ public class App {
         });
     }
 
-    public static AbstractMap<String, List<Estudiante>> saveByNationality(AbstractMap<String, Estudiante> map, List<String> studentNames) {
-        AbstractMap<String, List<Estudiante>> mapByNationality = new HashMap<>();
+    public static AbstractMap<String, List<Students>> saveByNationality(AbstractMap<String, Students> map, List<String> studentNames) {
+        AbstractMap<String, List<Students>> mapByNationality = new HashMap<>();
 
         for (String name : studentNames) {
-            for (Map.Entry<String, Estudiante> entry : map.entrySet()) {
-                Estudiante estudiante = entry.getValue();
-                if (estudiante.getName().equals(name)) {
-                    mapByNationality.computeIfAbsent(estudiante.getCountry(), k -> new ArrayList<>()).add(estudiante);
+            for (Map.Entry<String, Students> entry : map.entrySet()) {
+                Students Students = entry.getValue();
+                if (Students.getName().equals(name)) {
+                    mapByNationality.computeIfAbsent(Students.getCountry(), k -> new ArrayList<>()).add(Students);
                     break;
                 }
             }
