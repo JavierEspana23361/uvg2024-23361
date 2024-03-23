@@ -34,12 +34,12 @@ public class App {
         map = factoryMaps.getMapInstance(selectionMap);
         hashMethod = factoryHash.gethash(selectionHash);
 
-        mapWithStudents = lectorArchivo.readJsonFile("./Students.json", map, hashMethod);
+        mapWithStudents = lectorArchivo.readJsonFile("./estudiantes.json", map, hashMethod);
 
         boolean seguir = true;
 
         while (seguir) {
-            System.out.println("Seleccione una opción: \n1. Buscar Students por nombre\n2. Buscar Studentss por nacionalidad\n3. Salir");
+            System.out.println("Seleccione una opción: \n1. Buscar estudiantes por nombre\n2. Buscar estudiantes por nacionalidad\n3. Salir");
             int option = scanner.nextInt();
             scanner.nextLine();
 
@@ -49,7 +49,7 @@ public class App {
                     if (Students != null) {
                         System.out.println(Students);
                     } else {
-                        System.out.println("Students no encontrado.");
+                        System.out.println("Estudiante no encontrado.");
                     }
                     break;
                 case 2:

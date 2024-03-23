@@ -20,9 +20,9 @@ public class fileReader {
         try (FileReader reader = new FileReader(filePath)) {
             Object obj = parser.parse(reader);
 
-            JSONArray Students = (JSONArray) obj;
+            JSONArray student = (JSONArray) obj;
 
-            Students.forEach(studentJson -> parseStudentObject((JSONObject) studentJson, studentsmap, hashtype));
+            student.forEach((Object studentJson) -> parseStudentObject((JSONObject) studentJson, studentsmap, hashtype));
 
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -31,16 +31,16 @@ public class fileReader {
         return studentsmap;
     }
 
-    private void parseStudentObject(JSONObject studentJson, AbstractMap<String, Students> studentsmap) {
+    private void parseStudentObject(JSONObject studentJson, AbstractMap<String, Students> studentsmap, Ihash hashtype) {
         String name = (String) studentJson.get("name");
         String phone = (String) studentJson.get("phone");
         String email = (String) studentJson.get("email");
         String postalZip = (String) studentJson.get("postalZip");
         String country = (String) studentJson.get("country");
+        String hash = hashtype.typehash(name);
 
-        Students student = new Students(name, phone, email, postalZip, country);
-        String key = hashtype.typehash(name);
-        studentsmap.put(key, student);
+
+        studentsmap.put(hash, new Students(name, phone, email, postalZip, country));
     }
 
 }
