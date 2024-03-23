@@ -28,24 +28,24 @@ public class App {
 
         fileReader lectorArchivo = new fileReader(factoryMaps);
 
-        AbstractMap<String, Students> map, mapWithStudents;
+        AbstractMap<String, Students> map, mapStudents;
         Ihash hashMethod;
 
         map = factoryMaps.getMapInstance(selectionMap);
         hashMethod = factoryHash.gethash(selectionHash);
 
-        mapWithStudents = lectorArchivo.readFile("./Students.json", map, hashMethod);
+        mapStudents = lectorArchivo.readFile("./Students.json", map, hashMethod);
 
         boolean seguir = true;
 
         while (seguir) {
-            System.out.println("Seleccione una opción: \n1. Buscar Students por nombre\n2. Buscar Studentss por nacionalidad\n3. Salir");
+            printMenuTipoBusqueda();
             int option = scanner.nextInt();
             scanner.nextLine();
 
             switch (option) {
                 case 1:
-                    Students Students = searchStudentbyKey(scanner, hashMethod, mapWithStudents);
+                    Students Students = busquedaKey(scanner, hashMethod, mapStudents);
                     if (Students != null) {
                         System.out.println(Students);
                     } else {
@@ -53,7 +53,7 @@ public class App {
                     }
                     break;
                 case 2:
-                    searchStudentbyNati(scanner, mapWithStudents);
+                    busquedaNacionalidad(scanner, mapStudents);
                     break;
                 case 3:
                     seguir = false;
@@ -66,7 +66,7 @@ public class App {
     }
 
     public static void printMenuMap() {
-        System.out.println("Ingrese el tipo de mapa con el que deseea guardar los Studentss:");
+        System.out.println("Ingrese el tipo de mapa con el que deseea guardar los estudiantes:");
         System.out.println("1. HashMap");
         System.out.println("2. TreeMap");
         System.out.println("3. LinkedHashMap");
@@ -79,10 +79,17 @@ public class App {
         System.out.println("3. SHA-1");
     }
 
-    public static Students searchStudentbyKey(Scanner scanner, Ihash hashMethod, AbstractMap<String, Students> map) {
+    public static void printMenuTipoBusqueda() {
+        System.out.println("Seleccione una opción:");
+        System.out.println("1. Buscar estudiantes por nombre");
+        System.out.println("2. Buscar estudiantes por nacionalidad");
+        System.out.println("3. Salir");
+    }
+
+    public static Students busquedaKey(Scanner scanner, Ihash hashMethod, AbstractMap<String, Students> map) {
         String nameStudent;
 
-        System.out.println("Ingrese el nombre del Students a buscar:");
+        System.out.println("Ingrese el nombre del estudiantes a buscar:");
         nameStudent = scanner.nextLine();
 
         String hashName = hashMethod.typehash(nameStudent);
@@ -95,8 +102,8 @@ public class App {
         }
     }
 
-    public static void searchStudentbyNati(Scanner scanner, AbstractMap<String, Students> map) {
-        System.out.println("Ingrese la nacionalidad de los Studentss a buscar:");
+    public static void busquedaNacionalidad(Scanner scanner, AbstractMap<String, Students> map) {
+        System.out.println("Ingrese la nacionalidad de los estudiantes a buscar:");
         String nationality = scanner.nextLine();
         List<String> studentNames = new ArrayList<>();
 
@@ -108,7 +115,7 @@ public class App {
         }
 
         if (studentNames.isEmpty()) {
-            System.out.println("No se encontraron Studentss de la nacionalidad " + nationality);
+            System.out.println("No se encontraron estudiantes de la nacionalidad " + nationality);
             return;
         }
 
