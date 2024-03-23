@@ -1,13 +1,10 @@
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.AbstractMap;
-import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class fileReader {
     private MapFactory<String, Students> mapFactory;
@@ -17,8 +14,7 @@ public class fileReader {
         this.mapFactory = mapFactory;
         this.hashtype = hashtype;
     }
-
-    @SuppressWarnings("unchecked")
+    
     public AbstractMap<String, Students> readJsonFile(String filePath, AbstractMap<String, Students> studentsmap) {
         JSONParser parser = new JSONParser();
 
@@ -35,7 +31,7 @@ public class fileReader {
         }
         return studentsmap;
     }
-    @SuppressWarnings("unchecked")
+
     private void parseStudentObject(JSONObject studentJson, AbstractMap<String, Students> studentsmap) {
         String name = (String) studentJson.get("name");
         String phone = (String) studentJson.get("phone");
