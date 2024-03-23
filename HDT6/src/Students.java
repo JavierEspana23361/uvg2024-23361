@@ -2,29 +2,41 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Students {
-    public int getMapType() {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Selecciona el tipo de mapa que deseas utilizar: ");
-        System.out.println("1. HashMap");
-        System.out.println("2. TreeMap");
-        System.out.println("3. LinkedHashMap");
-        int option = sc.nextInt();
-        sc.close();
-        return option;
+    private String name;
+    private String phone;
+    private String email;
+    private String postalZip;
+    private String country;
+
+    public Students(String name, String phone, String email, String postalZip, String country) {
+        this.name = name;
+        this.phone = phone;
+        this.email = email;
+        this.postalZip = postalZip;
+        this.country = country;
     }
 
-    public Map<String, String> studentstoMap(int option, String mapType) {
-        String filePath = "estudiantes.json"; // Ruta del archivo JSON
-        fileReader fr = new fileReader();
-        switch (option) {
-            case 1:
-                return fr.readToMap(filePath, mapType);
-            case 2:
-                return fr.readToMap(filePath, mapType);
-            case 3:
-                return fr.readToMap(filePath, mapType);
-            default:
-                return null;
-        }
+    public String getName() {
+        return name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPostalZip() {
+        return postalZip;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String toString() {
+        return "Name: " + name + "\nPhone: " + phone + "\nEmail: " + email + "\nPostal/Zip: " + postalZip + "\nCountry: " + country;
     }
 }
