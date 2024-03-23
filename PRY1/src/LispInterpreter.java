@@ -131,6 +131,10 @@ public class LispInterpreter{
                         }
                         valorVariables.add(elements.get(j));
                     }
+
+                    if (openParenthesisCount == 0) {
+                        break;
+                    }
                 }
 
                 ArrayList<String> valueVariables = new ArrayList<>();
@@ -148,8 +152,8 @@ public class LispInterpreter{
                         for (int k = 0; k <= functionBody.size() - 1; k++) {
                             elements.remove(indexFunction);
                         }
-                        for (int k = 0; k < functionBody.size(); k++) {
-                            elements.add(functionBody.get(k)); 
+                        for (int k = functionBody.size() - 1; k != -1; k--) {
+                            elements.add(indexFunction ,functionBody.get(k)); 
                         }
                     } else {
                         for (int k = 0; k <= functionBody.size() - 2; k++) {
@@ -159,16 +163,6 @@ public class LispInterpreter{
                             elements.add(functionBody.get(k)); 
                         }
                     }    
-                }
-
-                ArrayList<String> valorVariablesFinal = new ArrayList<>();
-
-                for (String element: valueVariables) {
-                    if (element.equals("(") || element.equals(")")) {
-                        continue;
-                    } else {
-                        valorVariablesFinal.add(element);
-                    }
                 }
             }
         }
