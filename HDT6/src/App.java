@@ -32,12 +32,12 @@ public class App {
         Ihash hashMethod;
 
         map = factoryMaps.getMapInstance(selectionMap);
-        hashMethod = factoryHash.gethash(selectionHash)
+        hashMethod = factoryHash.gethash(selectionHash);
 
         mapWithStudents = lectorArchivo.readFile("./Students.json", map, hashMethod);
 
         boolean keep = true;
-        
+
         while (keep) {
             System.out.println("Seleccione una opción: \n1. Buscar Students por nombre\n2. Buscar Studentss por nacionalidad\n3. Salir");
             int choice = scanner.nextInt();
