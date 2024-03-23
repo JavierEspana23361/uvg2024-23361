@@ -14,20 +14,20 @@ public class fileReader {
         this.mapFactory = mapFactory;
     }
     
-    public AbstractMap<String, Students> readJsonFile(String filePath, AbstractMap<String, Students> studentsmap) {
+    public AbstractMap<String, Students> readJsonFile(String filePath, AbstractMap<String, Students> studentsmap, Ihash hashtype) {
         JSONParser parser = new JSONParser();
 
-        try (FileReader fileReader = new FileReader(filePath)) {
-            Object obj = parser.parse(fileReader);
-            JSONArray jsonArray = (JSONArray) obj;
+        try (FileReader reader = new FileReader(filePath)) {
+            Object obj = parser.parse(reader);
 
-            for (Object studentObj : jsonArray) {
-                JSONObject studentJson = (JSONObject) studentObj;
-                parseStudentObject(studentJson, studentsmap);
-            }
+            JSONArray Students = (JSONArray) obj;
+
+            Students.forEach(studentJson -> parseStudentObject((JSONObject) studentJson, studentsmap, hashtype));
+
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+
         return studentsmap;
     }
 

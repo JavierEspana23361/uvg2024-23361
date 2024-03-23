@@ -13,14 +13,14 @@ public class App {
         int selectionMap = Integer.parseInt(scanner.nextLine());
         if (selectionMap > 3 || selectionMap < 1) {
             System.out.println("Error en la selección del tipo de mapa.");
-            return;
+           
         }
 
         printMenuHash();
         int selectionHash = Integer.parseInt(scanner.nextLine());
         if (selectionHash > 3 || selectionHash < 1) {
             System.out.println("Error en la selección del tipo de hash.");
-            return;
+      
         }
 
         MapFactory<String, Students> factoryMaps = new MapFactory<>();
@@ -34,7 +34,7 @@ public class App {
         map = factoryMaps.getMapInstance(selectionMap);
         hashMethod = factoryHash.gethash(selectionHash);
 
-        mapWithStudents = lectorArchivo.readFile("./Students.json", map, hashMethod);
+        mapWithStudents = lectorArchivo.readJsonFile("./Students.json", map, hashMethod);
 
         boolean seguir = true;
 
