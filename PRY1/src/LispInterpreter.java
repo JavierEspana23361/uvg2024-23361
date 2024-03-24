@@ -95,19 +95,7 @@ public class LispInterpreter{
         return functionBody;
     }   
     
-    /**
-     * The root class in the Java class hierarchy. All classes in Java are subclasses of Object.
-     * This class provides basic methods that are inherited by all other classes.
-     */
-    public Object eval(ArrayList<String> elements) throws Exception {
-        Stack<Object> stack = new Stack<>();
-        int brk = 0;
-        int prk = 0;
-        int list = 0;
-        int count = 0;
-        int quote = 0;
-
-        
+    public ArrayList<String> reWrite(ArrayList<String> elements) throws Exception {
         for (int i = 0; i < elements.size(); i++) {
             if (isFunction(elements.get(i))) {
                 String functionName = elements.get(i);
@@ -277,6 +265,19 @@ public class LispInterpreter{
                 elseArrayList.clear();
             }
         }
+        return null;
+    }
+
+    /**
+     * The root class in the Java class hierarchy. All classes in Java are subclasses of Object.
+     * This class provides basic methods that are inherited by all other classes.
+     */
+    public Object eval(ArrayList<String> elements) throws Exception {
+        Stack<Object> stack = new Stack<>();
+        int brk = 0;
+        int prk = 0;
+        int list = 0;
+        int count = 0;
 
         for (String element : elements) {
             if (isOperand(element)) {
@@ -373,11 +374,8 @@ public class LispInterpreter{
                     throw new IllegalArgumentException("Error: Operador no encontrado");
                     
                 } else if (operator.equals("QUOTE")) {
-                    operands = QUOTE(operands);
-                    for (Object obj : operands) {
-                        stack.push(obj);
-                    }
-                    quote = 1;
+                    String quote = QUOTE(operands);
+                    stack.push(quote);
                 } else if (operator.equals("LIST")) {
                     ArrayList<Object> additions = LIST(operands);
                     for (Object addition : additions) {
@@ -412,14 +410,7 @@ public class LispInterpreter{
                 listResult.add((stack.pop()).toString());
             }
             return listResult;
-        } else if (quote == 1) {
-            String quoteResult = "";
-            while (!stack.isEmpty()) {
-                quoteResult += stack.pop() + " ";
-            }
-            return quoteResult;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Error: Expresión inválida");
         }
     } 
@@ -725,8 +716,12 @@ public class LispInterpreter{
      * @param operands the list of operands to be quoted
      * @return the input operands without any evaluation
      */
-    public ArrayList<Object> QUOTE(ArrayList<Object> operands) {
-        return operands;
+    public String QUOTE(ArrayList<Object> operands) {
+        String quote = "";
+        for (int i = operands.size() - 1; i > -1; i--){
+            quote += operands.get(i) + " ";
+        }
+        return quote;
     }
 
     /**
