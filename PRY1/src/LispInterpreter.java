@@ -167,6 +167,116 @@ public class LispInterpreter{
             }
         }
 
+        for (int i = 0; i < elements.size(); i++) {
+            if (elements.get(i).equals("COND")) {                
+                int openParenthesisCount = 0;
+                int countZero = 0;
+                int indexCond = i;
+                int countCaracters = 0;
+
+                Map<Integer, ArrayList<ArrayList<String>>> trueMap = new HashMap<>();
+
+                ArrayList<String> clause = new ArrayList<>();
+
+                ArrayList<String> trueArrayList = new ArrayList<>();
+
+                ArrayList<String> elseArrayList = new ArrayList<>();
+
+                ArrayList<ArrayList<String>> clauseAndTrue = new ArrayList<>();
+
+                String trueorfalse;
+
+                // Ciclo para encontrar cantidad de paréntesis
+                for (int j = indexCond + 1; j < elements.size(); j++) {
+                    if (elements.get(j).equals("(")) {
+                        openParenthesisCount++;
+                        countCaracters++;
+                    } else if (elements.get(j).equals(")")) {
+                        openParenthesisCount--;
+                        countCaracters++;
+                        if (openParenthesisCount == 0) {
+                            countZero++;
+                        }
+                        if (elements.get(j + 1).equals(")")) {
+                            break;
+                        }
+
+                    } else if (!elements.get(j).equals("(") && !elements.get(j).equals(")")) {
+                        countCaracters++;
+                    }
+                }
+
+                // Ciclo para encontrar las cláusulas
+                int countParenthesis = countZero;
+                countZero = 0;
+
+                for (int j = indexCond + 1; j <= countCaracters + 1; j++) {
+                    if (elements.get(j).equals("(")) {
+                        openParenthesisCount++;
+                        if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
+                            elseArrayList.add(elements.get(j));
+                        } else if (countZero % 2 == 0) {
+                            clause.add(elements.get(j));    
+                        } else if (countZero % 2 != 0) {
+                            trueArrayList.add(elements.get(j));
+                        }
+                    } else if (elements.get(j).equals(")")) {
+                        openParenthesisCount--;
+                        if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
+                            elseArrayList.add(elements.get(j));
+                        } else if (countZero % 2 == 0) {
+                            clause.add(elements.get(j));
+                            clauseAndTrue.add(new ArrayList<>(clause));
+                            clause.clear();
+                        } else if (countZero % 2 != 0) {
+                            trueArrayList.add(elements.get(j));
+                            clauseAndTrue.add(new ArrayList<>(trueArrayList));
+                            trueArrayList.clear();
+                            trueMap.put(countZero, clauseAndTrue);
+                        }
+
+                        if (openParenthesisCount == 0) {
+                            countZero++;
+                        }
+                    } else if (!elements.get(j).equals("(") && !elements.get(j).equals(")")) {
+                        if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
+                            elseArrayList.add(elements.get(j));
+                        } else if (countZero % 2 == 0) {
+                            clause.add(elements.get(j));
+                        } else if (countZero % 2 != 0) {
+                            trueArrayList.add(elements.get(j));
+                        }
+                    }
+                }
+                
+                for (Map.Entry<Integer, ArrayList<ArrayList<String>>> entry : trueMap.entrySet()) {
+                    trueorfalse = (String) eval(entry.getValue().get(0));
+                    if (trueorfalse.equals("T")) {
+                        for (int k = 0; k <= countCaracters + 2; k++) {
+                            elements.remove(indexCond - 1);
+                        }
+                        for (int k = entry.getValue().get(1).size() - 1; k != -1; k--) {
+                            String element = entry.getValue().get(1).get(k);
+                            elements.add(indexCond - 1, element);
+                        }
+                        break;
+                    } else if (trueorfalse.equals("NIL")) {
+                        for (int k = 0; k <= countCaracters + 2; k++) {
+                            elements.remove(indexCond - 1);
+                        }
+                        for (int k = elseArrayList.size() - 1; k != -1; k--) {
+                            String element = elseArrayList.get(k);
+                            elements.add(indexCond - 1, element);
+                        }
+                    }
+                }
+
+                clause.clear();
+                trueArrayList.clear();
+                elseArrayList.clear();
+            }
+        }
+
         for (String element : elements) {
             if (isOperand(element)) {
                 stack.push(Double.parseDouble(element));
@@ -174,73 +284,6 @@ public class LispInterpreter{
                 stack.push((Double) variables.get(element));
             } else if (element.equals("(")) {
                 stack.push(element);
-            } else if (element.equals("COND")) {
-                stack.clear();
-                ArrayList<String> trufalse = new ArrayList<>();
-                int openParenthesisCount = 0;
-                boolean foundCond = false;
-                String trueorfalse;
-                int countZero = 0;
-
-                ArrayList<String> trueArrayList = new ArrayList<>();
-                ArrayList<String> falseArrayList = new ArrayList<>();
-                ArrayList<String> secondClause = new ArrayList<>();
-
-                for (String elemento : elements) {
-                    if (foundCond) {
-                        if (elemento.equals("(")) {
-                            openParenthesisCount++;
-                        } else if (elemento.equals(")")) {
-                            openParenthesisCount--;
-                            if (openParenthesisCount == 0) {
-                                trufalse.add(elemento);
-                                break;
-                            }
-                        }
-                        trufalse.add(elemento);
-                    } else if (elemento.equals("COND")) {
-                        foundCond = true;
-                    }
-                }
-
-                for (String elemento: elements) {
-                    if (elemento.equals("(")) {
-                        openParenthesisCount++;
-                        if (countZero == 1) {
-                            trueArrayList.add(elemento);
-                        } else if (countZero == 2) {
-                            falseArrayList.add(elemento);
-                        }
-                    } else if (elemento.equals("COND")) {
-                        openParenthesisCount = 0;
-                    } else if (elemento.equals(")")) {
-                        openParenthesisCount--;
-                        if (countZero == 1) {
-                            trueArrayList.add(elemento);
-                        } else if (countZero == 2) {
-                            falseArrayList.add(elemento);
-                        }
-                        if (openParenthesisCount == 0) {
-                            countZero++;
-                        } 
-                    } else if (countZero == 1) {
-                        trueArrayList.add(elemento);
-                    } else if (countZero == 2) {
-                        falseArrayList.add(elemento);
-                    }
-                }
-                
-                trueorfalse = (String) eval(trufalse);
-
-                if (trueorfalse.equals("True")) {
-                    return eval(trueArrayList);
-                } else {
-                    elements.clear();
-                    return eval(falseArrayList);
-                }
-                
-                 
-
             } else if (element.equals("SETQ")) {
                 prk = 1;
                 Object variable = elements.get(elements.indexOf("SETQ") + 1);
@@ -344,9 +387,9 @@ public class LispInterpreter{
                 } else {
                     Object result = performOperation(operands, operator);
                     if (result instanceof Double) {
-                        stack.push(result);
+                        return result;
                     } else if (result instanceof String) {
-                        stack.push(result.equals("T") ? "True" : "False");
+                        return result.equals("T") ? "T" : "NIL";
                     }
                 }
             } else
