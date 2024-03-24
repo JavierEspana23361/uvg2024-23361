@@ -94,179 +94,6 @@ public class LispInterpreter{
 
         return functionBody;
     }   
-    
-    public ArrayList<String> reWrite(ArrayList<String> elements) throws Exception {
-        for (int i = 0; i < elements.size(); i++) {
-            if (isFunction(elements.get(i))) {
-                String functionName = elements.get(i);
-                int indexFunction = i;
-                int openParenthesisCount = 0;
-                int countZero = 0;
-                int operation = 0;
-                int operands = 0;
-                ArrayList<String> valorVariables = new ArrayList<>();
-
-                
-                for (int j = indexFunction + 1; j < elements.size(); j++) {
-                    if (elements.get(j).equals("(")) {
-                        openParenthesisCount++;
-                    } else if (elements.get(j).equals(")")) {
-                        openParenthesisCount--;
-                    } else if (!elements.get(j).equals("(") && !elements.get(j).equals(")")) {
-                        if (isOperator(elements.get(j))) {
-                            operation++;
-                        } else if (isOperand(elements.get(j))) {
-                            operands++;
-                        }
-                        valorVariables.add(elements.get(j));
-                    }
-
-                    if (openParenthesisCount == 0) {
-                        break;
-                    }
-                }
-
-                ArrayList<String> valueVariables = new ArrayList<>();
-                ArrayList<String> functionBody = new ArrayList<>();
-
-                if (operation > 0 && operands > 0) {
-                    valorVariables.add(0, "(");
-                    valorVariables.add(")");
-                    valueVariables.add(eval(valorVariables).toString());
-                    functionBody = getDEFUN(functionName, valueVariables);
-                } else {
-                    valueVariables = valorVariables;
-                    functionBody = getDEFUN(functionName, valueVariables);
-                    if (defunctions.get(functionName).get(0).size() > 1) {
-                        for (int k = 0; k <= functionBody.size() - 1; k++) {
-                            elements.remove(indexFunction);
-                        }
-                        for (int k = functionBody.size() - 1; k != -1; k--) {
-                            elements.add(indexFunction ,functionBody.get(k)); 
-                        }
-                    } else {
-                        for (int k = 0; k <= functionBody.size() - 2; k++) {
-                            elements.remove(indexFunction);
-                        }
-                        for (int k = 0; k < functionBody.size(); k++) {
-                            elements.add(functionBody.get(k)); 
-                        }
-                    }    
-                }
-            }
-        }
-
-        for (int i = 0; i < elements.size(); i++) {
-            if (elements.get(i).equals("COND")) {                
-                int openParenthesisCount = 0;
-                int countZero = 0;
-                int indexCond = i;
-                int countCaracters = 0;
-
-                Map<Integer, ArrayList<ArrayList<String>>> trueMap = new HashMap<>();
-
-                ArrayList<String> clause = new ArrayList<>();
-
-                ArrayList<String> trueArrayList = new ArrayList<>();
-
-                ArrayList<String> elseArrayList = new ArrayList<>();
-
-                ArrayList<ArrayList<String>> clauseAndTrue = new ArrayList<>();
-
-                String trueorfalse;
-
-                // Ciclo para encontrar cantidad de paréntesis
-                for (int j = indexCond + 1; j < elements.size(); j++) {
-                    if (elements.get(j).equals("(")) {
-                        openParenthesisCount++;
-                        countCaracters++;
-                    } else if (elements.get(j).equals(")")) {
-                        openParenthesisCount--;
-                        countCaracters++;
-                        if (openParenthesisCount == 0) {
-                            countZero++;
-                        }
-                        if (elements.get(j + 1).equals(")")) {
-                            break;
-                        }
-
-                    } else if (!elements.get(j).equals("(") && !elements.get(j).equals(")")) {
-                        countCaracters++;
-                    }
-                }
-
-                // Ciclo para encontrar las cláusulas
-                int countParenthesis = countZero;
-                countZero = 0;
-
-                for (int j = indexCond + 1; j <= countCaracters + 1; j++) {
-                    if (elements.get(j).equals("(")) {
-                        openParenthesisCount++;
-                        if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
-                            elseArrayList.add(elements.get(j));
-                        } else if (countZero % 2 == 0) {
-                            clause.add(elements.get(j));    
-                        } else if (countZero % 2 != 0) {
-                            trueArrayList.add(elements.get(j));
-                        }
-                    } else if (elements.get(j).equals(")")) {
-                        openParenthesisCount--;
-                        if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
-                            elseArrayList.add(elements.get(j));
-                        } else if (countZero % 2 == 0) {
-                            clause.add(elements.get(j));
-                            clauseAndTrue.add(new ArrayList<>(clause));
-                            clause.clear();
-                        } else if (countZero % 2 != 0) {
-                            trueArrayList.add(elements.get(j));
-                            clauseAndTrue.add(new ArrayList<>(trueArrayList));
-                            trueArrayList.clear();
-                            trueMap.put(countZero, clauseAndTrue);
-                        }
-
-                        if (openParenthesisCount == 0) {
-                            countZero++;
-                        }
-                    } else if (!elements.get(j).equals("(") && !elements.get(j).equals(")")) {
-                        if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
-                            elseArrayList.add(elements.get(j));
-                        } else if (countZero % 2 == 0) {
-                            clause.add(elements.get(j));
-                        } else if (countZero % 2 != 0) {
-                            trueArrayList.add(elements.get(j));
-                        }
-                    }
-                }
-                
-                for (Map.Entry<Integer, ArrayList<ArrayList<String>>> entry : trueMap.entrySet()) {
-                    trueorfalse = (String) eval(entry.getValue().get(0));
-                    if (trueorfalse.equals("T")) {
-                        for (int k = 0; k <= countCaracters + 2; k++) {
-                            elements.remove(indexCond - 1);
-                        }
-                        for (int k = entry.getValue().get(1).size() - 1; k != -1; k--) {
-                            String element = entry.getValue().get(1).get(k);
-                            elements.add(indexCond - 1, element);
-                        }
-                        break;
-                    } else if (trueorfalse.equals("NIL")) {
-                        for (int k = 0; k <= countCaracters + 2; k++) {
-                            elements.remove(indexCond - 1);
-                        }
-                        for (int k = elseArrayList.size() - 1; k != -1; k--) {
-                            String element = elseArrayList.get(k);
-                            elements.add(indexCond - 1, element);
-                        }
-                    }
-                }
-
-                clause.clear();
-                trueArrayList.clear();
-                elseArrayList.clear();
-            }
-        }
-        return null;
-    }
 
     /**
      * The root class in the Java class hierarchy. All classes in Java are subclasses of Object.
@@ -278,6 +105,177 @@ public class LispInterpreter{
         int prk = 0;
         int list = 0;
         int count = 0;
+
+        boolean found = true;
+        while (found) {
+            for (int i = 0; i < elements.size(); i++) {
+                if (isFunction(elements.get(i))) {
+                    String functionName = elements.get(i);
+                    int indexFunction = i;
+                    int openParenthesisCount = 0;
+                    int countZero = 0;
+                    int operation = 0;
+                    int operands = 0;
+                    ArrayList<String> valorVariables = new ArrayList<>();
+    
+                    
+                    for (int j = indexFunction + 1; j < elements.size(); j++) {
+                        if (elements.get(j).equals("(")) {
+                            openParenthesisCount++;
+                        } else if (elements.get(j).equals(")")) {
+                            openParenthesisCount--;
+                        } else if (!elements.get(j).equals("(") && !elements.get(j).equals(")")) {
+                            if (isOperator(elements.get(j))) {
+                                operation++;
+                            } else if (isOperand(elements.get(j))) {
+                                operands++;
+                            }
+                            valorVariables.add(elements.get(j));
+                        }
+    
+                        if (openParenthesisCount == 0) {
+                            break;
+                        }
+                    }
+    
+                    ArrayList<String> valueVariables = new ArrayList<>();
+                    ArrayList<String> functionBody = new ArrayList<>();
+    
+                    if (operation > 0 && operands > 0) {
+                        valorVariables.add(0, "(");
+                        valorVariables.add(")");
+                        valueVariables.add(eval(valorVariables).toString());
+                        functionBody = getDEFUN(functionName, valueVariables);
+                    } else {
+                        valueVariables = valorVariables;
+                        functionBody = getDEFUN(functionName, valueVariables);
+                        if (defunctions.get(functionName).get(0).size() > 1) {
+                            for (int k = 0; k <= functionBody.size() - 1; k++) {
+                                elements.remove(indexFunction);
+                            }
+                            for (int k = functionBody.size() - 1; k != -1; k--) {
+                                elements.add(indexFunction ,functionBody.get(k)); 
+                            }
+                        } else {
+                            for (int k = 0; k <= functionBody.size() - 2; k++) {
+                                elements.remove(indexFunction);
+                            }
+                            for (int k = 0; k < functionBody.size(); k++) {
+                                elements.add(functionBody.get(k)); 
+                            }
+                        }    
+                    }
+                } else if (elements.get(i).equals("COND")) {                
+                    int openParenthesisCount = 0;
+                    int countZero = 0;
+                    int indexCond = i;
+                    int countCaracters = 0;
+    
+                    Map<Integer, ArrayList<ArrayList<String>>> trueMap = new HashMap<>();
+    
+                    ArrayList<String> clause = new ArrayList<>();
+    
+                    ArrayList<String> trueArrayList = new ArrayList<>();
+    
+                    ArrayList<String> elseArrayList = new ArrayList<>();
+    
+                    ArrayList<ArrayList<String>> clauseAndTrue = new ArrayList<>();
+    
+                    String trueorfalse;
+    
+                    // Ciclo para encontrar cantidad de paréntesis
+                    for (int j = indexCond + 1; j < elements.size(); j++) {
+                        if (elements.get(j).equals("(")) {
+                            openParenthesisCount++;
+                            countCaracters++;
+                        } else if (elements.get(j).equals(")")) {
+                            openParenthesisCount--;
+                            countCaracters++;
+                            if (openParenthesisCount == 0) {
+                                countZero++;
+                            }
+                            if (elements.get(j + 1).equals(")")) {
+                                break;
+                            }
+    
+                        } else if (!elements.get(j).equals("(") && !elements.get(j).equals(")")) {
+                            countCaracters++;
+                        }
+                    }
+    
+                    // Ciclo para encontrar las cláusulas
+                    int countParenthesis = countZero;
+                    countZero = 0;
+    
+                    for (int j = indexCond + 1; j <= countCaracters + 1; j++) {
+                        if (elements.get(j).equals("(")) {
+                            openParenthesisCount++;
+                            if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
+                                elseArrayList.add(elements.get(j));
+                            } else if (countZero % 2 == 0) {
+                                clause.add(elements.get(j));    
+                            } else if (countZero % 2 != 0) {
+                                trueArrayList.add(elements.get(j));
+                            }
+                        } else if (elements.get(j).equals(")")) {
+                            openParenthesisCount--;
+                            if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
+                                elseArrayList.add(elements.get(j));
+                            } else if (countZero % 2 == 0) {
+                                clause.add(elements.get(j));
+                                clauseAndTrue.add(new ArrayList<>(clause));
+                                clause.clear();
+                            } else if (countZero % 2 != 0) {
+                                trueArrayList.add(elements.get(j));
+                                clauseAndTrue.add(new ArrayList<>(trueArrayList));
+                                trueArrayList.clear();
+                                trueMap.put(countZero, clauseAndTrue);
+                            }
+    
+                            if (openParenthesisCount == 0) {
+                                countZero++;
+                            }
+                        } else if (!elements.get(j).equals("(") && !elements.get(j).equals(")")) {
+                            if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
+                                elseArrayList.add(elements.get(j));
+                            } else if (countZero % 2 == 0) {
+                                clause.add(elements.get(j));
+                            } else if (countZero % 2 != 0) {
+                                trueArrayList.add(elements.get(j));
+                            }
+                        }
+                    }
+                    
+                    for (Map.Entry<Integer, ArrayList<ArrayList<String>>> entry : trueMap.entrySet()) {
+                        trueorfalse = (String) eval(entry.getValue().get(0));
+                        if (trueorfalse.equals("T")) {
+                            for (int k = 0; k <= countCaracters + 2; k++) {
+                                elements.remove(indexCond - 1);
+                            }
+                            for (int k = entry.getValue().get(1).size() - 1; k != -1; k--) {
+                                String elemento = entry.getValue().get(1).get(k);
+                                elements.add(indexCond - 1, elemento);
+                            }
+                            break;
+                        } else if (trueorfalse.equals("NIL")) {
+                            for (int k = 0; k <= countCaracters + 2; k++) {
+                                elements.remove(indexCond - 1);
+                            }
+                            for (int k = elseArrayList.size() - 1; k != -1; k--) {
+                                String elemento = elseArrayList.get(k);
+                                elements.add(indexCond - 1, elemento);
+                            }
+                        }
+                    }
+    
+                    clause.clear();
+                    trueArrayList.clear();
+                    elseArrayList.clear();
+                } else {
+                    found = false;
+                }
+            }
+        }
 
         for (String element : elements) {
             if (isOperand(element)) {
