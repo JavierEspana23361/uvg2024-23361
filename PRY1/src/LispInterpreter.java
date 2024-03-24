@@ -105,6 +105,7 @@ public class LispInterpreter{
         int prk = 0;
         int list = 0;
         int count = 0;
+        int quote = 0;
 
         
         for (int i = 0; i < elements.size(); i++) {
@@ -372,10 +373,11 @@ public class LispInterpreter{
                     throw new IllegalArgumentException("Error: Operador no encontrado");
                     
                 } else if (operator.equals("QUOTE")) {
-                    QUOTE(operands);
+                    operands = QUOTE(operands);
                     for (Object obj : operands) {
                         stack.push(obj);
                     }
+                    quote = 1;
                 } else if (operator.equals("LIST")) {
                     ArrayList<Object> additions = LIST(operands);
                     for (Object addition : additions) {
@@ -410,6 +412,12 @@ public class LispInterpreter{
                 listResult.add((stack.pop()).toString());
             }
             return listResult;
+        } else if (quote == 1) {
+            String quoteResult = "";
+            while (!stack.isEmpty()) {
+                quoteResult += stack.pop() + " ";
+            }
+            return quoteResult;
         }
         else {
             throw new IllegalArgumentException("Error: Expresión inválida");
@@ -718,7 +726,7 @@ public class LispInterpreter{
      * @return the input operands without any evaluation
      */
     public ArrayList<Object> QUOTE(ArrayList<Object> operands) {
-        return null;
+        return operands;
     }
 
     /**
