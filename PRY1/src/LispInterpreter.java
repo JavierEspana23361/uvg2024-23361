@@ -37,6 +37,9 @@ public class LispInterpreter{
         ArrayList<String> nameVariables = new ArrayList<>();
         // Separar los nombres de las variables y la función
         for (String element: functionBody) {
+            if (countZero == 1) {
+                function.add(element);
+            }
             if (element.equals("(")) {
                 openParenthesisCount++;
             } else if (element.equals(")")) {
@@ -48,10 +51,6 @@ public class LispInterpreter{
                 if (countZero == 0) {
                     nameVariables.add(element);
                 }
-            }
-
-            if (countZero == 1) {
-                function.add(element);
             }
         }
 
@@ -72,30 +71,30 @@ public class LispInterpreter{
      */
     public ArrayList<String> getDEFUN(String functionName, ArrayList<String> valVar) throws Exception {
         ArrayList<String> functionBody = new ArrayList<>();
-        Map<String, Double> variablesFun = new HashMap<>();
-        System.out.println(valVar);
-        System.out.println(defunctions.get(functionName).get(0));
+        Map<String, String> variablesFun = new HashMap<>();
         if (valVar.size() == defunctions.get(functionName).get(0).size()) {
             for (int i = 0; i < valVar.size(); i++) {
-                variablesFun.put(defunctions.get(functionName).get(0).get(i), Double.parseDouble(valVar.get(i)));
+                variablesFun.put(defunctions.get(functionName).get(0).get(i), valVar.get(i));
             }
         } else {
             throw new Exception("Error: Número de variables incorrecto");
         }
         
         for (String element: defunctions.get(functionName).get(1)) {
-            for (Map.Entry<String, Double> entry : variablesFun.entrySet()) {
+            for (Map.Entry<String, String> entry : variablesFun.entrySet()) {
                 if (element.equals(entry.getKey())) {
                     functionBody.add(entry.getValue().toString());
-                } else {
+                    break;
+                } else if (!variablesFun.containsKey(element)) {
                     functionBody.add(element);
+                    break;
                 }
             }
         }
 
         return functionBody;
     }   
-    
+
     /**
      * The root class in the Java class hierarchy. All classes in Java are subclasses of Object.
      * This class provides basic methods that are inherited by all other classes.
@@ -107,68 +106,234 @@ public class LispInterpreter{
         int list = 0;
         int count = 0;
 
-        
-        for (int i = 0; i < elements.size(); i++) {
-            if (isFunction(elements.get(i))) {
-                String functionName = elements.get(i);
-                int indexFunction = i;
-                int openParenthesisCount = 0;
-                int countZero = 0;
-                ArrayList<String> function = new ArrayList<>();
-                ArrayList<String> valorVariables = new ArrayList<>();
-
-                for (int j = indexFunction + 1; j < elements.size(); j++) {
-                    if (elements.get(j).equals("(")) {
-                        openParenthesisCount++;
-                        if (countZero == 0) {
-                            valorVariables.add(elements.get(j));
-                            countZero++;
+        boolean found = true;
+        while (found) {
+            found = false;
+            for (int i = 0; i < elements.size(); i++) {
+                if (elements.get(i).equals("DEFUN")) {
+                    stack.clear();
+                    brk = 1;
+                    String functionName = elements.get(elements.indexOf("DEFUN") + 1);
+    
+                    ArrayList<String> functionBody = new ArrayList<>();
+    
+                    for (int j = elements.indexOf("DEFUN") + 2; j < elements.size(); j++) {
+                        if (elements.get(j).equals(")" ) && count == 0) {
+                            break;
+                        } else if (elements.get(j).equals("(")) {
+                            count++;
+                        } else if (elements.get(j).equals(")")) {
+                            count--;
                         }
-                    } else if (elements.get(j).equals(")")) {
-                        openParenthesisCount--;
-                        if (openParenthesisCount == 0 && countZero == 0) {
+                        functionBody.add(elements.get(j));
+                    }
+                    elements.clear();
+                    setDEFUN(functionName, functionBody);
+                    count = 0;
+                    break;
+                } else if (isFunction(elements.get(i))) {
+                    found = true;
+                    String functionName = elements.get(i);
+                    int indexFunction = i;
+                    int openParenthesisCount = 0;
+                    int countZero = 0;
+                    int operation = 0;
+                    int operands = 0;
+                    ArrayList<String> valorVariables = new ArrayList<>();
+    
+                    
+                    for (int j = indexFunction + 1; j < elements.size(); j++) {
+                        if (elements.get(j).equals("(")) {
+                            openParenthesisCount++;
+                        } else if (elements.get(j).equals(")")) {
+                            openParenthesisCount--;
+                        } else if (!elements.get(j).equals("(") && !elements.get(j).equals(")")) {
+                            if (isOperator(elements.get(j))) {
+                                operation++;
+                            } else if (isOperand(elements.get(j))) {
+                                operands++;
+                            }
                             valorVariables.add(elements.get(j));
-                            countZero++;
+                        }
+    
+                        if (openParenthesisCount == 0) {
                             break;
                         }
-                    } else if (countZero == 0) {
-                        valorVariables.add(elements.get(j));
                     }
-
-                    if (elements.get(j).equals("(")) {
-                        openParenthesisCount++;
-                        if (countZero == 1) {
-                            function.add(elements.get(j));
-                            countZero++;
+    
+                    ArrayList<String> valueVariables = new ArrayList<>();
+                    ArrayList<String> functionBody = new ArrayList<>();
+    
+                    if (operation > 0 && operands > 0) {
+                        valorVariables.add(0, "(");
+                        valorVariables.add(")");
+                        int valueInt = (int) eval(valorVariables);
+                        valueVariables.add(Integer.toString(valueInt));
+                        functionBody = getDEFUN(functionName, valueVariables);
+                        if (defunctions.get(functionName).get(0).size() > 1) {
+                            for (int k = 0; k <= defunctions.get(functionName).get(0).size() + 2; k++) {
+                                elements.remove(indexFunction);
+                            }
+                            for (int k = functionBody.size() - 1; k != -1; k--) {
+                                elements.add(indexFunction ,functionBody.get(k)); 
+                            }
+                        } else {
+                            if (valorVariables.size() == operation + operands) {
+                                for (int k = 0; k <= valorVariables.size(); k++) {
+                                    elements.remove(indexFunction);
+                                }
+                                for (int k = 0; k < functionBody.size(); k++) {
+                                    elements.add(indexFunction, functionBody.get(k)); 
+                                }
+                            } else {
+                                for (int k = 0; k <= valorVariables.size(); k++) {
+                                    elements.remove(indexFunction);
+                                }
+                                for (int k = functionBody.size() - 1; k > -1; k--) {
+                                    elements.add(indexFunction, functionBody.get(k)); 
+                                }
+                            }
+                            
                         }
-                    } else if (elements.get(j).equals(")")) {
-                        openParenthesisCount--;
-                        if (openParenthesisCount == 0 && countZero == 1) {
-                            function.add(elements.get(j));
-                            countZero++;
-                            break;
-                        }
-                    } else if (countZero == 1) {
-                        function.add(elements.get(j));
-                    }
-                }
-
-                ArrayList<String> valorVariablesFinal = new ArrayList<>();
-
-                for (String valorVariable: valorVariables) {
-                    if (valorVariable.equals("(") || valorVariable.equals(")")) {
-                        continue;
                     } else {
-                        System.out.println(valorVariable);
-                        valorVariablesFinal.add(valorVariable);
-                    }                   
+                        valueVariables = valorVariables;
+                        functionBody = getDEFUN(functionName, valueVariables);
+
+                        if (defunctions.get(functionName).get(0).size() > 1) {
+                            for (int k = 0; k <= defunctions.get(functionName).get(0).size() + 2; k++) {
+                                elements.remove(indexFunction);
+                            }
+                            for (int k = functionBody.size() - 1; k != -1; k--) {
+                                elements.add(indexFunction ,functionBody.get(k)); 
+                            }
+                        } else {
+                            for (int k = 0; k <= defunctions.get(functionName).get(0).size() + 2; k++) {
+                                elements.remove(indexFunction);
+                            }
+                            for (int k = 0; k < functionBody.size(); k++) {
+                                elements.add(functionBody.get(k)); 
+                            }
+                        }
+                        functionBody.clear();  
+                    }
+                    break;
+                } else if (elements.get(i).equals("COND")) { 
+                    found = true;               
+                    int openParenthesisCount = 0;
+                    int countZero = 0;
+                    int indexCond = i;
+                    int countCaracters = 0;
+    
+                    Map<Integer, ArrayList<ArrayList<String>>> trueMap = new HashMap<>();
+    
+                    ArrayList<String> clause = new ArrayList<>();
+    
+                    ArrayList<String> trueArrayList = new ArrayList<>();
+    
+                    ArrayList<String> elseArrayList = new ArrayList<>();
+    
+                    ArrayList<ArrayList<String>> clauseAndTrue = new ArrayList<>();
+    
+                    String trueorfalse;
+    
+                    // Ciclo para encontrar cantidad de paréntesis y caracteres
+                    for (int j = indexCond + 1; j < elements.size(); j++) {
+                        if (elements.get(j).equals("(")) {
+                            openParenthesisCount++;
+                            countCaracters++;
+                        } else if (elements.get(j).equals(")")) {
+                            openParenthesisCount--;
+                            countCaracters++;
+                            if (openParenthesisCount == 0) {
+                                countZero++;
+                            }
+                            if (elements.get(j + 1).equals(")")) {
+                                if (elements.get(indexCond - 1).equals("(")) {
+                                    openParenthesisCount--;
+                                }
+                                break;
+                            }
+    
+                        } else if (!elements.get(j).equals("(") && !elements.get(j).equals(")")) {
+                            countCaracters++;
+                        }
+                    }
+    
+                    // Ciclo para encontrar las cláusulas
+                    int countParenthesis = countZero + 1;
+                    countZero = 0;
+    
+                    for (int j = indexCond + 1; j <= countCaracters + 1; j++) {
+                        if (elements.get(j).equals("(")) {
+                            openParenthesisCount++;
+                            if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
+                                elseArrayList.add(elements.get(j));
+                            } else if (countZero % 2 == 0) {
+                                clause.add(elements.get(j));    
+                            } else if (countZero % 2 != 0) {
+                                trueArrayList.add(elements.get(j));
+                            }
+                        } else if (elements.get(j).equals(")")) {
+                            openParenthesisCount--;
+                            if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
+                                elseArrayList.add(elements.get(j));
+                            } else if (countZero % 2 == 0) {
+                                clause.add(elements.get(j));
+                                clauseAndTrue.add(new ArrayList<>(clause));
+                                clause.clear();
+                            } else if (countZero % 2 != 0) {
+                                trueArrayList.add(elements.get(j));
+                                clauseAndTrue.add(new ArrayList<>(trueArrayList));
+                                trueArrayList.clear();
+                                trueMap.put(countZero, clauseAndTrue);
+                            }
+    
+                            if (openParenthesisCount == 0) {
+                                countZero++;
+                            }
+                        } else if (!elements.get(j).equals("(") && !elements.get(j).equals(")")) {
+                            if (countZero % 2 == 0 && countZero == countParenthesis - 1) {
+                                elseArrayList.add(elements.get(j));
+                            } else if (countZero % 2 == 0) {
+                                clause.add(elements.get(j));
+                            } else if (countZero % 2 != 0) {
+                                trueArrayList.add(elements.get(j));
+                            }
+                        }
+                    }
+                    
+                    for (Map.Entry<Integer, ArrayList<ArrayList<String>>> entry : trueMap.entrySet()) {
+                        trueorfalse = (String) eval(entry.getValue().get(0));
+                        if (trueorfalse.equals("T")) {
+                            for (int k = 0; k <= countCaracters + 2; k++) {
+                                elements.remove(indexCond - 1);
+                            }
+                            for (int k = entry.getValue().get(1).size() - 2; k != -1; k--) {
+                                String elemento = entry.getValue().get(1).get(k);
+                                elements.add(indexCond - 1, elemento);
+                            }
+                            break;
+                        } else if (trueorfalse.equals("NIL")) {
+                            for (int k = 0; k <= countCaracters + 2; k++) {
+                                elements.remove(indexCond - 1);
+                            }
+                            for (int k = elseArrayList.size() - 1; k != -1; k--) {
+                                String elemento = elseArrayList.get(k);
+                                elements.add(indexCond - 1, elemento);
+                            }
+                        }
+                    }
+    
+                    clause.clear();
+                    trueArrayList.clear();
+                    elseArrayList.clear();
+                    break;
                 }
- 
-                ArrayList<String> functionBody = getDEFUN(functionName, valorVariablesFinal);
-                return eval(functionBody);
             }
         }
 
+        int index = 0;
+        int indexOperator = 0;
         for (String element : elements) {
             if (isOperand(element)) {
                 stack.push(Double.parseDouble(element));
@@ -176,71 +341,6 @@ public class LispInterpreter{
                 stack.push((Double) variables.get(element));
             } else if (element.equals("(")) {
                 stack.push(element);
-            } else if (element.equals("COND")) {
-                stack.clear();
-                ArrayList<String> trufalse = new ArrayList<>();
-                int openParenthesisCount = 0;
-                boolean foundCond = false;
-                String trueorfalse;
-                int countZero = 0;
-                ArrayList<String> trueArrayList = new ArrayList<>();
-                ArrayList<String> falseArrayList = new ArrayList<>();
-
-                for (String elemento : elements) {
-                    if (foundCond) {
-                        if (elemento.equals("(")) {
-                            openParenthesisCount++;
-                        } else if (elemento.equals(")")) {
-                            openParenthesisCount--;
-                            if (openParenthesisCount == 0) {
-                                trufalse.add(elemento);
-                                break;
-                            }
-                        }
-                        trufalse.add(elemento);
-                    } else if (elemento.equals("COND")) {
-                        foundCond = true;
-                    }
-                }
-
-                for (String elemento: elements) {
-                    if (elemento.equals("(")) {
-                        openParenthesisCount++;
-                        if (countZero == 1) {
-                            trueArrayList.add(elemento);
-                        } else if (countZero == 2) {
-                            falseArrayList.add(elemento);
-                        }
-                    } else if (elemento.equals("COND")) {
-                        openParenthesisCount = 0;
-                    } else if (elemento.equals(")")) {
-                        openParenthesisCount--;
-                        if (countZero == 1) {
-                            trueArrayList.add(elemento);
-                        } else if (countZero == 2) {
-                            falseArrayList.add(elemento);
-                        }
-                        if (openParenthesisCount == 0) {
-                            countZero++;
-                        } 
-                    } else if (countZero == 1) {
-                        trueArrayList.add(elemento);
-                    } else if (countZero == 2) {
-                        falseArrayList.add(elemento);
-                    }
-                }
-                
-                trueorfalse = (String) eval(trufalse);
-
-                if (trueorfalse.equals("True")) {
-                    return eval(trueArrayList);
-                } else {
-                    elements.clear();
-                    return eval(falseArrayList);
-                }
-                
-                 
-
             } else if (element.equals("SETQ")) {
                 prk = 1;
                 Object variable = elements.get(elements.indexOf("SETQ") + 1);
@@ -272,28 +372,8 @@ public class LispInterpreter{
                 elements.clear();
                 stack.clear();
                 break;
-            } else if (element.equals("DEFUN")) {
-                stack.clear();
-                brk = 1;
-                String functionName = elements.get(elements.indexOf("DEFUN") + 1);
-
-                ArrayList<String> functionBody = new ArrayList<>();
-
-                for (int i = elements.indexOf("DEFUN") + 2; i < elements.size(); i++) {
-                    if (elements.get(i).equals(")" ) && count == 0) {
-                        break;
-                    } else if (elements.get(i).equals("(")) {
-                        count++;
-                    } else if (elements.get(i).equals(")")) {
-                        count--;
-                    }
-                    functionBody.add(elements.get(i));
-                }
-                elements.clear();
-                setDEFUN(functionName, functionBody);
-                count = 0;
-                break;
             } else if (isOperator(element)) {
+                indexOperator = index;
                 stack.push(element);
             } else if (isClause(element)) {
                 stack.push(element.equals("True") ? "T" : "NIL");
@@ -329,10 +409,8 @@ public class LispInterpreter{
                     throw new IllegalArgumentException("Error: Operador no encontrado");
                     
                 } else if (operator.equals("QUOTE")) {
-                    QUOTE(operands);
-                    for (Object obj : operands) {
-                        stack.push(obj);
-                    }
+                    String quote = QUOTE(operands);
+                    stack.push(quote);
                 } else if (operator.equals("LIST")) {
                     ArrayList<Object> additions = LIST(operands);
                     for (Object addition : additions) {
@@ -341,16 +419,27 @@ public class LispInterpreter{
                     list = 1;
                 } else if (operator.equals("ATOM")) {
                     stack.push(ATOM(operands));
+                } else if (operator.equals(">") || operator.equals("<") || operator.equals("EQUAL")) {
+                    String result = comparation(operands, operator);
+                    for (int i = 0; i < operands.size() + 2; i++) {
+                        elements.remove(indexOperator - 1);
+                    }
+                    for (int i = 0; i < elements.size(); i++) {
+                        elements.add(indexOperator - 1, result);
+                    }
                 } else {
                     Object result = performOperation(operands, operator);
-                    if (result instanceof Double) {
-                        stack.push(result);
-                    } else if (result instanceof String) {
-                        stack.push(result.equals("T") ? "True" : "False");
+                    for (int i = 0; i < operands.size() + 3; i++) {
+                        elements.remove(indexOperator - 1);
+                    }
+                    for (int i = 0; i < elements.size(); i++) {
+                        elements.add(indexOperator - 1, (String) result);
                     }
                 }
-            } else
+            } else {
                 stack.push(element);
+            }
+            index++;
         }
 
         if (stack.size() == 1 && stack.peek() instanceof Double) {
@@ -367,8 +456,7 @@ public class LispInterpreter{
                 listResult.add((stack.pop()).toString());
             }
             return listResult;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Error: Expresión inválida");
         }
     } 
@@ -452,6 +540,24 @@ public class LispInterpreter{
     
         return tokens;
     }
+
+    public String comparation(ArrayList<Object> operands, Object operator) {
+        if (operator instanceof String) {
+            String op = (String) operator;
+            switch (op) {
+                case "<":
+                    return isMinor(operands).equals("T") ? "T" : "NIL";
+                case ">":
+                    return isMajor(operands).equals( "T") ? "T" : "NIL";
+                case "EQUAL":
+                    return isEqual(operands).equals("T") ? "T" : "NIL";
+                default:
+                    throw new IllegalArgumentException("Error: Operador no válido");
+            }
+        } else {
+            throw new IllegalArgumentException("Error: Operador no válido");
+        }
+    }
     
     /**
      * Performs the specified operation on the given operands.
@@ -461,7 +567,7 @@ public class LispInterpreter{
      * @return The result of the operation.
      * @throws IllegalArgumentException If the operator is not a valid string.
      */
-    public Object performOperation(ArrayList<Object> operands, Object operator) {
+    public Double performOperation(ArrayList<Object> operands, Object operator) {
         if (operator instanceof String) {
             String op = (String) operator;
             switch (op) {
@@ -477,12 +583,6 @@ public class LispInterpreter{
                     return root(operands);
                 case "EXPT":
                     return exponentiation(operands);
-                case "<":
-                    return isMinor(operands).equals("T") ? "T" : "NIL";
-                case ">":
-                    return isMajor(operands).equals( "T") ? "T" : "NIL";
-                case "EQUAL":
-                    return isEqual(operands).equals("T") ? "T" : "NIL";
                 default:
                     throw new IllegalArgumentException("Error: Operador no válido");
             }
@@ -498,12 +598,13 @@ public class LispInterpreter{
      * @return the sum of all the operands
      * @throws IllegalArgumentException if any of the operands is not a Double
      */
-    public double add(ArrayList<Object> operands) {
-        double sum = 0;
+    public Double add(ArrayList<Object> operands) {
+        Double sum = 0.0;
         System.out.println(operands);
         for (Object operand : operands) {
             if (operand instanceof Double) {
-                sum += (double) operand;
+                double operandDouble = (Double) operand;
+                sum += operandDouble;
             } else {
                 throw new IllegalArgumentException("Error: Invalid operands for addition");
             }
@@ -518,15 +619,17 @@ public class LispInterpreter{
      * @return the result of subtracting the operands
      * @throws IllegalArgumentException if the number of operands is less than 2 or if any operand is not a Double
      */
-    public double subtract(ArrayList<Object> operands) {
+    public Double subtract(ArrayList<Object> operands) {
         if (operands.size() < 2) {
             throw new IllegalArgumentException("Error: Invalid operands for subtraction");
         }
-        double result = (double) operands.get(0);
+        Double result = (Double) operands.get(0);
+
         for (int i = 1; i < operands.size(); i++) {
-            Object operand = operands.get(i);
+            Double operand = (Double) operands.get(i);
             if (operand instanceof Double) {
-                result -= (double) operand;
+                Double operandInt = (Double) operand;
+                result -= operandInt;
             } else {
                 throw new IllegalArgumentException("Error: Invalid operands for subtraction");
             }
@@ -541,11 +644,12 @@ public class LispInterpreter{
      * @return The product of the multiplication.
      * @throws IllegalArgumentException if any of the operands is not a double.
      */
-    public double multiplication(ArrayList<Object> operands) {
-        double product = 1;
+    public Double multiplication(ArrayList<Object> operands) {
+        Double product = 1.0;
         for (Object operand : operands) {
             if (operand instanceof Double) {
-                product *= (double) operand;
+                double operandDouble = (Double) operand;
+                product *= operandDouble;
             } else {
                 throw new IllegalArgumentException("Error: Invalid operands for multiplication");
             }
@@ -560,15 +664,15 @@ public class LispInterpreter{
      * @return The result of the division operation.
      * @throws IllegalArgumentException If the number of operands is less than 2 or if any operand is zero.
      */
-    public double division(ArrayList<Object> operands) {
+    public Double division(ArrayList<Object> operands) {
         if (operands.size() < 2) {
             throw new IllegalArgumentException("Error: Invalid operands for division");
         }
-        double result = (double) operands.get(0);
+        Double result = (Double) operands.get(0);
         for (int i = 1; i < operands.size(); i++) {
-            Object operand = operands.get(i);
-            if (operand instanceof Double && (double) operand != 0) {
-                result /= (double) operand;
+            Double operand = (Double) operands.get(i);
+            if (operand instanceof Double && (Double) operand != 0) {
+                result /= operand;
             } else {
                 throw new IllegalArgumentException("Error: Invalid operands for division");
             }
@@ -583,13 +687,14 @@ public class LispInterpreter{
      * @return The result of the root calculation.
      * @throws IllegalArgumentException if the number of operands is not equal to 2.
      */
-    public double root(ArrayList<Object> operands) {
+    public Double root(ArrayList<Object> operands) {
         if (operands.size() != 2) {
             throw new IllegalArgumentException("Error: Invalid operands for root");
         }
         double base = (double) operands.get(0);
         double exponent = (double) operands.get(1);
-        return Math.pow(base, 1/exponent);
+        double result = Math.pow(base, 1/exponent);
+        return result;
     }
 
     /**
@@ -599,13 +704,14 @@ public class LispInterpreter{
      * @return The result of raising the base to the exponent.
      * @throws IllegalArgumentException if the number of operands is not 2.
      */
-    public double exponentiation(ArrayList<Object> operands) {
+    public Double exponentiation(ArrayList<Object> operands) {
         if (operands.size() != 2) {
             throw new IllegalArgumentException("Error: Invalid operands for exponentiation");
         }
-        double base = (double) operands.get(0);
-        double exponent = (double) operands.get(1);
-        return Math.pow(base, exponent);
+        Double base = (Double) operands.get(0);
+        Double exponent = (Double) operands.get(1);
+        Double result = Math.pow(base, exponent);
+        return result;
     }
 
     /**
@@ -674,8 +780,12 @@ public class LispInterpreter{
      * @param operands the list of operands to be quoted
      * @return the input operands without any evaluation
      */
-    public ArrayList<Object> QUOTE(ArrayList<Object> operands) {
-        return null;
+    public String QUOTE(ArrayList<Object> operands) {
+        String quote = "";
+        for (int i = operands.size() - 1; i > -1; i--){
+            quote += operands.get(i) + " ";
+        }
+        return quote;
     }
 
     /**
@@ -739,4 +849,3 @@ public class LispInterpreter{
         }
     }
 }
-
