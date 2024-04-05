@@ -138,5 +138,25 @@ public class BinarySearchTree<K, V> implements ITree<K, V> {
             walk.doWalk(actualNode.getValue());
         }
     }
+
+    @Override
+    public void printTree() {
+        if (!isEmpty()){
+            internalPrintTree(root, 0);
+        } else {
+            System.out.println("The tree is empty");
+        }
+    }
+
+    private void internalPrintTree(TreeNode<K, V> node, int level) {
+        if (node != null){
+            internalPrintTree(node.getRight(), level + 1);
+            for (int i = 0; i < level; i++){
+                System.out.print("   ");
+            }
+            System.out.println(node.getKey() + " " + node.getValue());
+            internalPrintTree(node.getLeft(), level + 1);
+        }
+    }
     
 }
