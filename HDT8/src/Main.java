@@ -10,9 +10,18 @@ public class Main {
         ArrayList<ArrayList<String>> text = txtReader(filePathTxt);
         
         for (ArrayList<String> line : text) {
-            for (String word : line) {
-                System.out.println(word);
+            for (int i = 0; i < line.size(); i++) {
+                if (i == 2) {
+                    line.add(120 + Integer.parseInt(line.get(i)) + "");
+                }
             }
+        }
+
+        for (ArrayList<String> line : text) {
+            for (String word : line) {
+                System.out.print(word + " ");
+            }
+            System.out.println();
         }
     }
     
