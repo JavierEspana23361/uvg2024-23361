@@ -9,6 +9,16 @@ public class Main {
 
         ArrayList<ArrayList<String>> text = txtReader(filePathTxt);
         
+        text = priority(text);
+
+        for (ArrayList<String> line : text) {
+            for (String word : line) {
+                System.out.print(word + " ");
+            }
+        }
+    }
+    
+    public static ArrayList<ArrayList<String>> priority(ArrayList<ArrayList<String>> text) {
         for (ArrayList<String> line : text) {
             for (int i = 0; i < line.size(); i++) {
                 if (i == 2) {
@@ -16,24 +26,7 @@ public class Main {
                 }
             }
         }
-
-        for (ArrayList<String> line : text) {
-            for (String word : line) {
-                System.out.print(word + " ");
-            }
-            System.out.println();
-        }
-    }
-    
-    public static String priority(ArrayList<ArrayList<String>> text) {
-        String translatedText = "";
-        for (ArrayList<String> line : text) {
-            for (String word : line) {
-                
-            }
-            translatedText += "\n";
-        }
-        return translatedText;
+        return text;
     }
 
     public static ArrayList<ArrayList<String>> txtReader(String filePath) {
