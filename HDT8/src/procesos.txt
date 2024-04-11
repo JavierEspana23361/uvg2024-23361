@@ -8,7 +8,7 @@ code,diego10,-1
 python,juan02,12
 ls,maria30,0
 vim,rosa20,3
-gcc,diego10,7
+gcc,diego10,19
 java,maria30,-9
 npm,juan02,4
 git,rosa20,6
