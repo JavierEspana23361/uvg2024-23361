@@ -225,6 +225,7 @@ public class LispInterpreter{
                     int countCaracters = 0;
     
                     Map<Integer, ArrayList<ArrayList<String>>> trueMap = new HashMap<>();
+                    trueMap.clear();
     
                     ArrayList<String> clause = new ArrayList<>();
     
@@ -331,115 +332,124 @@ public class LispInterpreter{
                 }
             }
         }
-
+        
+        boolean found2 = true;
         int index = 0;
         int indexOperator = 0;
-        for (String element : elements) {
-            if (isOperand(element)) {
-                stack.push(Double.parseDouble(element));
-            }  else if (isVariable(element)) {
-                stack.push((Double) variables.get(element));
-            } else if (element.equals("(")) {
-                stack.push(element);
-            } else if (element.equals("SETQ")) {
-                prk = 1;
-                Object variable = elements.get(elements.indexOf("SETQ") + 1);
-                Double value = null;
-                ArrayList<String> valueList = new ArrayList<>();
-                for (int i = elements.indexOf("SETQ") + 2; i < elements.size(); i++) {
-                    if (elements.get(i).equals(")" ) && count == 0) {
-                        break;
-                    } else if (elements.get(i).equals("(")) {
-                        count++;
-                    } else if (elements.get(i).equals(")")) {
-                        count--;
+        while (found2) {
+            found2 = false;
+            int stackSize = stack.size();
+            index = 0;
+            for (int i = 0; i < stackSize; i++) {
+                stack.pop();
+            }
+            for (String element : elements) {
+                if (isOperand(element)) {
+                    stack.push(Double.parseDouble(element));
+                }  else if (isVariable(element)) {
+                    stack.push((Double) variables.get(element));
+                } else if (element.equals("(")) {
+                    stack.push(element);
+                } else if (element.equals("SETQ")) {
+                    prk = 1;
+                    Object variable = elements.get(elements.indexOf("SETQ") + 1);
+                    Double value = null;
+                    ArrayList<String> valueList = new ArrayList<>();
+                    for (int i = elements.indexOf("SETQ") + 2; i < elements.size(); i++) {
+                        if (elements.get(i).equals(")" ) && count == 0) {
+                            break;
+                        } else if (elements.get(i).equals("(")) {
+                            count++;
+                        } else if (elements.get(i).equals(")")) {
+                            count--;
+                        }
+                        valueList.add(elements.get(i));
                     }
-                    valueList.add(elements.get(i));
-                }
-                for (String values: valueList) {
-                    if (isVariable(values)) {
-                        values = String.valueOf(variables.get(values));
-                    } 
-                }
-                if (valueList.size() == 1) {
-                    String val = valueList.get(0);
-                    value = Double.parseDouble(val);
-                    SETQ(variable, value);
-                } else if (valueList.size() > 1) {
-                    value = (Double) eval(valueList);
-                    SETQ(variable, value);
-                }
-                elements.clear();
-                stack.clear();
-                break;
-            } else if (isOperator(element)) {
-                indexOperator = index;
-                stack.push(element);
-            } else if (isClause(element)) {
-                stack.push(element.equals("True") ? "T" : "NIL");
-            } else if (element.equals(")")) {
-                ArrayList<Object> operands = new ArrayList<>();
-                Object operator = null;
+                    for (String values: valueList) {
+                        if (isVariable(values)) {
+                            values = String.valueOf(variables.get(values));
+                        } 
+                    }
+                    if (valueList.size() == 1) {
+                        String val = valueList.get(0);
+                        value = Double.parseDouble(val);
+                        SETQ(variable, value);
+                    } else if (valueList.size() > 1) {
+                        value = (Double) eval(valueList);
+                        SETQ(variable, value);
+                    }
+                    elements.clear();
+                    stack.clear();
+                    break;
+                } else if (isOperator(element)) {
+                    indexOperator = index;
+                    stack.push(element);
+                } else if (isClause(element)) {
+                    stack.push(element.equals("True") ? "T" : "NIL");
+                } else if (element.equals(")")) {
+                    ArrayList<Object> operands = new ArrayList<>();
+                    Object operator = null;
 
-                while (!stack.isEmpty() && !stack.peek().equals("(")) {
-                    Object top = stack.pop();
+                    while (!stack.isEmpty() && !stack.peek().equals("(")) {
+                        Object top = stack.pop();
 
-                    if (top instanceof Double) {
-                        operands.add(0, top);
-                    } else if (top instanceof String) {
-                        if (top.equals("True") || top.equals("False")) {
-                            operands.add(0, top.equals("True") ? "T" : "NIL");
-                        } else if (functions.containsKey(top)) {
-                            operator = top;
-                        } else if (isOperator((String) top)) {
-                            operator = top;
-                        } else {
-                            operands.add(top);
+                        if (top instanceof Double) {
+                            operands.add(0, top);
+                        } else if (top instanceof String) {
+                            if (top.equals("True") || top.equals("False")) {
+                                operands.add(0, top.equals("True") ? "T" : "NIL");
+                            } else if (functions.containsKey(top)) {
+                                operator = top;
+                            } else if (isOperator((String) top)) {
+                                operator = top;
+                            } else {
+                                operands.add(top);
+                            }
                         }
                     }
-                }
 
-                if (stack.isEmpty() || !stack.peek().equals("(")) {
-                    throw new IllegalArgumentException("Error: Expresión inválida");
-                }
+                    if (stack.isEmpty() || !stack.peek().equals("(")) {
+                        throw new IllegalArgumentException("Error: Expresión inválida");
+                    }
 
-                stack.pop();
+                    stack.pop();
 
-                if (operator == null) {
-                    throw new IllegalArgumentException("Error: Operador no encontrado");
-                    
-                } else if (operator.equals("QUOTE")) {
-                    String quote = QUOTE(operands);
-                    stack.push(quote);
-                } else if (operator.equals("LIST")) {
-                    ArrayList<Object> additions = LIST(operands);
-                    for (Object addition : additions) {
-                        stack.push(addition);
-                    }
-                    list = 1;
-                } else if (operator.equals("ATOM")) {
-                    stack.push(ATOM(operands));
-                } else if (operator.equals(">") || operator.equals("<") || operator.equals("EQUAL")) {
-                    String result = comparation(operands, operator);
-                    for (int i = 0; i < operands.size() + 2; i++) {
-                        elements.remove(indexOperator - 1);
-                    }
-                    for (int i = 0; i < elements.size(); i++) {
-                        elements.add(indexOperator - 1, result);
-                    }
-                } else {
-                    Object result = performOperation(operands, operator);
-                    for (int i = 0; i < operands.size() + 3; i++) {
-                        elements.remove(indexOperator - 1);
-                    }
-                    for (int i = 0; i < elements.size(); i++) {
-                        elements.add(indexOperator - 1, (String) result);
+                    if (operator == null) {
+                        throw new IllegalArgumentException("Error: Operador no encontrado");
+                        
+                    } else if (operator.equals("QUOTE")) {
+                        String quote = QUOTE(operands);
+                        stack.push(quote);
+                    } else if (operator.equals("LIST")) {
+                        ArrayList<Object> additions = LIST(operands);
+                        for (Object addition : additions) {
+                            stack.push(addition);
+                        }
+                        list = 1;
+                    } else if (operator.equals("ATOM")) {
+                        stack.push(ATOM(operands));
+                    } else if (operator.equals(">") || operator.equals("<") || operator.equals("EQUAL")) {
+                        String result = comparation(operands, operator);
+                        for (int i = 0; i < operands.size() + 2; i++) {
+                            elements.remove(indexOperator - 1);
+                        }
+                        for (int i = 0; i < elements.size(); i++) {
+                            elements.add(indexOperator - 1, result);
+                        }
+                    } else {
+                        Object result = performOperation(operands, operator);
+                        for (int i = 0; i < operands.size() + 3; i++) {
+                            elements.remove(indexOperator - 1);
+                        }
+                        Double resultDouble = (Double) result;
+                        String resultString = Double.toString(resultDouble);
+                        elements.add(indexOperator - 1, resultString);
+                        found2 = true;
+                        break;
                     }
                 }
-            } else {
-                stack.push(element);
+                index++;
             }
-            index++;
         }
 
         if (stack.size() == 1 && stack.peek() instanceof Double) {

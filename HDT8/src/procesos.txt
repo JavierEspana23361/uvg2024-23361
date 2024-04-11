@@ -1,0 +1,14 @@
+vi,juan02,0
+ls,maria30,-20
+firefox,rosa20,8
+cat,juan02,5
+chrome,diego10,10
+nano,maria30,15
+code,diego10,-1
+python,juan02,12
+ls,maria30,0
+vim,rosa20,3
+gcc,diego10,19
+java,maria30,-9
+npm,juan02,4
+git,rosa20,6
