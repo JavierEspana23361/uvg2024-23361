@@ -11,10 +11,24 @@ public class Main {
         
         text = priority(text);
 
+        HeapUsingIterativeBinaryTree<Integer, ArrayList<String>> heap = new HeapUsingIterativeBinaryTree<Integer, ArrayList<String>>(new ComparadorNumeros<>());
+
         for (ArrayList<String> line : text) {
+            heap.Insert(Integer.parseInt(line.get(3)), line);
+        }
+
+        while (heap.count() > 0) {
+            ArrayList<String> line = heap.get();
             for (String word : line) {
-                System.out.print(word + " ");
+                if (word == line.get(3)) {
+                    line.set(3, "PR = " + word);
+                    System.out.print(line.get(3) + " ");
+                } else {
+                    System.out.print(word + ", ");
+                }
             }
+            System.out.println();
+            heap.remove();
         }
     }
     
