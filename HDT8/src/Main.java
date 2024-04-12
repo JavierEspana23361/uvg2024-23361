@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList; 
 
 public class Main {
+    /**
+     * El método principal del programa.
+     * Lee un archivo de texto, procesa los datos y los muestra en orden de prioridad.
+     * 
+     * @param args Los argumentos de la línea de comandos.
+     */
     public static void main(String[] args) {
         String filePathTxt = "./src/procesos.txt";
 
@@ -32,6 +38,13 @@ public class Main {
         }
     }
     
+    /**
+        * Añade una prioridad a cada elemento en la posición 2 de cada línea de texto.
+        * La prioridad se calcula sumando 120 al valor actual en la posición 2.
+        * 
+        * @param text una lista de listas de cadenas de texto
+        * @return la lista de listas de cadenas de texto con la prioridad añadida
+        */
     public static ArrayList<ArrayList<String>> priority(ArrayList<ArrayList<String>> text) {
         for (ArrayList<String> line : text) {
             for (int i = 0; i < line.size(); i++) {
@@ -43,6 +56,13 @@ public class Main {
         return text;
     }
 
+    /**
+     * Lee un archivo de texto y devuelve una lista de listas de cadenas.
+     * Cada lista interna representa una línea del archivo y contiene las cadenas separadas por comas.
+     *
+     * @param filePath la ruta del archivo de texto a leer
+     * @return una lista de listas de cadenas que representa el contenido del archivo de texto
+     */
     public static ArrayList<ArrayList<String>> txtReader(String filePath) {
         ArrayList<ArrayList<String>> linesArrayList = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
