@@ -1,9 +1,11 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList; 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
-public class Main {
+public class PriorityQueueMain {
     public static void main(String[] args) {
         String filePathTxt = "./src/procesos.txt";
 
@@ -11,16 +13,18 @@ public class Main {
         
         text = priority(text);
 
-        HeapUsingIterativeBinaryTree<Integer, ArrayList<String>> heap = new HeapUsingIterativeBinaryTree<Integer, ArrayList<String>>(new ComparadorNumeros<>());
+        Comparator<ArrayList<String>> comparator = new ComparadorNumeros(); // Remove the generic type argument <>
+
+        PriorityQueue<ArrayList<String>> heap = new PriorityQueue<>(comparator);
 
         for (ArrayList<String> line : text) {
-            heap.Insert(Integer.parseInt(line.get(3)), line);
+            heap.offer(line);
         }
 
-        while (heap.count() > 0) {
-            ArrayList<String> line = heap.get();
+        while (!heap.isEmpty()) {
+            ArrayList<String> line = heap.poll();
             for (String word : line) {
-                if (word == line.get(3)) {
+                if (word.equals(line.get(3))) {
                     line.set(3, "PR = " + word);
                     System.out.print(line.get(3) + " ");
                 } else {
@@ -28,7 +32,6 @@ public class Main {
                 }
             }
             System.out.println();
-            heap.remove();
         }
     }
     
@@ -60,5 +63,14 @@ public class Main {
         }
 
         return linesArrayList;
+    }
+}
+
+class ComparadorNumeros implements Comparator<ArrayList<String>> {
+    @Override
+    public int compare(ArrayList<String> o1, ArrayList<String> o2) {
+        int pr1 = Integer.parseInt(o1.get(3));
+        int pr2 = Integer.parseInt(o2.get(3));
+        return Integer.compare(pr2, pr1);
     }
 }
