@@ -1,8 +1,5 @@
 import java.io.*;
 import java.util.*;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-
 
 public class Compressor {
 
@@ -26,8 +23,10 @@ public class Compressor {
     }
 
     private static void escribirCodigoHuffman(Map<Character, String> codigos, String archivoEntrada, String archivoSalida) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(archivoEntrada));
-            BitOutputStream bitOutputStream = new BitOutputStream(new BufferedOutputStream(new FileOutputStream(archivoSalida)))) {
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(archivoSalida));
+        BitOutputStream bitOutputStream = new BitOutputStream(bufferedOutputStream);
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(archivoEntrada))) {
             int caracter;
             while ((caracter = reader.read()) != -1) {
                 String codigo = codigos.get((char) caracter);
@@ -35,6 +34,10 @@ public class Compressor {
                     bitOutputStream.writeBit(bit == '1');
                 }
             }
+        } finally {
+            // Cerrar los flujos manualmente
+            bitOutputStream.close();
+            bufferedOutputStream.close();
         }
     }
 

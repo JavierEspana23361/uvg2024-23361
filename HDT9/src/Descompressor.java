@@ -28,9 +28,10 @@ public class Descompressor {
 
         Map<String, Character> codigos = leerCodigos(archivoCodigo);
 
-        try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(archivoSalida));
-             BitInputStream bitInputStream = new BitInputStream(new BufferedInputStream(new FileInputStream(archivoCodigo)))) {
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(archivoSalida));
+        BitInputStream bitInputStream = new BitInputStream(new BufferedInputStream(new FileInputStream(archivoCodigo)));
 
+        try {
             Node nodoActual = raiz;
             int bit;
             while ((bit = bitInputStream.readBit()) != -1) {
@@ -41,10 +42,14 @@ public class Descompressor {
                 }
 
                 if (nodoActual.isLeaf()) {
-                    outputStream.write(nodoActual.getChar());
+                    bufferedOutputStream.write(nodoActual.getChar());
                     nodoActual = raiz;
                 }
             }
+        } finally {
+            // Cerrar los flujos manualmente
+            bitInputStream.close();
+            bufferedOutputStream.close();
         }
     }
 
