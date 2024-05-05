@@ -1,8 +1,9 @@
+// Clase Node
 public class Node implements Comparable<Node> {
-    private char caracter; // El carácter almacenado en este nodo (solo para nodos hoja)
-    private int frequency; // La frecuencia del carácter (solo para nodos hoja y padres)
-    private Node left; // Referencia al hijo izquierdo
-    private Node right; // Referencia al hijo derecho
+    private char caracter; 
+    private int frequency; 
+    private Node left; 
+    private Node right; 
 
     // Constructor para nodos hoja
     public Node(char caracter, int frecuencia) {
