@@ -57,7 +57,7 @@ public class Compressor {
 
     private static void generarCodigosHuffman(Node nodo, String codigo, Map<Character, String> codigos) {
         if (nodo.isLeaf()) {
-            codigos.put(nodo.getChar(), codigo);
+            codigos.put(nodo.getCharacter(), codigo);
         } else {
             generarCodigosHuffman(nodo.getLeft(), codigo + "0", codigos);
             generarCodigosHuffman(nodo.getRight(), codigo + "1", codigos);
@@ -66,9 +66,9 @@ public class Compressor {
 
     public static void main(String[] args) {
         try {
-            String archivoEntrada = "texto.txt";
-            String archivoArbol = "arbol.tree";
-            String archivoSalida = "texto.huff";
+            String archivoEntrada = "resources/texto.txt";
+            String archivoArbol = " resources/arbol.tree";
+            String archivoSalida = "resources/texto.huff";
 
             comprimir(archivoEntrada, archivoArbol, archivoSalida);
 

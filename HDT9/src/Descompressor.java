@@ -42,7 +42,7 @@ public class Descompressor {
                 }
 
                 if (nodoActual.isLeaf()) {
-                    bufferedOutputStream.write(nodoActual.getChar());
+                    bufferedOutputStream.write(nodoActual.getCharacter());
                     nodoActual = raiz;
                 }
             }
@@ -50,18 +50,6 @@ public class Descompressor {
             // Cerrar los flujos manualmente
             bitInputStream.close();
             bufferedOutputStream.close();
-        }
-    }
-
-    public static void main(String[] args) {
-        try {
-            String archivoCodigo = "texto.huff";
-            String archivoArbol = "arbol.tree";
-            String archivoSalida = "texto_descomprimido.txt";
-
-            descomprimir(archivoCodigo, archivoArbol, archivoSalida);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
         }
     }
 }
