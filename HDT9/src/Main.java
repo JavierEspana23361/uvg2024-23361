@@ -50,7 +50,6 @@ public class Main {
                     e.printStackTrace();
                 }
 
-            } else if (opcion.equalsIgnoreCase("d")) {
                 try {
                     FileOutputStream fileOutputStream = new FileOutputStream("resources/archivoAux.txt");
                     fileOutputStream.write(bytes);
@@ -60,7 +59,8 @@ public class Main {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-    
+
+            } else if (opcion.equalsIgnoreCase("d")) {
                 try {
                     // Leer los bytes del archivo
                     FileInputStream fileInputStream = new FileInputStream("resources/archivoAux.txt");
