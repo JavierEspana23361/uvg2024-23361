@@ -1,63 +1,64 @@
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("¿Desea comprimir (c) o descomprimir (d)?");
-        String opcion = scanner.nextLine();
+        // Archivos sin uso aún
+        String archivoArbol = "resources/arbol.tree";
+        String archivoSalida = "resources/texto.huff";
 
-        if (opcion.equalsIgnoreCase("c")) {
-            comprimir();
-        } else if (opcion.equalsIgnoreCase("d")) {
-            descomprimir();
-        } else {
-            System.out.println("Opción no válida. Debe ingresar 'c' para comprimir o 'd' para descomprimir.");
+        // Archivos de entrada
+        String archivoEntrada = "resources/textoOriginal.txt";
+        String archivoComprimido = "resources/textoComprimido.txt";
+
+        while (true) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("¿Desea comprimir (c) o descomprimir (d)?");
+            String opcion = scanner.nextLine();
+            String textoOriginal = leerArchivo(archivoEntrada);
+            Huffman huffman = new Huffman(textoOriginal);
+            String textoComprimido = huffman.comprimir();
+
+            if (opcion.equalsIgnoreCase("c")) {
+                System.out.println("Texto comprimido: " + textoComprimido);
+                huffman.printCodes();
+
+                try {
+                    File file = new File(archivoComprimido);
+                    file.createNewFile();
+                    FileWriter writer = new FileWriter(file);
+                    writer.write(textoComprimido);
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            } else if (opcion.equalsIgnoreCase("d")) {
+                textoOriginal = huffman.descomprimir(textoComprimido);
+                System.out.println("Texto descomprimido: " + textoOriginal);
+            } else {
+                System.out.println("Opción no válida. Debe ingresar 'c' para comprimir o 'd' para descomprimir.");
+            }
         }
     }
 
-    private static void comprimir() {
-        try {
-            String archivoEntrada = "resources/texto.txt";
-            String archivoArbol = "resources/arbol.tree";
-            String archivoSalida = "resources/texto.huff";
+    public static String leerArchivo(String archivo) {
+        String texto = "";
 
-            Compressor.comprimir(archivoEntrada, archivoArbol, archivoSalida);
-
-            File file = new File(archivoEntrada);
-            long tamanoOriginal = file.length();
-            file = new File(archivoSalida);
-            long tamanoComprimido = file.length();
-
-            double ratio = (double) tamanoOriginal / tamanoComprimido;
-            System.out.println("Compresión completada.");
-            System.out.println("Ratio de compresión: " + ratio);
+        try (BufferedReader reader = new BufferedReader(new FileReader(archivo))) {
+            int caracter;
+            while ((caracter = reader.read()) != -1) {
+                texto += (char) caracter;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return texto;
     }
-
-
-    private static void descomprimir() {
-        try {
-            String archivoComprimido = "resources/texto.huff";
-            String archivoArbol = "resources/arbol.tree";
-            String archivoDescomprimido = "resources/texto_descomprimido.txt";
-    
-            Descompressor.descomprimir(archivoComprimido, archivoArbol, archivoDescomprimido);
-    
-            File file = new File(archivoComprimido);
-            long tamanoComprimido = file.length();
-            file = new File(archivoDescomprimido);
-            long tamanoDescomprimido = file.length();
-    
-            double ratio = (double) tamanoDescomprimido / tamanoComprimido;
-            System.out.println("Descompresión completada.");
-            System.out.println("Ratio de compresión: " + ratio);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }    
 }
