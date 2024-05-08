@@ -1,11 +1,13 @@
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
+import java.io.FileNotFoundException;
 
 public class Main {
 
@@ -17,6 +19,7 @@ public class Main {
         // Archivos de entrada
         String archivoEntrada = "resources/textoOriginal.txt";
         String archivoComprimido = "resources/textoComprimido.txt";
+        String archivoDescomprimido = "resources/textoDescomprimido.txt";
 
         while (true) {
             Scanner scanner = new Scanner(System.in);
@@ -24,38 +27,77 @@ public class Main {
             String opcion = scanner.nextLine();
             String textoOriginal = leerArchivo(archivoEntrada);
             Huffman huffman = new Huffman(textoOriginal);
-            String textoCodificado = huffman.comprimir();
-            List<Byte> bytes = new ArrayList<>();
-                for (int i = 0; i < textoCodificado.length(); i += 8) {
-                    String byteString = textoCodificado.substring(i, Math.min(i + 8, textoCodificado.length()));
-                    while (byteString.length() < 8) {
-                        byteString += "0";
-                    }
-                    int byteValue = Integer.parseInt(byteString, 2);
-                    byteValue -= 128;
-                    bytes.add((byte) byteValue);
-                }
+            String textoComprimido = huffman.comprimir();
+            String textoDescomprimido = "";
+
+            byte bytes[] = new byte[textoComprimido.length() / 8];
+            for (int i = 0; i < textoComprimido.length(); i += 8) {
+                String byteString = textoComprimido.substring(i, i + 8);
+                bytes[i / 8] = (byte) Integer.parseInt(byteString, 2);
+            }
 
             if (opcion.equalsIgnoreCase("c")) {
-                System.out.println("Texto comprimido: " + bytes);
+                System.out.println("Texto comprimido: " + textoComprimido);
                 huffman.printCodes();
 
                 try {
                     File file = new File(archivoComprimido);
                     file.createNewFile();
                     FileWriter writer = new FileWriter(file);
-                    for (Byte b : bytes) {
-                        writer.write(b);
-                    }
+                    writer.write(textoComprimido);
                     writer.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
             } else if (opcion.equalsIgnoreCase("d")) {
-                String textoComprimido = leerArchivo(archivoComprimido);
-                String textoDescomprimido = huffman.descomprimir(textoComprimido);
-                System.out.println("Texto descomprimido: " + textoOriginal);
+                try {
+                    FileOutputStream fileOutputStream = new FileOutputStream("resources/archivoAux.txt");
+                    fileOutputStream.write(bytes);
+                    fileOutputStream.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+    
+                try {
+                    // Leer los bytes del archivo
+                    FileInputStream fileInputStream = new FileInputStream("resources/archivoAux.txt");
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    int byteRead;
+                    while ((byteRead = fileInputStream.read()) != -1) {
+                        byteArrayOutputStream.write(byteRead);
+                    }
+                    fileInputStream.close();
+        
+                    // Convertir los bytes a un array
+                    byte[] bytesaux = byteArrayOutputStream.toByteArray();
+                    byteArrayOutputStream.close();
+        
+                    StringBuilder binaryText = new StringBuilder();
+                    for (byte b : bytesaux) {
+                        for (int i = 7; i >= 0; i--) {
+                            binaryText.append((b >> i) & 1);
+                        }
+                    }
+                    textoDescomprimido = binaryText.toString();
+                } catch (IOException e) {
+                    System.out.println("Error al leer el archivo.");
+                    e.printStackTrace();
+                }
+                String textoDecodificado = huffman.descomprimir(textoDescomprimido);
+                System.out.println("Texto descomprimido: " + textoDecodificado);
+
+                try {
+                    File file = new File(archivoDescomprimido);
+                    file.createNewFile();
+                    FileWriter writer = new FileWriter(file);
+                    writer.write(textoDecodificado);
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else {
                 System.out.println("Opción no válida. Debe ingresar 'c' para comprimir o 'd' para descomprimir.");
             }
