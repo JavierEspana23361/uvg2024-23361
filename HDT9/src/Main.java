@@ -22,24 +22,28 @@ public class Main {
             String opcion = scanner.nextLine();
             String textoOriginal = leerArchivo(archivoEntrada);
             Huffman huffman = new Huffman(textoOriginal);
-            String textoComprimido = huffman.comprimir();
+            String textoCodificado = huffman.comprimir();
+            byte[] bytes = textoCodificado.getBytes();
+            System.out.println(bytes);
+
+
 
             if (opcion.equalsIgnoreCase("c")) {
-                System.out.println("Texto comprimido: " + textoComprimido);
+                System.out.println("Texto comprimido: " + bytes);
                 huffman.printCodes();
 
                 try {
                     File file = new File(archivoComprimido);
                     file.createNewFile();
                     FileWriter writer = new FileWriter(file);
-                    writer.write(textoComprimido);
+                    
                     writer.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
             } else if (opcion.equalsIgnoreCase("d")) {
-                textoOriginal = huffman.descomprimir(textoComprimido);
+                textoOriginal = huffman.descomprimir(new String(bytes));
                 System.out.println("Texto descomprimido: " + textoOriginal);
             } else {
                 System.out.println("Opción no válida. Debe ingresar 'c' para comprimir o 'd' para descomprimir.");
