@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="HDT2/src"/>
+	<classpathentry kind="src" path="HDT2/test"/>
+	<classpathentry kind="src" path="HDT4/src"/>
+	<classpathentry kind="src" path="HDT6/src"/>
+	<classpathentry kind="src" path="HDT6/testing"/>
+	<classpathentry kind="src" path="HDT7/src"/>
+	<classpathentry kind="src" path="HDT7/tests"/>
+	<classpathentry kind="src" path="HDT8/src"/>
+	<classpathentry kind="src" path="HDT8/tests"/>
+	<classpathentry kind="src" path="HDT9/src"/>
+	<classpathentry kind="src" path="HDT9/tests"/>
+	<classpathentry kind="src" path="Implementación Factory Design Pattern/src"/>
+	<classpathentry kind="src" path="PRY1/src"/>
+	<classpathentry kind="src" path="PRY1/test"/>
+	<classpathentry kind="lib" path="HDT2/lib/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="HDT2/lib/junit-4.13.2.jar"/>
+	<classpathentry kind="lib" path="HDT4/lib/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="HDT4/lib/junit-4.13.2.jar"/>
+	<classpathentry kind="lib" path="HDT6/lib/com.fasterxml.jackson.core.jar"/>
+	<classpathentry kind="lib" path="HDT6/lib/com.fasterxml.jackson.databind.jar"/>
+	<classpathentry kind="lib" path="HDT6/lib/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="HDT6/lib/jackson-annotations-2.1.2.jar"/>
+	<classpathentry kind="lib" path="HDT6/lib/jackson-annotations-2.15.4.jar"/>
+	<classpathentry kind="lib" path="HDT6/lib/jackson-core-2.15.4.jar"/>
+	<classpathentry kind="lib" path="HDT6/lib/jackson-databind-2.15.4.jar"/>
+	<classpathentry kind="lib" path="HDT6/lib/jackson-dataformat-xml-2.1.2.jar"/>
+	<classpathentry kind="lib" path="HDT6/lib/json-simple-1.1.jar"/>
+	<classpathentry kind="lib" path="HDT6/lib/junit-4.13.2.jar"/>
+	<classpathentry kind="lib" path="HDT6/lib/stax2-api.jar"/>
+	<classpathentry kind="lib" path="HDT7/lib/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="HDT7/lib/junit-4.13.2.jar"/>
+	<classpathentry kind="lib" path="HDT8/lib/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="HDT8/lib/junit-4.13.2.jar"/>
+	<classpathentry kind="lib" path="HDT9/lib/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="HDT9/lib/junit-4.13.2.jar"/>
+	<classpathentry kind="lib" path="Implementación Factory Design Pattern/lib/com.fasterxml.jackson.core.jar"/>
+	<classpathentry kind="lib" path="Implementación Factory Design Pattern/lib/com.fasterxml.jackson.databind.jar"/>
+	<classpathentry kind="lib" path="Implementación Factory Design Pattern/lib/jackson-annotations-2.1.2.jar"/>
+	<classpathentry kind="lib" path="Implementación Factory Design Pattern/lib/jackson-annotations-2.15.4.jar"/>
+	<classpathentry kind="lib" path="Implementación Factory Design Pattern/lib/jackson-core-2.15.4.jar"/>
+	<classpathentry kind="lib" path="Implementación Factory Design Pattern/lib/jackson-databind-2.15.4.jar"/>
+	<classpathentry kind="lib" path="Implementación Factory Design Pattern/lib/jackson-dataformat-xml-2.1.2.jar"/>
+	<classpathentry kind="lib" path="Implementación Factory Design Pattern/lib/stax2-api.jar"/>
+	<classpathentry kind="lib" path="PRY1/bin/lib/junit-platform-console-standalone-1.10.2.jar"/>
+	<classpathentry kind="lib" path="PRY1/lib/junit-platform-console-standalone-1.10.2.jar"/>
+	<classpathentry kind="output" path="HDT2/bin"/>
+</classpath>
