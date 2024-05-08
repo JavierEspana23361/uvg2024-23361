@@ -9,14 +9,17 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 
+/**
+ * The Main class is the entry point of the program. It provides functionality to compress and decompress text files using Huffman coding.
+ * The program prompts the user to choose between compression and decompression, and performs the corresponding operation based on the user's input.
+ * Compressed and decompressed files are saved in the specified file paths.
+ */
 public class Main {
 
     public static void main(String[] args) {
-        // Archivos sin uso aún
         String archivoArbol = "resources/arbol.tree";
         String archivoSalida = "resources/texto.huff";
 
-        // Archivos de entrada
         String archivoEntrada = "resources/textoOriginal.txt";
         String archivoComprimido = "resources/textoComprimido.txt";
         String archivoDescomprimido = "resources/textoDescomprimido.txt";
@@ -41,17 +44,7 @@ public class Main {
                 huffman.printCodes();
 
                 try {
-                    File file = new File(archivoComprimido);
-                    file.createNewFile();
-                    FileWriter writer = new FileWriter(file);
-                    writer.write(textoComprimido);
-                    writer.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                try {
-                    FileOutputStream fileOutputStream = new FileOutputStream("resources/archivoAux.txt");
+                    FileOutputStream fileOutputStream = new FileOutputStream(archivoComprimido);
                     fileOutputStream.write(bytes);
                     fileOutputStream.close();
                 } catch (FileNotFoundException e) {
@@ -60,10 +53,30 @@ public class Main {
                     e.printStackTrace();
                 }
 
+                try (FileOutputStream fos = new FileOutputStream(archivoSalida)) {
+                    for (byte b : bytes) {
+                        fos.write(b);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    File fileArbol = new File(archivoArbol);
+                    fileArbol.createNewFile();
+                    FileWriter writerArbol = new FileWriter(fileArbol);
+                    writerArbol.write(huffman.getArbol().toString());
+                    writerArbol.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             } else if (opcion.equalsIgnoreCase("d")) {
                 try {
                     // Leer los bytes del archivo
-                    FileInputStream fileInputStream = new FileInputStream("resources/archivoAux.txt");
+                    FileInputStream fileInputStream = new FileInputStream(archivoComprimido);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     int byteRead;
                     while ((byteRead = fileInputStream.read()) != -1) {
@@ -104,6 +117,12 @@ public class Main {
         }
     }
 
+    /**
+     * Reads the contents of a file and returns it as a string.
+     *
+     * @param archivo The path of the file to be read.
+     * @return The contents of the file as a string.
+     */
     public static String leerArchivo(String archivo) {
         String texto = "";
 
@@ -118,4 +137,6 @@ public class Main {
 
         return texto;
     }
+
+    
 }
