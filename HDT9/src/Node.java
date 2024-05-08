@@ -1,64 +1,42 @@
-import java.io.Serializable;
+public class Node implements Comparable<Node>{
+    private final int frequency;
+    private Node leftNode;
+    private Node rightNode;
 
-public class Node implements Comparable<Node>, Serializable {
-    private static final long serialVersionUID = 1L;
-    
-    private char character; 
-    private int frequency; 
-    private Node left; 
-    private Node right; 
+    public Node(Node leftNode, Node rightNode) {
+        this.frequency = leftNode.getFrequency() + rightNode.getFrequency();
+        this.leftNode = leftNode;
+        this.rightNode = rightNode;
+    }
 
-    // Constructor para nodos hoja
-    public Node(char character, int frequency) {
-        this.character = character;
+    public Node(int frequency) {
         this.frequency = frequency;
     }
 
-    // Constructor para nodos internos
-    public Node(int frequency, Node left, Node right) {
-        this.frequency = frequency;
-        this.left = left;
-        this.right = right;
-    }
-
-    // Método para verificar si este nodo es una hoja
-    public boolean isLeaf() {
-        return left == null && right == null;
-    }
-
-    // Método para comparar nodos basado en frecuencia y carácter
     @Override
-    public int compareTo(Node other) {
-        // Si las frecuencias son iguales, compara por carácter
-        if (this.frequency == other.frequency) {
-            return this.character - other.character;
-        }
-        // Si las frecuencias son diferentes, compara por frecuencia
-        return this.frequency - other.frequency;
-    }
-
-    // Getters y setters
-    public char getCharacter() {
-        return character;
+    public int compareTo(Node node) {
+        return Integer.compare(frequency, node.getFrequency());
     }
 
     public int getFrequency() {
         return frequency;
     }
 
-    public Node getLeft() {
-        return left;
+    public Node getLeftNode() {
+        return leftNode;
     }
 
-    public Node getRight() {
-        return right;
+    public void setLeftNode(Node leftNode) {
+        this.leftNode = leftNode;
     }
 
-    public void setLeft(Node left) {
-        this.left = left;
+    public Node getRightNode() {
+        return rightNode;
     }
 
-    public void setRight(Node right) {
-        this.right = right;
+    public void setRightNode(Node rightNode) {
+        this.rightNode = rightNode;
     }
+
+    
 }
