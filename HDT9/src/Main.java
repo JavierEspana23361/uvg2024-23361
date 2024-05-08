@@ -3,6 +3,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -23,10 +25,16 @@ public class Main {
             String textoOriginal = leerArchivo(archivoEntrada);
             Huffman huffman = new Huffman(textoOriginal);
             String textoCodificado = huffman.comprimir();
-            byte[] bytes = textoCodificado.getBytes();
-            System.out.println(bytes);
-
-
+            List<Byte> bytes = new ArrayList<>();
+                for (int i = 0; i < textoCodificado.length(); i += 8) {
+                    String byteString = textoCodificado.substring(i, Math.min(i + 8, textoCodificado.length()));
+                    while (byteString.length() < 8) {
+                        byteString += "0";
+                    }
+                    int byteValue = Integer.parseInt(byteString, 2);
+                    byteValue -= 128;
+                    bytes.add((byte) byteValue);
+                }
 
             if (opcion.equalsIgnoreCase("c")) {
                 System.out.println("Texto comprimido: " + bytes);
@@ -36,14 +44,17 @@ public class Main {
                     File file = new File(archivoComprimido);
                     file.createNewFile();
                     FileWriter writer = new FileWriter(file);
-                    
+                    for (Byte b : bytes) {
+                        writer.write(b);
+                    }
                     writer.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
             } else if (opcion.equalsIgnoreCase("d")) {
-                textoOriginal = huffman.descomprimir(new String(bytes));
+                String textoComprimido = leerArchivo(archivoComprimido);
+                String textoDescomprimido = huffman.descomprimir(textoComprimido);
                 System.out.println("Texto descomprimido: " + textoOriginal);
             } else {
                 System.out.println("Opción no válida. Debe ingresar 'c' para comprimir o 'd' para descomprimir.");
