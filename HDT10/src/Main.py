@@ -41,7 +41,7 @@ def main():
             print(f"La ruta más corta entre las ciudades {city1} y {city2} es de {shortest_distance} horas.")
             if len(shortest_path) > 2:
                 cities = " -> ".join(shortest_path)
-                print(f"Ciudades intermedias: {cities}")  # Excluir la ciudad de origen y destino
+                print(f"Ciudades intermedias: {cities}")  
         elif option == "2":
             betweenness = nx.betweenness_centrality(graph)
             max_betweenness = max(betweenness.values())
@@ -54,7 +54,7 @@ def main():
             print(f"La nueva ruta más corta entre las ciudades {city1} y {city2} es de {shortest_distance} horas.")
             if len(shortest_path) > 2:
                 cities = " -> ".join(shortest_path)
-                print(f"Ciudades intermedias: {cities}")  # Excluir la ciudad de origen y destino
+                print(f"Ciudades intermedias: {cities}")  
 
             betweenness = nx.betweenness_centrality(graph)
             max_betweenness = max(betweenness.values())
