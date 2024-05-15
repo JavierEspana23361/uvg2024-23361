@@ -48,12 +48,65 @@ def main():
             center_nodes = [node for node, centrality in betweenness.items() if centrality == max_betweenness]
             print(f"Las ciudades que quedan en el centro del grafo son: {center_nodes}")
         elif option == "3":
-            # Implementa la lógica para modificar el grafo
-            pass
+            graph = modify_graph(graph)
+            shortest_path = nx.shortest_path(graph, source=city1, target=city2, weight='weight')
+            shortest_distance = nx.shortest_path_length(graph, source=city1, target=city2, weight='weight')
+            print(f"La nueva ruta más corta entre las ciudades {city1} y {city2} es de {shortest_distance} horas.")
+            if len(shortest_path) > 2:
+                cities = " -> ".join(shortest_path)
+                print(f"Ciudades intermedias: {cities}")  # Excluir la ciudad de origen y destino
+
+            betweenness = nx.betweenness_centrality(graph)
+            max_betweenness = max(betweenness.values())
+            center_nodes = [node for node, centrality in betweenness.items() if centrality == max_betweenness]
+            print(f"Las nuevas ciudades que quedan en el centro del grafo son: {center_nodes}")
         elif option == "4":
             break
         else:
             print("Opción no válida. Intente de nuevo.")
+
+def modify_graph(graph):
+    while True:
+        print("\nOpciones de modificación:")
+        print("1. Interrupción de tráfico entre un par de ciudades.")
+        print("2. Establecer una conexión entre dos ciudades.")
+        print("3. Indicar el clima entre un par de ciudades.")
+        print("4. Finalizar la modificación.")
+
+        option = input("Ingrese la opción deseada: ")
+
+        if option == "1":
+            city1 = input("Ingrese el nombre de la primera ciudad: ")
+            city2 = input("Ingrese el nombre de la segunda ciudad: ")
+            if graph.has_edge(city1, city2):
+                graph.remove_edge(city1, city2)
+                print(f"Se ha interrumpido el tráfico entre {city1} y {city2}.")
+            else:
+                print(f"No existe una conexión entre {city1} y {city2}.")
+        elif option == "2":
+            city1 = input("Ingrese el nombre de la primera ciudad: ")
+            city2 = input("Ingrese el nombre de la segunda ciudad: ")
+            weight = input("Ingrese el tiempo de viaje entre las ciudades: ")
+            graph.add_edge(city1, city2, weight=int(weight))
+            print(f"Se ha establecido una conexión entre {city1} y {city2} con un tiempo de viaje de {weight} horas.")
+        elif option == "3":
+            city1 = input("Ingrese el nombre de la primera ciudad: ")
+            city2 = input("Ingrese el nombre de la segunda ciudad: ")
+            weather = input("Ingrese el clima (normal, lluvia, nieve o tormenta): ")
+            if graph.has_edge(city1, city2):
+                graph[city1][city2]['weight'] = weather
+                print(f"Se ha actualizado el clima entre {city1} y {city2} a {weather}.")
+            else:
+                print(f"No existe una conexión entre {city1} y {city2}.")
+        elif option == "4":
+            break
+        else:
+            print("Opción no válida. Intente de nuevo.")
+
+    return graph
+
+
+
 
 if __name__ == "__main__":
     main()
