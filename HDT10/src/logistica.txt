@@ -8,4 +8,4 @@ Bogota Caracas 6 8 10 20
 Caracas Panama 10 12 15 25
 Panama MexicoCity 15 18 20 40
 MexicoCity LosAngeles 20 25 30 60
-GuatemalaCity Cualalumpur 10 15 25 70
+LosAngeles BuenosAires 25 40 50 60

@@ -1,22 +1,28 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+import random
 
 def read_graph_from_file(file_path):
     G = nx.DiGraph()
     with open(file_path, 'r') as file:
         lines = file.readlines()
         for line in lines:
+            num = random.randint(1, 4) # Generar un clima aleatorio para cada ciudad
             city1, city2, normal, rain, snow, storm = line.split()
-            G.add_edge(city1, city2, weight=int(normal))  # Agregar arista dirigida
+            if num == 1:
+                G.add_edge(city1, city2, weight=int(rain))
+            elif num == 2:
+                G.add_edge(city1, city2, weight=int(snow))
+            elif num == 3:
+                G.add_edge(city1, city2, weight=int(storm))
+            else:
+                G.add_edge(city1, city2, weight=int(normal))
 
     return G
 
 def main():
     file_path = 'src/logistica.txt'
     graph = read_graph_from_file(file_path)
-
-    nx.draw(graph, with_labels=True, node_size=1000, node_color='skyblue', font_size=10, font_weight='bold', edge_color='gray')
-    plt.show()
 
     while True:
         print("\nOpciones:")
@@ -37,8 +43,10 @@ def main():
                 cities = " -> ".join(shortest_path)
                 print(f"Ciudades intermedias: {cities}")  # Excluir la ciudad de origen y destino
         elif option == "2":
-            center = nx.center(graph)
-            print(f"La ciudad que queda en el centro del grafo es: {center}")
+            betweenness = nx.betweenness_centrality(graph)
+            max_betweenness = max(betweenness.values())
+            center_nodes = [node for node, centrality in betweenness.items() if centrality == max_betweenness]
+            print(f"Las ciudades que quedan en el centro del grafo son: {center_nodes}")
         elif option == "3":
             # Implementa la lógica para modificar el grafo
             pass
