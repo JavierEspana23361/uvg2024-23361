@@ -9,9 +9,13 @@ public class App {
 		String url = "bolt://localhost:7687";
 		String user = "neo4j";
 		String password = "password";
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
+		String databaseName = "neo4j2";
+
+		String nameUser = "Maria";
+
+		/*try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
         {
-		 	LinkedList<String> genres = db.getGenres();
+		 	LinkedList<String> genres = db.getSeries(databaseName);
 		 	
 		 	for (int i = 0; i < genres.size(); i++) {
 		 		System.out.println(genres.get(i));
@@ -23,7 +27,7 @@ public class App {
 
 		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
 		{
-		 	LinkedList<String> series = db.getSeries();
+		 	LinkedList<String> series = db.getSeries(databaseName);
 		 	
 		 	for (int i = 0; i < series.size(); i++) {
 		 		System.out.println(series.get(i));
@@ -35,28 +39,45 @@ public class App {
 
 		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
 		{
-			String title = "Ben 10";
-			int releaseYear = 2005;
-			String tagline = "It's hero time!";
-			String result = db.insertSeries(title, releaseYear, tagline);
-			System.out.println(result);
+		 	LinkedList<String> users = db.getUsers(databaseName);
+
+			for (int i = 0; i < users.size(); i++) {
+				System.out.println(users.get(i));
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}*/
+
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
+		{
+			int count = db.countSeriesByUser(nameUser, databaseName);
+
+			System.out.println("\nSeries de " + nameUser + ": " + count);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
 		{
-			String genre = "Action";
-			String title = "Ben 10";
-			String result = db.MatchGenretoSeries(genre, title);
-			System.out.println(result);
+			int count = db.countGenresByUser(nameUser, databaseName);
+
+			System.out.println("\nGéneros de " + nameUser + ": " + count);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
+		{
+			int count = db.countConnectionsByUser(nameUser, databaseName);
 
-
-
+			System.out.println("\nConexiones de " + nameUser + ": " + count);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
