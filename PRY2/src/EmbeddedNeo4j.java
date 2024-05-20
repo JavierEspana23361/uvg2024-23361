@@ -80,8 +80,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public String insertSeries(String title, int releaseYear, String tagline) {
-    	try ( Session session = driver.session() )
+    public String insertSeries(String title, int releaseYear, String tagline, String databaseName) {
+    	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
    		 
    		 String result = session.writeTransaction( new TransactionWork<String>()
@@ -104,8 +104,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public String MatchGenretoSeries(String genre, String title) {
-    	try ( Session session = driver.session() )
+    public String MatchGenretoSeries(String genre, String title, String databaseName) {
+    	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
    		 
    		 String result = session.writeTransaction( new TransactionWork<String>()
@@ -128,8 +128,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public String CreateUsers(String name, String age) {
-    	try ( Session session = driver.session() )
+    public String CreateUsers(String name, String age, String databaseName) {
+    	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
    		 
    		 String result = session.writeTransaction( new TransactionWork<String>()
@@ -152,8 +152,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public String MatchUserToSeries(String name, String title) {
-    	try ( Session session = driver.session() )
+    public String MatchUserToSeries(String name, String title, String databaseName) {
+    	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
    		 
    		 String result = session.writeTransaction( new TransactionWork<String>()
@@ -176,8 +176,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public String MatchUserToGenre(String name, String genre) {
-    	try ( Session session = driver.session() )
+    public String MatchUserToGenre(String name, String genre, String databaseName) {
+    	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
    		 
    		 String result = session.writeTransaction( new TransactionWork<String>()
@@ -200,8 +200,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public LinkedList<String> getSeriesByGenre(String genre){
-        try ( Session session = driver.session() ) {
+    public LinkedList<String> getSeriesByGenre(String genre, String databaseName){
+        try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             LinkedList<String> series = session.readTransaction( new TransactionWork<LinkedList<String>>()
             {
                 @Override
@@ -220,8 +220,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public LinkedList<String> getSeriesByUser(String name){
-        try ( Session session = driver.session() ) {
+    public LinkedList<String> getSeriesByUser(String name, String databaseName){
+        try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             LinkedList<String> series = session.readTransaction( new TransactionWork<LinkedList<String>>()
             {
                 @Override
@@ -240,8 +240,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public LinkedList<String> getGenresByUser(String name){
-        try ( Session session = driver.session() ) {
+    public LinkedList<String> getGenresByUser(String name, String databaseName){
+        try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             LinkedList<String> genres = session.readTransaction( new TransactionWork<LinkedList<String>>()
             {
                 @Override
@@ -310,5 +310,32 @@ public class EmbeddedNeo4j implements AutoCloseable{
         int series = compareSeriesByUser(name1, name2, databaseName);
         int genres = compareGenresByUser(name1, name2, databaseName);
         return series + genres;
+    }
+
+    public double calculateJaccardIndex(String name1, String name2, String databaseName) {
+        int connections = compareConnectionsByUser(name1, name2, databaseName);
+        
+        LinkedList<String> series1 = getSeriesByUser(name1, databaseName);
+        LinkedList<String> series2 = getSeriesByUser(name2, databaseName);
+
+        LinkedList<String> genres1 = getGenresByUser(name1, databaseName);
+        LinkedList<String> genres2 = getGenresByUser(name2, databaseName);
+
+        int countSeries = series1.size() + series2.size();
+        int countGenres = genres1.size() + genres2.size();
+
+        for (String serie : series1) {
+            if (series2.contains(serie)) {
+                countSeries--;
+            }
+        }
+
+        for (String genre : genres1) {
+            if (genres2.contains(genre)) {
+                countGenres--;
+            }
+        }
+
+        return (double) connections / (countSeries + countGenres + connections);
     }
 }
