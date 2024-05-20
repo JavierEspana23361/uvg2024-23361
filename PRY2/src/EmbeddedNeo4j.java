@@ -285,4 +285,30 @@ public class EmbeddedNeo4j implements AutoCloseable{
         int genres = countGenresByUser(name, databaseName);
         return series + genres;
     }
+
+    public int compareSeriesByUser(String name1, String name2, String databaseName) {
+        try (Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
+            return session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (u1:User {name: $name1})-[:LE_GUSTA]->(s:Series)<-[:LE_GUSTA]-(u2:User {name: $name2}) RETURN count(s)", 
+                                        parameters("name1", name1, "name2", name2));
+                return result.single().get(0).asInt();
+            });
+        }
+    }
+
+    public int compareGenresByUser(String name1, String name2, String databaseName) {
+        try (Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
+            return session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (u1:User {name: $name1})-[:LE_GUSTA]->(g:Genero)<-[:LE_GUSTA]-(u2:User {name: $name2}) RETURN count(g)", 
+                                        parameters("name1", name1, "name2", name2));
+                return result.single().get(0).asInt();
+            });
+        }
+    }
+
+    public int compareConnectionsByUser(String name1, String name2, String databaseName) {
+        int series = compareSeriesByUser(name1, name2, databaseName);
+        int genres = compareGenresByUser(name1, name2, databaseName);
+        return series + genres;
+    }
 }
