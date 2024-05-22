@@ -591,6 +591,7 @@ CREATE (s)-[:PERTENECE_A]->(g)
 MATCH (s:Series {title:'Ingobernable'}), (g:Genero {nombre:'Crimen'})
 CREATE (s)-[:PERTENECE_A]->(g)
 
+CREATE (Users:User {name:'User1', password:'12345676'})
 
 
 
