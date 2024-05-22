@@ -27,8 +27,11 @@ public class App {
 			App app = new App();
 			
 			System.out.println("Opciones: ");
-			System.out.println("1. Ver series recomendadas");
-			System.out.println("2. Insertar serie");
+			System.out.println("1. Ver series recomendadas"); //obtiene una linkdelist de series
+			System.out.println("2. Insertar serie"); //obtiene una linkdelist de series
+			System.out.println("3. Unir serie a género"); //no obtiene nada, solo hace la relación
+			System.out.println("4. Añadir series a usuario"); //no obtiene nada, solo hace la relación
+			System.out.println("5. Añadir género a usuario"); //no obtiene nada, solo hace la relación
 			int opcion = scanner.nextInt();
 			if (opcion == 1) {
 				LinkedList<String> series = app.recomendation(uri, user, password, databaseName, name); // Lista de series recomendadas
