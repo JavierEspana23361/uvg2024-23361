@@ -1,5 +1,6 @@
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.Collections;
 public class App {
 	Scanner scanner = new Scanner(System.in);
 	
@@ -100,7 +101,8 @@ public class App {
 						seriesRecommended.remove(serie);
 					}
 				}	
-				return seriesRecommended;
+				Collections.shuffle(seriesRecommended);
+				seriesRecommended.subList(3, seriesRecommended.size()).clear();
 			}
 		}
 		 catch (Exception e) {
