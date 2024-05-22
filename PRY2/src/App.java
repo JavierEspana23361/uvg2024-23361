@@ -6,85 +6,18 @@ public class App {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String url = "bolt://localhost:7687";
+		String uri = "bolt://localhost:7687";
 		String user = "neo4j";
 		String password = "password";
 		String databaseName = "neo4j2";
 		String name;
 		String pass;
 
-
-		String nameUser = "Maria";
-
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
-        {
-		 	LinkedList<String> genres = db.getSeries(databaseName);
-		 	
-		 	for (int i = 0; i < genres.size(); i++) {
-		 		System.out.println(genres.get(i));
-		 	}
-        	
-        } catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
-		{
-		 	LinkedList<String> series = db.getSeries(databaseName);
-		 	
-		 	for (int i = 0; i < series.size(); i++) {
-		 		System.out.println(series.get(i));
-		 	}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
-		{
-		 	LinkedList<String> users = db.getUsers(databaseName);
-
-			for (int i = 0; i < users.size(); i++) {
-				System.out.println(users.get(i));
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
-		{
-			int count = db.countSeriesByUser(nameUser, databaseName);
-
-			System.out.println("\nSeries de " + nameUser + ": " + count);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
-		{
-			int count = db.countGenresByUser(nameUser, databaseName);
-
-			System.out.println("\nGéneros de " + nameUser + ": " + count);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
-		{
-			int count = db.countConnectionsByUser(nameUser, databaseName);
-
-			System.out.println("\nConexiones de " + nameUser + ": " + count);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	
 	}
 
-	public String signin(String url, String user, String password, String databaseName) {
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
+	public String signin(String uri, String user, String password, String databaseName) {
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password))
 		{
 			System.out.println("Ingrese su nombre de usuario: ");
 			String name = System.console().readLine();
@@ -100,8 +33,8 @@ public class App {
 		return null;
 	}
 
-	public String getMostrelatedUser(String url, String user, String password, String databaseName, String name) {
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
+	public String getMostrelatedUser(String uri, String user, String password, String databaseName, String name) {
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password))
 		{
 			LinkedList<String> users = db.getallusers(databaseName);
 			users.remove(name);
@@ -123,10 +56,9 @@ public class App {
 		return null;
 	}
 
-	public LinkedList<String> recomendation(String url, String user, String password, String databaseName, String name, String mostRelatedUser) {
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
-		{
-			LinkedList<String> series = db.getSeriesByUser(name, databaseName);
+	public LinkedList<String> recomendation(String uri, String user, String password, String databaseName, String name) {
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
+			String mostRelatedUser = getMostrelatedUser(uri, user, password, databaseName, name);
 			LinkedList<String> seriesMostRelated = db.getSeriesByUser(mostRelatedUser, databaseName);
 			LinkedList<String> seriesRecommended = new LinkedList<String>();
 			for (String serie : seriesMostRelated) {
@@ -134,20 +66,61 @@ public class App {
 					seriesRecommended.add(serie);
 				}
 			}
-
 			if (seriesRecommended.size() > 1) {
 				return seriesRecommended;
 			} else {
-				
+				String rngenre = getuserGenre(uri, user, password, databaseName, name);
+				seriesRecommended = getSeriesByGenre(uri, user, password, databaseName, rngenre);
+				LinkedList<String> existingSeries = getSeriesByUser(uri, user, password, databaseName, name);
+				for (String serie : existingSeries) {
+					if (seriesRecommended.contains(serie)) {
+						seriesRecommended.remove(serie);
+					}
+				}	
+				return seriesRecommended;
 			}
+		}
+		 catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
+	public String getuserGenre(String uri, String user, String password, String databaseName, String name) {
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
+			LinkedList<String> genres = db.getGenresByUser(name, databaseName);
+			String randomGenre = genres.get((int) (Math.random() * genres.size()));
+			if (randomGenre == null) {
+				LinkedList<String> allGenres = db.getGenres(databaseName);
+				randomGenre = allGenres.get((int) (Math.random() * allGenres.size()));
+			}
+			return randomGenre;
+		}
+		 catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public LinkedList<String> getSeriesByGenre(String uri, String user, String password, String databaseName, String genre) {
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
+			LinkedList<String> series = db.getSeriesByGenre(genre, databaseName);
+			return series;
+		}
+		 catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public LinkedList<String> getSeriesByUser(String uri, String user, String password, String databaseName, String name) {
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
+			LinkedList<String> series = db.getSeriesByUser(name, databaseName);
+			return series;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
-	
-		
-
-
 
 }
