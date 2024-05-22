@@ -360,5 +360,21 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
+    public String getUsersPassword(String name, String databaseName){
+        try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
+            String password = session.readTransaction( new TransactionWork<String>()
+            {
+                @Override
+                public String execute( Transaction tx )
+                {
+                    Result result = tx.run( "MATCH (u:Usuario {nombre:'"+ name + "'}) RETURN u.password");
+                    return result.single().get("u.password").asString();
+                }
+            } );
+
+            return password;
+        }
+    }
+
     
 }

@@ -1,19 +1,42 @@
 import java.util.LinkedList;
-
+import java.util.Scanner;
 public class App {
+	Scanner scanner = new Scanner(System.in);
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
 		String uri = "bolt://localhost:7687";
 		String user = "neo4j";
 		String password = "password";
 		String databaseName = "neo4j2";
-		String name;
-		String pass;
-
-	
+		String name = login(uri, user, password, databaseName);
+		if (name == null) {
+			System.out.println("Usuario o contraseña incorrectos");
+			System.out.println("¿Desea registrarse? (s/n)");
+			String register = scanner.nextLine();
+			if (register.equals("s")) {
+				App app = new App();
+				app.signin(uri, user, password, databaseName);
+			}
+		} else {
+			System.out.println("Bienvenido " + name);
+			App app = new App();
+			
+			System.out.println("Opciones: ");
+			System.out.println("1. Ver series recomendadas");
+			System.out.println("2. Insertar serie");
+			int opcion = scanner.nextInt();
+			if (opcion == 1) {
+				LinkedList<String> series = app.recomendation(uri, user, password, databaseName, name); // Lista de series recomendadas
+				System.out.println("Series recomendadas: ");
+				for (String serie : series) {
+					System.out.println(serie);
+				}
+			} 
+		}
 	}
 
 	public String signin(String uri, String user, String password, String databaseName) {
@@ -122,5 +145,22 @@ public class App {
 		}
 		return null;
 	}
-
+	
+	public static String login(String uri, String user, String password, String databaseName) {
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
+			System.out.println("Ingrese su nombre de usuario: ");
+			String name = System.console().readLine();
+			System.out.println("Ingrese su contraseña: ");
+			String pass = System.console().readLine();
+			String pword = db.getUsersPassword(name, databaseName);
+			if (pword.equals(pass)) {
+				return name;
+			} else {
+				return null;
+			}	
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		return null;
+	}
 }
