@@ -128,7 +128,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public String CreateUsers(String name, String age, String databaseName) {
+    public String CreateUsers(String name, String password, String databaseName) {
     	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
    		 
@@ -138,7 +138,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
                 @Override
                 public String execute( Transaction tx )
                 {
-                    tx.run( "CREATE (u:Usuario {nombre:'" + name + "', edad:'"+ age +"'})");
+                    tx.run( "CREATE (u:Usuario {nombre:'" + name + "', password:'"+ password +"'})");
                     
                     return null;
                 }
@@ -338,4 +338,27 @@ public class EmbeddedNeo4j implements AutoCloseable{
 
         return (double) connections / (countSeries + countGenres + connections);
     }
+
+    public LinkedList<String> getallusers(String databaseName){
+        try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
+            LinkedList<String> users = session.readTransaction( new TransactionWork<LinkedList<String>>()
+            {
+                @Override
+                public LinkedList<String> execute( Transaction tx )
+                {
+                    Result result = tx.run( "MATCH (u:Usuario) RETURN u.nombre");
+                    LinkedList<String> usersList = new LinkedList<String>();
+                    List<Record> records = result.list();
+                    for (Record record : records) {
+                        usersList.add(record.get("u.nombre").asString());
+                    }
+                    return usersList;
+                }
+            } );
+
+            return users;
+        }
+    }
+
+    
 }

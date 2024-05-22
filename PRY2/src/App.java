@@ -10,10 +10,13 @@ public class App {
 		String user = "neo4j";
 		String password = "password";
 		String databaseName = "neo4j2";
+		String name;
+		String pass;
+
 
 		String nameUser = "Maria";
 
-		/*try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
         {
 		 	LinkedList<String> genres = db.getSeries(databaseName);
 		 	
@@ -47,7 +50,7 @@ public class App {
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 
 		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
 		{
@@ -79,5 +82,72 @@ public class App {
 			e.printStackTrace();
 		}
 	}
+
+	public String signin(String url, String user, String password, String databaseName) {
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
+		{
+			System.out.println("Ingrese su nombre de usuario: ");
+			String name = System.console().readLine();
+			System.out.println("Ingrese su contraseña: ");
+			String pass = System.console().readLine();
+			String result = db.CreateUsers(name, pass, databaseName);
+			return result;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+		} 
+		return null;
+	}
+
+	public String getMostrelatedUser(String url, String user, String password, String databaseName, String name) {
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
+		{
+			LinkedList<String> users = db.getallusers(databaseName);
+			users.remove(name);
+			int maxConnections = 0;
+			String mostRelatedUser = "";
+
+			for (String useri : users) {
+				int connections = db.countConnectionsByUser(useri, databaseName);
+				if (connections > maxConnections) {
+					maxConnections = connections;
+					mostRelatedUser = useri;
+				}
+			}
+			System.out.println("Usuario con más relaciones: " + mostRelatedUser);
+			return mostRelatedUser;	
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		return null;
+	}
+
+	public LinkedList<String> recomendation(String url, String user, String password, String databaseName, String name, String mostRelatedUser) {
+		try (EmbeddedNeo4j db = new EmbeddedNeo4j(url, user, password))
+		{
+			LinkedList<String> series = db.getSeriesByUser(name, databaseName);
+			LinkedList<String> seriesMostRelated = db.getSeriesByUser(mostRelatedUser, databaseName);
+			LinkedList<String> seriesRecommended = new LinkedList<String>();
+			for (String serie : seriesMostRelated) {
+				if (!serie.contains(serie)) {
+					seriesRecommended.add(serie);
+				}
+			}
+
+			if (seriesRecommended.size() > 1) {
+				return seriesRecommended;
+			} else {
+				
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+		
+
+
 
 }
