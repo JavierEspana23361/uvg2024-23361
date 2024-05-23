@@ -48,3 +48,19 @@ function showRecommendations() {
         console.error('Error:', error);
     });
 }
+
+function insertSeries() {
+    // Lógica para insertar una serie
+}
+
+function connectSeriesToGenre() {
+    // Lógica para conectar una serie a un género
+}
+
+function addSeriesToUser() {
+    // Lógica para añadir series a un usuario
+}
+
+function addGenreToUser() {
+    // Lógica para añadir un género a un usuario
+}
