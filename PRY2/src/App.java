@@ -21,7 +21,7 @@ public class App {
 		int option = scanner.nextInt();
 		if (option == 1) {
 			name = login(uri, user, password, databaseName);
-			if (name == null) {
+			while (name == null) {
 				System.out.println("Usuario o contraseña incorrectos");
 				System.out.println("¿Desea registrarse? (s/n)");
 				String register = scanner.nextLine();
@@ -54,7 +54,7 @@ public class App {
 				for (String serie : series) {
 					System.out.println(serie);
 				}
-			} 
+			} /* 
 			else if (opcion == 2) {
 				System.out.println("Ingrese el nombre de la serie: ");
 				String serie = scanner.nextLine();
@@ -76,7 +76,7 @@ public class App {
 				System.out.println("Ingrese el género: ");
 				String genre = scanner.nextLine();
 				app.insertGenreToUser(uri, user, password, databaseName, name, genre);
-			}
+			} */
 		}
 	}
 
@@ -142,7 +142,10 @@ public class App {
 					}
 				}	
 				Collections.shuffle(seriesRecommended);
-				seriesRecommended.subList(3, seriesRecommended.size()).clear();
+				if (seriesRecommended.size() > 3) {
+					seriesRecommended.subList(3, seriesRecommended.size()).clear();
+				}
+				return seriesRecommended;
 			}
 		}
 		 catch (Exception e) {
@@ -154,10 +157,14 @@ public class App {
 	public String getuserGenre(String uri, String user, String password, String databaseName, String name) {
 		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
 			LinkedList<String> genres = db.getGenresByUser(name, databaseName);
-			String randomGenre = genres.get((int) (Math.random() * genres.size()));
-			if (randomGenre == null) {
+			String randomGenre;
+			if (genres.size() == 0){
 				LinkedList<String> allGenres = db.getGenres(databaseName);
 				randomGenre = allGenres.get((int) (Math.random() * allGenres.size()));
+			} else {
+				Collections.shuffle(genres);
+				randomGenre = genres.get(0);
+				System.out.println("Género del usuario: " + randomGenre);
 			}
 			return randomGenre;
 		}
