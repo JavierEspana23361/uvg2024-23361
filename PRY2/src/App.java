@@ -13,16 +13,31 @@ public class App {
 		String user = "neo4j";
 		String password = "password";
 		String databaseName = "neo4j2";
-		String name = login(uri, user, password, databaseName);
-		if (name == null) {
-			System.out.println("Usuario o contraseña incorrectos");
-			System.out.println("¿Desea registrarse? (s/n)");
-			String register = scanner.nextLine();
-			if (register.equals("s")) {
-				App app = new App();
-				app.signin(uri, user, password, databaseName);
+		String name;
+
+		System.out.println("Opciones: ");
+		System.out.println("1. Iniciar sesión");
+		System.out.println("2. Registrarse");
+		int option = scanner.nextInt();
+		if (option == 1) {
+			name = login(uri, user, password, databaseName);
+			if (name == null) {
+				System.out.println("Usuario o contraseña incorrectos");
+				System.out.println("¿Desea registrarse? (s/n)");
+				String register = scanner.nextLine();
+				if (register.equals("s")) {
+					App app = new App();
+					app.signin(uri, user, password, databaseName);
+					name = login(uri, user, password, databaseName);
+				}
 			}
 		} else {
+			App app = new App();
+			app.signin(uri, user, password, databaseName);
+			name = login(uri, user, password, databaseName);
+		}
+
+		if (name != null) {
 			System.out.println("Bienvenido " + name);
 			App app = new App();
 			
@@ -40,6 +55,28 @@ public class App {
 					System.out.println(serie);
 				}
 			} 
+			else if (opcion == 2) {
+				System.out.println("Ingrese el nombre de la serie: ");
+				String serie = scanner.nextLine();
+				app.insertSerie(uri, user, password, databaseName, serie);
+			} 
+			else if (opcion == 3) {
+				System.out.println("Ingrese el nombre de la serie: ");
+				String serie = scanner.nextLine();
+				System.out.println("Ingrese el género de la serie: ");
+				String genre = scanner.nextLine();
+				app.insertGenre(uri, user, password, databaseName, serie, genre);
+			} 
+			else if (opcion == 4) {
+				System.out.println("Ingrese el nombre de la serie: ");
+				String serie = scanner.nextLine();
+				app.insertSerieToUser(uri, user, password, databaseName, name, serie);
+			} 
+			else if (opcion == 5) {
+				System.out.println("Ingrese el género: ");
+				String genre = scanner.nextLine();
+				app.insertGenreToUser(uri, user, password, databaseName, name, genre);
+			}
 		}
 	}
 
