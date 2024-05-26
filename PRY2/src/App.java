@@ -5,6 +5,7 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
 
 import java.util.Collections;
+import java.util.InputMismatchException;
 
 public class App {
 	Scanner scanner = new Scanner(System.in);
@@ -19,70 +20,110 @@ public class App {
 		String password = "password";
 		String databaseName = "neo4j2";
 		EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password);
-		String name;
 
 		Boolean menu = true;
 
 		while (menu) {
+			
 			System.out.println("");
 			System.out.println("Opciones: ");
 			System.out.println("1. Iniciar sesión");
 			System.out.println("2. Registrarse");
-			int option = scanner.nextInt();
-			if (option == 1) {
-				System.out.println("Ingrese su nombre de usuario: ");
-				String username = System.console().readLine();
-				System.out.println("Ingrese su contraseña: ");
-				String pass = System.console().readLine();
-				Boolean found = db.login(uri, user, password, username, pass, databaseName);
+			System.out.println("3. Salir");
 
-				if (found) {
-					System.out.println("Bienvenido " + username);
-					App app = new App();
-					
-					System.out.println("Opciones: ");
-					System.out.println("1. Ver series recomendadas"); //obtiene una linkdelist de series
-					System.out.println("2. Insertar serie"); //obtiene una linkdelist de series
-					System.out.println("3. Unir serie a género"); //no obtiene nada, solo hace la relación
-					System.out.println("4. Añadir series a usuario"); //no obtiene nada, solo hace la relación
-					System.out.println("5. Añadir género a usuario"); //no obtiene nada, solo hace la relación
-					int opcion = scanner.nextInt();
-					if (opcion == 1) {
-						LinkedList<String> series = app.recomendation(uri, user, password, databaseName, username); // Lista de series recomendadas
-						System.out.println("Series recomendadas: ");
-						for (String serie : series) {
-							System.out.println(serie);
+			int option = 0;
+			
+			try {
+                option = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("");
+                System.out.println("Ingrese un número.");
+                scanner.nextLine();
+            }
+
+			switch (option) {
+				case 1:
+					System.out.println("\nIngrese su nombre de usuario: ");
+					String username = System.console().readLine();
+					System.out.println("Ingrese su contraseña: ");
+					String pass = System.console().readLine();
+					Boolean found = db.login(uri, user, password, username, pass, databaseName);
+
+					if (found) {
+						System.out.println("\nBienvenido " + username);
+						App app = new App();
+						
+						System.out.println("Opciones: ");
+						System.out.println("1. Ver series recomendadas"); //obtiene una linkdelist de series
+						System.out.println("2. Insertar serie"); //obtiene una linkdelist de series
+						System.out.println("3. Unir serie a género"); //no obtiene nada, solo hace la relación
+						System.out.println("4. Añadir series a usuario"); //no obtiene nada, solo hace la relación
+						System.out.println("5. Añadir género a usuario"); //no obtiene nada, solo hace la relación
+						System.out.println("6. Salir");
+						
+						int opcion = 0;
+
+						try {
+							opcion = Integer.parseInt(System.console().readLine());
+						} catch (Exception e) {
+							System.out.println("Ingrese un número.");
 						}
-					} /* 
-					else if (opcion == 2) {
-						System.out.println("Ingrese el nombre de la serie: ");
-						String serie = scanner.nextLine();
-						app.insertSerie(uri, user, password, databaseName, serie);
-					} 
-					else if (opcion == 3) {
-						System.out.println("Ingrese el nombre de la serie: ");
-						String serie = scanner.nextLine();
-						System.out.println("Ingrese el género de la serie: ");
-						String genre = scanner.nextLine();
-						app.insertGenre(uri, user, password, databaseName, serie, genre);
-					} 
-					else if (opcion == 4) {
-						System.out.println("Ingrese el nombre de la serie: ");
-						String serie = scanner.nextLine();
-						app.insertSerieToUser(uri, user, password, databaseName, name, serie);
-					} 
-					else if (opcion == 5) {
-						System.out.println("Ingrese el género: ");
-						String genre = scanner.nextLine();
-						app.insertGenreToUser(uri, user, password, databaseName, name, genre);
-					} */
-				} else {
-					System.out.println("\nUsuario no encontrado");
-				}
-			} else if (option == 2) {
-				db.signin(uri, user, password, databaseName);
-			} else {
-				System.out.println("Opción no válida");
+
+						switch (opcion) {
+							case 1: // Recomendación de series
+								LinkedList<String> series = app.recomendation(uri, user, password, databaseName, username); // Lista de series recomendadas
+								System.out.println("Series recomendadas: ");
+								for (String serie : series) {
+									System.out.println(serie);
+								}
+								break;
+							/*case 2: // Insertar serie
+								System.out.println("Ingrese el nombre de la serie: ");
+								String serie = System.console().readLine();
+								db.insertSerie(uri, user, password, databaseName, serie);
+								break;
+							case 3: // Unir serie a género
+								System.out.println("Ingrese el nombre de la serie: ");
+								String serie1 = System.console().readLine();
+								System.out.println("Ingrese el género de la serie: ");
+								String genre = System.console().readLine();
+								db.insertGenre(uri, user, password, databaseName, serie1, genre);
+								break;
+							case 4: // Añadir series a usuario
+								System.out.println("Ingrese el nombre de la serie: ");
+								String serie2 = System.console().readLine();
+								db.insertSerieToUser(uri, user, password, databaseName, username, serie2);
+								break;
+							case 5: // Añadir género a usuario
+								System.out.println("Ingrese el género: ");
+								String genre2 = System.console().readLine();
+								db.insertGenreToUser(uri, user, password, databaseName, username, genre2);
+								break;*/
+							case 6:
+								System.out.println("Sesión cerrada");
+								break;
+							case 0:
+								continue;		
+							default:
+								System.out.println("Opción no válida");
+								break;
+						}
+					} else {
+						System.out.println("\nUsuario no encontrado");
+					}
+					break;
+				case 2:
+					db.signin(uri, user, password, databaseName);
+					break;
+				case 3:
+					System.out.println("Saliendo...");
+					menu = false;
+					break;
+				case 0:
+					continue;
+				default:
+					System.out.println("Opción no válida");
+					break;
 			}
 		}
 	}

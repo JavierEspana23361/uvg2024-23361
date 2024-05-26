@@ -45,31 +45,52 @@ public class EmbeddedNeo4j implements AutoCloseable{
 
     public String signin(String uri, String user, String password, String databaseName) {
 		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
-			System.out.println("Ingrese su nombre de usuario: ");
+			System.out.println("\nIngrese su nombre de usuario: ");
 			String name = System.console().readLine();
 			System.out.println("Ingrese su contraseña: ");
 			String pass = System.console().readLine();
-			String result = db.CreateUsers(name, pass, databaseName);
 
-            System.out.println("Desea añadir géneros a su perfil?");
-            System.out.println("1. Sí");
-            System.out.println("2. No");
-            int option = Integer.parseInt(System.console().readLine());
+			Boolean success = db.CreateUsers(name, pass, databaseName);
 
-            if (option == 1) {
-                result = db.BucleCreateUserGenreConnetion(name, pass, databaseName);
+            String result = null;
+
+            if (success) {
+                System.out.println("\nUsuario creado con éxito\n");
+
+                System.out.println("Desea añadir géneros a su perfil?");
+                System.out.println("1. Sí");
+                System.out.println("2. No");
+
+                int option = 0;
+                
+                try {
+                    option = Integer.parseInt(System.console().readLine());
+                } catch (Exception e) {
+                    System.out.println("Ingrese un número.");
+                }
+
+
+                if (option == 1) {
+                    result = db.BucleCreateUserGenreConnetion(name, pass, databaseName);
+                }
+
+                System.out.println("Desea añadir series a su perfil?");
+                System.out.println("1. Sí");
+                System.out.println("2. No");
+
+                try {
+                    option = Integer.parseInt(System.console().readLine());
+                } catch (Exception e) {
+                    System.out.println("Ingrese un número.");
+                }
+
+                if (option == 1) {
+                    result = db.BucleCreateUserSeriesConnetion(name, pass, databaseName);
+                }
+                return result;
+            } else {
+                System.out.println("\nEl usuario ya existe.\n");
             }
-
-            System.out.println("Desea añadir series a su perfil?");
-            System.out.println("1. Sí");
-            System.out.println("2. No");
-            option = Integer.parseInt(System.console().readLine());
-
-            if (option == 1) {
-                result = db.BucleCreateUserSeriesConnetion(name, pass, databaseName);
-            }
-			return result;
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 			
@@ -151,25 +172,25 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public String CreateUsers(String name, String password, String databaseName) {
+    public Boolean CreateUsers(String name, String password, String databaseName) {
     	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
    		 
-   		 String result = session.writeTransaction( new TransactionWork<String>()
+   		 Boolean result = session.writeTransaction( new TransactionWork<Boolean>()
    		 
             {
                 @Override
-                public String execute( Transaction tx )
+                public Boolean execute( Transaction tx )
                 {
                     // Verificar si el usuario ya existe
-                    Result result = tx.run( "MATCH (u:User {name: $name, password: $password}) RETURN u",
-                            parameters("name", name, "password", password));
+                    Result result = tx.run( "MATCH (u:User {name: $name}) RETURN u",
+                            parameters("name", name));
                     if (result.list().isEmpty()) {
                         tx.run( "CREATE (u:User {name: $name, password: $password})",
                                 parameters("name", name, "password", password));
-                        return "Usuario creado";
+                        return true;
                     } else {
-                        return "El usuario ya existe";
+                        return false;
                     }
                 }
             }
@@ -178,7 +199,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
             
             return result;
         } catch (Exception e) {
-        	return e.getMessage();
+        	e.printStackTrace();
+            return null;
         }
     }
 
