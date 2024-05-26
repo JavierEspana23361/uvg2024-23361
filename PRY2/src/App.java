@@ -1,6 +1,11 @@
 import java.util.LinkedList;
 import java.util.Scanner;
+
+import org.neo4j.driver.Session;
+import org.neo4j.driver.SessionConfig;
+
 import java.util.Collections;
+
 public class App {
 	Scanner scanner = new Scanner(System.in);
 	
@@ -13,88 +18,74 @@ public class App {
 		String user = "neo4j";
 		String password = "password";
 		String databaseName = "neo4j2";
+		EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password);
 		String name;
 
-		System.out.println("Opciones: ");
-		System.out.println("1. Iniciar sesión");
-		System.out.println("2. Registrarse");
-		int option = scanner.nextInt();
-		if (option == 1) {
-			name = login(uri, user, password, databaseName);
-			while (name == null) {
-				System.out.println("Usuario o contraseña incorrectos");
-				System.out.println("¿Desea registrarse? (s/n)");
-				String register = scanner.nextLine();
-				if (register.equals("s")) {
-					App app = new App();
-					app.signin(uri, user, password, databaseName);
-					name = login(uri, user, password, databaseName);
-				}
-			}
-		} else {
-			App app = new App();
-			app.signin(uri, user, password, databaseName);
-			name = login(uri, user, password, databaseName);
-		}
+		Boolean menu = true;
 
-		if (name != null) {
-			System.out.println("Bienvenido " + name);
-			App app = new App();
-			
+		while (menu) {
+			System.out.println("");
 			System.out.println("Opciones: ");
-			System.out.println("1. Ver series recomendadas"); //obtiene una linkdelist de series
-			System.out.println("2. Insertar serie"); //obtiene una linkdelist de series
-			System.out.println("3. Unir serie a género"); //no obtiene nada, solo hace la relación
-			System.out.println("4. Añadir series a usuario"); //no obtiene nada, solo hace la relación
-			System.out.println("5. Añadir género a usuario"); //no obtiene nada, solo hace la relación
-			int opcion = scanner.nextInt();
-			if (opcion == 1) {
-				LinkedList<String> series = app.recomendation(uri, user, password, databaseName, name); // Lista de series recomendadas
-				System.out.println("Series recomendadas: ");
-				for (String serie : series) {
-					System.out.println(serie);
-				}
-			} /* 
-			else if (opcion == 2) {
-				System.out.println("Ingrese el nombre de la serie: ");
-				String serie = scanner.nextLine();
-				app.insertSerie(uri, user, password, databaseName, serie);
-			} 
-			else if (opcion == 3) {
-				System.out.println("Ingrese el nombre de la serie: ");
-				String serie = scanner.nextLine();
-				System.out.println("Ingrese el género de la serie: ");
-				String genre = scanner.nextLine();
-				app.insertGenre(uri, user, password, databaseName, serie, genre);
-			} 
-			else if (opcion == 4) {
-				System.out.println("Ingrese el nombre de la serie: ");
-				String serie = scanner.nextLine();
-				app.insertSerieToUser(uri, user, password, databaseName, name, serie);
-			} 
-			else if (opcion == 5) {
-				System.out.println("Ingrese el género: ");
-				String genre = scanner.nextLine();
-				app.insertGenreToUser(uri, user, password, databaseName, name, genre);
-			} */
-		}
-	}
+			System.out.println("1. Iniciar sesión");
+			System.out.println("2. Registrarse");
+			int option = scanner.nextInt();
+			if (option == 1) {
+				System.out.println("Ingrese su nombre de usuario: ");
+				String username = System.console().readLine();
+				System.out.println("Ingrese su contraseña: ");
+				String pass = System.console().readLine();
+				Boolean found = db.login(uri, user, password, username, pass, databaseName);
 
-	public String signin(String uri, String user, String password, String databaseName) {
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password))
-		{
-			System.out.println("Ingrese su nombre de usuario: ");
-			String name = System.console().readLine();
-			System.out.println("Ingrese su contraseña: ");
-			String pass = System.console().readLine();
-			String result = db.CreateUsers(name, pass, databaseName);
-			return result;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			
-		} 
-		return null;
+				if (found) {
+					System.out.println("Bienvenido " + username);
+					App app = new App();
+					
+					System.out.println("Opciones: ");
+					System.out.println("1. Ver series recomendadas"); //obtiene una linkdelist de series
+					System.out.println("2. Insertar serie"); //obtiene una linkdelist de series
+					System.out.println("3. Unir serie a género"); //no obtiene nada, solo hace la relación
+					System.out.println("4. Añadir series a usuario"); //no obtiene nada, solo hace la relación
+					System.out.println("5. Añadir género a usuario"); //no obtiene nada, solo hace la relación
+					int opcion = scanner.nextInt();
+					if (opcion == 1) {
+						LinkedList<String> series = app.recomendation(uri, user, password, databaseName, username); // Lista de series recomendadas
+						System.out.println("Series recomendadas: ");
+						for (String serie : series) {
+							System.out.println(serie);
+						}
+					} /* 
+					else if (opcion == 2) {
+						System.out.println("Ingrese el nombre de la serie: ");
+						String serie = scanner.nextLine();
+						app.insertSerie(uri, user, password, databaseName, serie);
+					} 
+					else if (opcion == 3) {
+						System.out.println("Ingrese el nombre de la serie: ");
+						String serie = scanner.nextLine();
+						System.out.println("Ingrese el género de la serie: ");
+						String genre = scanner.nextLine();
+						app.insertGenre(uri, user, password, databaseName, serie, genre);
+					} 
+					else if (opcion == 4) {
+						System.out.println("Ingrese el nombre de la serie: ");
+						String serie = scanner.nextLine();
+						app.insertSerieToUser(uri, user, password, databaseName, name, serie);
+					} 
+					else if (opcion == 5) {
+						System.out.println("Ingrese el género: ");
+						String genre = scanner.nextLine();
+						app.insertGenreToUser(uri, user, password, databaseName, name, genre);
+					} */
+				} else {
+					System.out.println("Usuario no encontrado");
+					return;
+				}
+			} else if (option == 2) {
+				db.signin(uri, user, password, databaseName);
+			} else {
+				System.out.println("Opción no válida");
+			}
+		}
 	}
 
 	public String getMostrelatedUser(String uri, String user, String password, String databaseName, String name) {
@@ -192,24 +183,6 @@ public class App {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return null;
-	}
-	
-	public static String login(String uri, String user, String password, String databaseName) {
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
-			System.out.println("Ingrese su nombre de usuario: ");
-			String name = System.console().readLine();
-			System.out.println("Ingrese su contraseña: ");
-			String pass = System.console().readLine();
-			String pword = db.getUsersPassword(name, databaseName);
-			if (pword.equals(pass)) {
-				return name;
-			} else {
-				return null;
-			}	
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
 		return null;
 	}
 }
