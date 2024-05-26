@@ -77,8 +77,7 @@ public class App {
 						app.insertGenreToUser(uri, user, password, databaseName, name, genre);
 					} */
 				} else {
-					System.out.println("Usuario no encontrado");
-					return;
+					System.out.println("\nUsuario no encontrado");
 				}
 			} else if (option == 2) {
 				db.signin(uri, user, password, databaseName);

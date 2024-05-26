@@ -21,14 +21,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
 
     public Boolean login(String uri, String name, String password, String username, String pass, String databaseName) {
         try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, name, password)) {
-            Boolean found = db.foundUser(username, pass, databaseName);
-
-            if (found) {
-                return true;
-            } else {
-                return false;
-            }
-
+            return db.foundUser(username, pass, databaseName);
         } catch (Exception e) {
             e.printStackTrace();
         }
