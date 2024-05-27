@@ -71,7 +71,11 @@ public class App {
 
 						switch (opcion) {
 							case 1: // Recomendación de series
-								db.recomend(uri, username, password, username, databaseName);
+								LinkedList<String> recomendations = db.recomend(uri, username, password, username, databaseName);
+								System.out.println("Series recomendadas: ");
+								for (int i = 0; i < recomendations.size(); i++) {
+									System.out.println(recomendations.get(i));
+								}
 								break;
 							case 2: // Agregar una serie a la base de datos
 								System.out.println("Ingrese el nombre de la serie: ");
@@ -133,10 +137,34 @@ public class App {
 								db.CreateSeriesGenresConnection(serie1, genre, databaseName);
 								break;
 							case 4: // Añadir series a usuario
-								db.BucleCreateUserSeriesConnection(username, databaseName);
+								System.out.println("Seleccione la serie que desea agregar: ");
+								LinkedList<String> series = db.getSeries(databaseName);
+								for (int i = 0; i < series.size(); i++) {
+									System.out.println(i + 1 + ". " + series.get(i));
+								}
+								int serieOption = 0;
+								try {
+									serieOption = Integer.parseInt(System.console().readLine());
+								} catch (Exception e) {
+									System.out.println("Ingrese un número.");
+								}
+								title = series.get(serieOption - 1);
+								db.CreateUserSeriesConnection(username, title, databaseName);
 								break;
 							case 5: // Añadir género a usuario
-								db.BucleCreateUserGenreConnection(username, databaseName);
+								System.out.println("Seleccione el género que desea agregar: ");
+								LinkedList<String> genres = db.getGenres(databaseName);
+								for (int i = 0; i < genres.size(); i++) {
+									System.out.println(i + 1 + ". " + genres.get(i));
+								}
+								int genreOption = 0;
+								try {
+									genreOption = Integer.parseInt(System.console().readLine());
+								} catch (Exception e) {
+									System.out.println("Ingrese un número.");
+								}
+								genre = genres.get(genreOption - 1);
+								db.CreateUserGenreConnection(username, genre, databaseName);
 								break;
 							case 6:
 								System.out.println("Sesión cerrada");

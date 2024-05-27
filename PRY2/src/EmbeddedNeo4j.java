@@ -64,7 +64,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
                 @Override
                 public LinkedList<String> execute(Transaction tx) {
                     Result result = tx.run(
-                        "MATCH (u:User {name: $name})-[:LE_GUSTA]->(g:Genre)<-[:PERTENECE_A]-(s:Series) " +
+                        "MATCH (u:User {name: $name})-[:LE_GUSTA]->(g:Genero)<-[:PERTENECE_A]-(s:Series) " +
                         "WHERE NOT (u)-[:LE_GUSTA]->(s) " +
                         "RETURN s.title " +
                         "LIMIT 10",
@@ -306,25 +306,19 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public String CreateUserSeriesConnection(String name, String password, String title, String databaseName) {
+    public String CreateUserSeriesConnection(String name, String title, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             String result = session.writeTransaction(new TransactionWork<String>() {
                 @Override
                 public String execute(Transaction tx) {
-                    Result userSeriesResult = tx.run("MATCH (u:User {name: $name, password: $password}), (s:Series {title: $title}) RETURN u, s",
-                            parameters("name", name, "password", password, "title", title));
-                    if (userSeriesResult.list().isEmpty()) {
-                        return "No existe el usuario o la serie";
+                    Result userSeriesConnectionResult = tx.run("MATCH (u:User {name: $name})-[:VIO]->(s:Series {title: $title}) RETURN u, s",
+                            parameters("name", name, "title", title));
+                    if (userSeriesConnectionResult.list().isEmpty()) {
+                        tx.run("MATCH (u:User {name: $name}), (s:Series {title: $title}) CREATE (u)-[:VIO]->(s)",
+                                parameters("name", name, "title", title));
+                        return "Serie añadida";
                     } else {
-                        Result userSeriesConnectionResult = tx.run("MATCH (u:User {name: $name, password: $password})-[:VIO]->(s:Series {title: $title}) RETURN u, s",
-                                parameters("name", name, "password", password, "title", title));
-                        if (userSeriesConnectionResult.list().isEmpty()) {
-                            tx.run("MATCH (u:User {name: $name, password: $password}), (s:Series {title: $title}) CREATE (u)-[:VIO]->(s)",
-                                    parameters("name", name, "password", password, "title", title));
-                            return "Serie añadida";
-                        } else {
-                            return "Ya existe la conexión";
-                        }
+                        return "Ya existe la conexión";
                     }
                 }
             });
@@ -335,25 +329,19 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
     
-    public String CreateUserGenreConnection(String name, String password, String genre, String databaseName) {
+    public String CreateUserGenreConnection(String name, String genre, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             String result = session.writeTransaction(new TransactionWork<String>() {
                 @Override
                 public String execute(Transaction tx) {
-                    Result userGenreResult = tx.run("MATCH (u:User {name: $name, password: $password}), (g:Genero {nombre: $genre}) RETURN u, g",
-                            parameters("name", name, "password", password, "genre", genre));
-                    if (userGenreResult.list().isEmpty()) {
-                        return "No existe el usuario o el género";
+                    Result userGenreConnectionResult = tx.run("MATCH (u:User {name: $name})-[:LE_GUSTA]->(g:Genero {nombre: $genre}) RETURN u, g",
+                            parameters("name", name, "genre", genre));
+                    if (userGenreConnectionResult.list().isEmpty()) {
+                        tx.run("MATCH (u:User {name: $name}), (g:Genero {nombre: $genre}) CREATE (u)-[:LE_GUSTA]->(g)",
+                                parameters("name", name, "genre", genre));
+                        return "Gusto de género añadido";
                     } else {
-                        Result userGenreConnectionResult = tx.run("MATCH (u:User {name: $name, password: $password})-[:LE_GUSTA]->(g:Genero {nombre: $genre}) RETURN u, g",
-                                parameters("name", name, "password", password, "genre", genre));
-                        if (userGenreConnectionResult.list().isEmpty()) {
-                            tx.run("MATCH (u:User {name: $name, password: $password}), (g:Genero {nombre: $genre}) CREATE (u)-[:LE_GUSTA]->(g)",
-                                    parameters("name", name, "password", password, "genre", genre));
-                            return "Gusto de género añadido";
-                        } else {
-                            return "Ya existe la conexión";
-                        }
+                        return "Ya existe la conexión";
                     }
                 }
             });
@@ -363,7 +351,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
             return e.getMessage();
         }
     }
-
+    
     public LinkedList<String> getallusers(String databaseName){
         try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             LinkedList<String> users = session.readTransaction( new TransactionWork<LinkedList<String>>()
