@@ -34,14 +34,19 @@ function login() {
     });
 }
 
+function showMenu() {
+    document.getElementById("menuOptions").style.display = "block";
+}
+
 function showRecommendations() {
     fetch('/recommendations')
     .then(response => response.json())
     .then(data => {
         let recommendationsDiv = document.getElementById("recommendations");
+        recommendationsDiv.style.display = "block";
         recommendationsDiv.innerHTML = "<h3>Series recomendadas:</h3>";
         data.forEach(serie => {
-            recommendationsDiv.innerHTML += `<p>${serie}</p>`;
+            recommendationsDiv.innerHTML += `<p>${serie.title}: ${serie.description}</p>`;
         });
     })
     .catch((error) => {
@@ -50,17 +55,81 @@ function showRecommendations() {
 }
 
 function insertSeries() {
-    // Lógica para insertar una serie
+    let title = prompt("Ingrese el título de la serie:");
+    let description = prompt("Ingrese la descripción de la serie:");
+    
+    fetch('/insert_series', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title: title, description: description }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
 }
 
 function connectSeriesToGenre() {
-    // Lógica para conectar una serie a un género
+    let seriesId = prompt("Ingrese el ID de la serie:");
+    let genre = prompt("Ingrese el género:");
+    
+    fetch('/connect_series_to_genre', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ seriesId: seriesId, genre: genre }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
 }
 
 function addSeriesToUser() {
-    // Lógica para añadir series a un usuario
+    let userId = prompt("Ingrese el ID del usuario:");
+    let seriesId = prompt("Ingrese el ID de la serie:");
+    
+    fetch('/add_series_to_user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: userId, seriesId: seriesId }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
 }
 
 function addGenreToUser() {
-    // Lógica para añadir un género a un usuario
+    let userId = prompt("Ingrese el ID del usuario:");
+    let genre = prompt("Ingrese el género:");
+    
+    fetch('/add_genre_to_user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: userId, genre: genre }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
 }

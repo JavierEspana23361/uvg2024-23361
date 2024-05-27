@@ -1,0 +1,182 @@
+// Creación de nodos para los géneros de las series
+CREATE (Comedia:Genero {nombre:'Comedia'})
+CREATE (Terror:Genero {nombre:'Terror'})
+CREATE (Drama:Genero {nombre:'Drama'})
+CREATE (Misterio:Genero {nombre:'Misterio'})
+CREATE (Accion: Genero {nombre: 'Accion'})
+CREATE (CienciaFiccion: Genero {nombre: 'Ciencia Ficcion'})
+CREATE (Fantasia: Genero {nombre: 'Fantasia'})
+CREATE (Aventura: Genero {nombre: 'Aventura'})
+CREATE (Documental: Genero {nombre: 'Documental'})
+CREATE (Musical: Genero {nombre: 'Musical'})
+CREATE (Romance: Genero {nombre: 'Romance'})
+CREATE (Suspenso: Genero {nombre: 'Suspenso'})
+CREATE (Animacion: Genero {nombre: 'Animacion'})
+CREATE (Biografia: Genero {nombre: 'Biografia'})
+CREATE (Crimen: Genero {nombre: 'Crimen'})
+CREATE (Familia: Genero {nombre: 'Familia'})
+CREATE (Guerra: Genero {nombre: 'Guerra'})
+CREATE (Historia: Genero {nombre: 'Historia'})
+CREATE (Deporte: Genero {nombre: 'Deporte'})
+CREATE (Politica: Genero {nombre: 'Politica'})
+CREATE (Superheroes: Genero {nombre: 'Superheroes'})
+CREATE (Thriller: Genero {nombre: 'Thriller'})
+CREATE (Western: Genero {nombre: 'Western'})
+CREATE (Horror: Genero {nombre: 'Horror'})
+
+
+
+//Actores
+CREATE (Millie:Person {name:'Millie Bobby Brown', born:2004})
+CREATE (Finn:Person {name:'Finn Wolfhard', born:2002})
+CREATE (David:Person {name:'David Harbour', born:1975})
+CREATE (Winona:Person {name:'Winona Ryder', born:1971})
+CREATE (Olivia:Person {name:'Olivia Colman', born:1974})
+CREATE (Tobias:Person {name:'Tobias Menzies', born:1974})
+CREATE (Helena:Person {name:'Helena Bonham Carter', born:1966})
+CREATE (Louis:Person {name:'Louis Hofmann', born:1997})
+CREATE (Lisa:Person {name:'Lisa Vicari', born:1997})
+CREATE (Kit:Person {name:'Kit Harington', born:1986})
+CREATE (Emilia:Person {name:'Emilia Clarke', born:1986})
+CREATE (Peter:Person {name:'Peter Dinklage', born:1969})
+CREATE (Lena:Person {name:'Lena Headey', born:1973})
+CREATE (Henry:Person {name:'Henry Cavill', born:1983})
+CREATE (Anya:Person {name:'Anya Chalotra', born:1996})
+CREATE (Freya:Person {name:'Freya Allan', born:2001})
+CREATE (Pedro:Person {name:'Pedro Pascal', born:1975})
+CREATE (Carl:Person {name:'Carl Weathers', born:1948})
+CREATE (Gina:Person {name:'Gina Carano', born:1982})
+CREATE (Jason:Person {name:'Jason Bateman', born:1969})
+CREATE (Laura:Person {name:'Laura Linney', born:1964})
+CREATE (Ellen:Person {name:'Ellen Page', born:1987})
+CREATE (Aidan:Person {name:'Aidan Gallagher', born:2003})
+CREATE (Mike:Person {name:'Mike Flanagan', born:1978})
+CREATE (Gerard:Person {name:'Gerard Way', born:1977})
+CREATE (Bryan:Person {name:'Bryan Cranston', born:1956})
+CREATE (Aaron:Person {name:'Aaron Paul', born:1979})
+CREATE (Bob:Person {name:'Bob Odenkirk', born:1962})
+CREATE (Rhea:Person {name:'Rhea Seehorn', born:1972})
+
+
+
+
+
+
+
+
+
+//Directores/Creadores
+CREATE (DufferBros:Person {name:'Duffer Brothers', born:1984})
+CREATE (ShawnLevy:Person {name:'Shawn Levy', born:1968})
+CREATE (Charlie:Person {name:'Charlie Brooker', born:1971})
+CREATE (Peter:Person {name:'Peter Morgan', born:1963})
+CREATE (Jantje:Person {name:'Jantje Friese', born:1977})
+CREATE (Baran:Person {name:'Baran bo Odar', born:1978})
+CREATE (GeorgeRRMartin:Person {name:'George R.R. Martin', born:1948})
+CREATE (AndrzejSapkowski:Person {name:'Andrzej Sapkowski', born:1948})
+CREATE (JonFavreau:Person {name:'Jon Favreau', born:1966})
+CREATE (Aidan:Person {name:'Aidan Gallagher', born:2003})
+CREATE (Way:Person {name:'Gerard Way', born:1977})
+CREATE (Mike:Person {name:'Mike Flanagan', born:1978})
+
+
+
+//Series
+CREATE (StrangerThings:Series {title:'Stranger Things', released:2016, tagline:'Upside Down'})
+CREATE (StrangerThings)-[:PERTENECE_A]->(Drama)
+CREATE (StrangerThings)-[:ACTED_IN {roles:['Eleven']}]->(Millie),
+       (StrangerThings)-[:ACTED_IN {roles:['Mike']}]->(Finn),
+       (StrangerThings)-[:ACTED_IN {roles:['Hopper']}]->(David),
+       (StrangerThings)-[:ACTED_IN {roles:['Joyce']}]->(Winona),
+       (StrangerThings)-[:DIRECTED]->(DufferBros),
+       (StrangerThings)-[:DIRECTED]->(ShawnLevy)
+
+
+CREATE (BlackMirror:Series {title:'Black Mirror', released:2011, tagline:'Technology Nightmare'})
+CREATE (BlackMirror)-[:PERTENECE_A]->(Misterio)
+CREATE (BlackMirror)-[:CREATED_BY]->(Charlie)
+
+
+
+
+CREATE (TheCrown:Series {title:'The Crown', released:2016, tagline:'Royal Drama'})
+CREATE (TheCrown)-[:PERTENECE_A]->(Drama)
+CREATE (TheCrown)-[:ACTED_IN {roles:['Queen Elizabeth II']}]->(Olivia),
+       (TheCrown)-[:ACTED_IN {roles:['Prince Philip']}]->(Tobias),
+       (TheCrown)-[:ACTED_IN {roles:['Princess Margaret']}]->(Helena),
+       (TheCrown)-[:CREATED_BY]->(Peter)
+
+CREATE (Dark:Series {title:'Dark', released:2017, tagline:'Time Travel Mystery'})
+CREATE (Dark)-[:PERTENECE_A]->(Misterio)
+CREATE (Dark)-[:ACTED_IN {roles:['Jonas']}]->(Louis),
+       (Dark)-[:ACTED_IN {roles:['Martha']}]->(Lisa),
+       (Dark)-[:CREATED_BY]->(Baran),
+       (Dark)-[:CREATED_BY]->(Jantje)
+
+
+CREATE (GameOfThrones:Series {title:'Game of Thrones', released:2011, tagline:'Winter is Coming'})
+CREATE (GameOfThrones)-[:PERTENECE_A]->(Aventura)
+CREATE (GameOfThrones)-[:PERTENECE_A]->(Fantasia)
+CREATE (GameOfThrones)-[:ACTED_IN {roles:['Jon Snow']}]->(Kit),
+       (GameOfThrones)-[:ACTED_IN {roles:['Daenerys']}]->(Emilia),
+       (GameOfThrones)-[:ACTED_IN {roles:['Tyrion']}]->(Peter),
+       (GameOfThrones)-[:ACTED_IN {roles:['Cersei']}]->(Lena)
+       (GameOfThrones)-[:CREATED_BY]->(GeorgeRRMartin)
+
+
+CREATE (TheWitcher:Series {title:'The Witcher', released:2019, tagline:'Monster Hunter'})
+CREATE (TheWitcher)-[:PERTENECE_A]->(Aventura)
+CREATE (TheWitcher)-[:PERTENECE_A]->(Fantasia)
+CREATE (TheWitcher)-[:ACTED_IN {roles:['Geralt']}]->(Henry),
+       (TheWitcher)-[:ACTED_IN {roles:['Yennefer']}]->(Anya),
+       (TheWitcher)-[:ACTED_IN {roles:['Ciri']}]->(Freya)
+       (TheWitcher)-[:CREATED_BY]->(AndrzejSapkowski)
+
+
+
+CREATE (TheMandalorian:Series {title:'The Mandalorian', released:2019, tagline:'Bounty Hunter'})
+CREATE (TheMandalorian)-[:PERTENECE_A]->(Accion)
+CREATE (TheMandalorian)-[:PERTENECE_A]->(CienciaFiccion)
+CREATE (TheMandalorian)-[:ACTED_IN {roles:['Mandalorian']}]->(Pedro),
+       (TheMandalorian)-[:ACTED_IN {roles:['Greef Karga']}]->(Carl),
+       (TheMandalorian)-[:ACTED_IN {roles:['Cara Dune']}]->(Gina),
+       (TheMandalorian)-[:CREATED_BY]->(JonFavreau)
+
+
+CREATE (Ozark:Series {title:'Ozark', released:2017, tagline:'Money Laundering'})
+CREATE (Ozark)-[:PERTENECE_A]->(Crimen)
+CREATE (Ozark)-[:PERTENECE_A]->(Drama)
+CREATE (Ozark)-[:ACTED_IN {roles:['Marty Byrde']}]->(Jason),
+       (Ozark)-[:ACTED_IN {roles:['Wendy Byrde']}]->(Laura)
+       (Ozark)-[:DIRECTED]->(Jason)
+
+
+CREATE (TheUmbrellaAcademy:Series {title:'The Umbrella Academy', released:2019, tagline:'Superhero Family'})
+CREATE (TheUmbrellaAcademy)-[:PERTENECE_A]->(Accion)
+CREATE (TheUmbrellaAcademy)-[:PERTENECE_A]->(Comedia)
+CREATE (TheUmbrellaAcademy)-[:ACTED_IN {roles:['Number Five']}]->(Aidan),
+       (TheUmbrellaAcademy)-[:ACTED_IN {roles:['Vanya']}]->(Ellen)
+       (TheUmbrellaAcademy)-[:CREATED_BY]->(Way)
+
+CREATE (TheHauntingOfHillHouse:Series {title:'The Haunting of Hill House', released:2018, tagline:'Haunted House'})
+CREATE (TheHauntingOfHillHouse)-[:PERTENECE_A]->(Terror)
+CREATE (TheHauntingOfHillHouse)-[:PERTENECE_A]->(Drama)
+CREATE (TheHauntingOfHillHouse)-[:ACTED_IN {roles:['Theo']}]->(Olivia),
+       (TheHauntingOfHillHouse)-[:ACTED_IN {roles:['Shirley']}]->(Tobias)
+       (TheHauntingOfHillHouse)-[:DIRECTED]->(Mike)
+
+CREATE (BreakingBad:Series {title:'Breaking Bad', released:2008, tagline:'Meth King'})
+CREATE (BreakingBad)-[:PERTENECE_A]->(Crimen)
+CREATE (BreakingBad)-[:PERTENECE_A]->(Drama)
+CREATE (BreakingBad)-[:ACTED_IN {roles:['Walter White']}]->(Bryan),
+       (BreakingBad)-[:ACTED_IN {roles:['Jesse Pinkman']}]->(Aaron)
+       (BreakingBad)-[:DIRECTED]->(Bryan)
+
+
+CREATE (BetterCallSaul:Series {title:'Better Call Saul', released:2015, tagline:'Lawyer Drama'})
+CREATE (BetterCallSaul)-[:PERTENECE_A]->(Crimen)
+CREATE (BetterCallSaul)-[:PERTENECE_A]->(Drama)
+CREATE (BetterCallSaul)-[:ACTED_IN {roles:['Jimmy McGill']}]->(Bob),
+       (BetterCallSaul)-[:ACTED_IN {roles:['Kim Wexler']}]->(Rhea)
+       (BetterCallSaul)-[:DIRECTED]->(Bryan)
+;

@@ -23,8 +23,15 @@
 
         <div id="welcome" style="display: none;">
             <h2>Bienvenido <span id="usernameDisplay"></span></h2>
-            <button onclick="showRecommendations()">Ver Series Recomendadas</button>
-            <div id="recommendations"></div>
+            <button onclick="showMenu()">Ver Menú</button>
+            <div id="menuOptions" style="display: none;">
+                <button onclick="showRecommendations()">Ver Series Recomendadas</button>
+                <button onclick="insertSeries()">Insertar Serie</button>
+                <button onclick="connectSeriesToGenre()">Unir Serie a Género</button>
+                <button onclick="addSeriesToUser()">Añadir Series a Usuario</button>
+                <button onclick="addGenreToUser()">Añadir Género a Usuario</button>
+            </div>
+            <div id="recommendations" style="display: none;"></div>
         </div>
     </div>
 
