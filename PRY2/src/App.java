@@ -71,9 +71,12 @@ public class App {
 
 						switch (opcion) {
 							case 1: // Recomendación de series
-								LinkedList<String> recomendations = db.recomend(uri, username, password, username, databaseName);
+								LinkedList<String> recomendations = db.recomend(uri, user, password, username, databaseName);
 								System.out.println("Series recomendadas: ");
-								for (int i = 0; i < recomendations.size(); i++) {
+								if (recomendations.size() == 0) {
+									System.out.println("No hay series recomendadas");
+								} else {
+									for (int i = 0; i < recomendations.size(); i++) 
 									System.out.println(recomendations.get(i));
 								}
 								break;

@@ -20,9 +20,10 @@ public class EmbeddedNeo4j implements AutoCloseable{
     }
 
     public LinkedList<String> recomend(String uri, String name, String password, String username, String databaseName) {
+        LinkedList<String> recommendations = new LinkedList<String>();
         try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, name, password)) {
             while (true) {
-                System.out.println("Seleccione el tipo de recomendación que desea:");
+                System.out.println("\nSeleccione el tipo de recomendación que desea:");
                 System.out.println("1. Recomendaciones para usted");
                 System.out.println("2. Recomendaciones por tendencia");
                 System.out.println("3. Recomendaciones de usuario más similar");
@@ -38,14 +39,35 @@ public class EmbeddedNeo4j implements AutoCloseable{
     
                 switch (option) {
                     case 1:
-                        return db.recommendationsForYou(username, databaseName);
+                        recommendations = db.recommendationsForYou(username, databaseName);
+                        int n = 1;
+                        System.out.println("\nRecomendaciones para usted:");
+                        for (String serie : recommendations) {
+                            System.out.println(n + ". " + serie);
+                            n++;
+                        }
+                        break;
                     case 2:
-                        return db.recomendationsTrend(databaseName);
+                        recommendations = db.recomendationsTrend(databaseName);
+                        int i = 1;
+                        System.out.println("\nRecomendaciones por tendencia:");
+                        for (String serie : recommendations) {
+                            System.out.println(i + ". " + serie);
+                            i++;
+                        }
+                        break;
                     case 3:
-                        return db.recommendationsFromMostSimilarUser(username, databaseName);
+                        recommendations = db.recommendationsFromMostSimilarUser(username, databaseName);
+                        int j = 1;
+                        System.out.println("\nRecomendaciones de usuario más similar:");
+                        for (String serie : recommendations) {
+                            System.out.println(j + ". " + serie);
+                            j++;
+                        }
+                        break;
                     case 4:
                         System.out.println("Saliendo...");
-                        return null;
+                        break;
                     default:
                         System.out.println("Opción no válida.");
                         break;
@@ -54,8 +76,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
         } catch (Exception e) {
             e.printStackTrace();
         }
-    
-        return null;
+        return recommendations;
     }
     
     public LinkedList<String> recommendationsForYou(String name, String databaseName) {
@@ -311,10 +332,10 @@ public class EmbeddedNeo4j implements AutoCloseable{
             String result = session.writeTransaction(new TransactionWork<String>() {
                 @Override
                 public String execute(Transaction tx) {
-                    Result userSeriesConnectionResult = tx.run("MATCH (u:User {name: $name})-[:VIO]->(s:Series {title: $title}) RETURN u, s",
+                    Result userSeriesConnectionResult = tx.run("MATCH (u:User {name: $name})-[:LE_GUSTA]->(s:Series {title: $title}) RETURN u, s",
                             parameters("name", name, "title", title));
                     if (userSeriesConnectionResult.list().isEmpty()) {
-                        tx.run("MATCH (u:User {name: $name}), (s:Series {title: $title}) CREATE (u)-[:VIO]->(s)",
+                        tx.run("MATCH (u:User {name: $name}), (s:Series {title: $title}) CREATE (u)-[:LE_GUSTA]->(s)",
                                 parameters("name", name, "title", title));
                         return "Serie añadida";
                     } else {
