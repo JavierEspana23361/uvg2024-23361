@@ -19,6 +19,108 @@ public class EmbeddedNeo4j implements AutoCloseable{
         driver.close();
     }
 
+    public LinkedList<String> recomend(String uri, String name, String password, String username, String databaseName) {
+        try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, name, password)) {
+            while (true) {
+                System.out.println("Seleccione el tipo de recomendación que desea:");
+                System.out.println("1. Recomendaciones para usted");
+                System.out.println("2. Recomendaciones por tendencia");
+                System.out.println("3. Recomendaciones de usuario más similar");
+                System.out.println("4. Salir");
+    
+                int option = 0;
+                try {
+                    option = Integer.parseInt(System.console().readLine());
+                } catch (NumberFormatException e) {
+                    System.out.println("Ingrese un número válido.");
+                    continue;
+                }
+    
+                switch (option) {
+                    case 1:
+                        return db.recommendationsForYou(username, databaseName);
+                    case 2:
+                        return db.recomendationsTrend(databaseName);
+                    case 3:
+                        return db.recommendationsFromMostSimilarUser(username, databaseName);
+                    case 4:
+                        System.out.println("Saliendo...");
+                        return null;
+                    default:
+                        System.out.println("Opción no válida.");
+                        break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    
+        return null;
+    }
+    
+    public LinkedList<String> recommendationsForYou(String name, String databaseName) {
+        try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
+            LinkedList<String> series = session.readTransaction(new TransactionWork<LinkedList<String>>() {
+                @Override
+                public LinkedList<String> execute(Transaction tx) {
+                    Result result = tx.run(
+                        "MATCH (u:User {name: $name})-[:LE_GUSTA]->(g:Genre)<-[:PERTENECE_A]-(s:Series) " +
+                        "WHERE NOT (u)-[:LE_GUSTA]->(s) " +
+                        "RETURN s.title " +
+                        "LIMIT 10",
+                        parameters("name", name)
+                    );
+                    LinkedList<String> seriesList = new LinkedList<String>();
+                    List<Record> records = result.list();
+                    for (Record record : records) {
+                        seriesList.add(record.get("s.title").asString());
+                    }
+                    return seriesList;
+                }
+            });
+            return series;
+        }
+    }    
+
+    public LinkedList<String> recomendationsTrend(String databaseName) {
+        try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
+            LinkedList<String> topSeries = session.readTransaction(new TransactionWork<LinkedList<String>>() {
+                @Override
+                public LinkedList<String> execute(Transaction tx) {
+                    Result result = tx.run(
+                        "MATCH (s:Series)<-[r:LE_GUSTA]-() " +
+                        "RETURN s.title AS title, count(r) AS connections " +
+                        "ORDER BY connections DESC " +
+                        "LIMIT 10"
+                    );
+                    
+                    LinkedList<String> seriesList = new LinkedList<>();
+                    List<Record> records = result.list();
+                    for (Record record : records) {
+                        seriesList.add(record.get("title").asString());
+                    }
+                    return seriesList;
+                }
+            });
+            return topSeries;
+        }
+    }
+
+    public LinkedList<String> recommendationsFromMostSimilarUser(String name, String databaseName) {
+        String mostSimilarUser = findMostSimilarUser(name, databaseName);
+        LinkedList<String> seriesByUser = getSeriesByUser(name, databaseName);
+        LinkedList<String> seriesByMostSimilarUser = getSeriesByUser(mostSimilarUser, databaseName);
+    
+        LinkedList<String> recommendations = new LinkedList<String>();
+        for (String serie : seriesByMostSimilarUser) {
+            if (!seriesByUser.contains(serie)) {
+                recommendations.add(serie);
+            }
+        }
+    
+        return recommendations;
+    }
+
     public Boolean login(String uri, String name, String password, String username, String pass, String databaseName) {
         try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, name, password)) {
             return db.foundUser(username, pass, databaseName);
@@ -323,29 +425,47 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public String insertSeries(String title, int releaseYear, String tagline, String databaseName) {
-    	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
-        {
-   		 
-   		 String result = session.writeTransaction( new TransactionWork<String>()
-   		 
-            {
+    public String insertSeries(String title, String releaseYear, String tagline, String databaseName) {
+        try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
+            session.writeTransaction(new TransactionWork<Void>() {
                 @Override
-                public String execute( Transaction tx )
-                {
-                    tx.run( "CREATE (Test:Serie {title:'" + title + "', released:"+ releaseYear +", tagline:'"+ tagline +"'})");
-                    
+                public Void execute(Transaction tx) {
+                    tx.run("CREATE (s:Serie {title: $title, released: $releaseYear, tagline: $tagline})",
+                            parameters("title", title, "releaseYear", releaseYear, "tagline", tagline));
                     return null;
                 }
-            }
-   		 
-   		 );
-            
-            return result;
+            });
+            return "Serie insertada correctamente.";
         } catch (Exception e) {
-        	return e.getMessage();
+            return "Error al insertar la serie: " + e.getMessage();
         }
     }
+
+    public String CreateSeriesGenresConnection(String title, String genre, String databaseName) {
+        try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
+            String result = session.writeTransaction(new TransactionWork<String>() {
+                @Override
+                public String execute(Transaction tx) {
+                    Result existingRelationResult = tx.run(
+                            "MATCH (s:Serie {title: $title})-[:PERTENECE_A]->(g:Genero {nombre: $genre}) RETURN count(*)",
+                            parameters("title", title, "genre", genre)
+                    );
+                    if (existingRelationResult.hasNext() && existingRelationResult.next().get(0).asInt() > 0) {
+                        return "La relación ya existe";
+                    } else {
+                        tx.run("MATCH (s:Serie {title: $title}), (g:Genero {nombre: $genre}) CREATE (s)-[:PERTENECE_A]->(g)",
+                                parameters("title", title, "genre", genre));
+                        return "Género añadido a serie";
+                    }
+                }
+            });
+    
+            return result;
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+    
 
     public String MatchGenretoSeries(String genre, String title, String databaseName) {
     	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
@@ -531,30 +651,61 @@ public class EmbeddedNeo4j implements AutoCloseable{
         return series + genres;
     }
 
-    public double calculateJaccardIndex(String name1, String name2, String databaseName) {
-        int connections = compareConnectionsByUser(name1, name2, databaseName);
+    public String findMostSimilarUser(String name, String databaseName) {
+        LinkedList<String> seriesByUser = getSeriesByUser(name, databaseName);
+        LinkedList<String> genresByUser = getGenresByUser(name, databaseName);
         
-        LinkedList<String> series1 = getSeriesByUser(name1, databaseName);
-        LinkedList<String> series2 = getSeriesByUser(name2, databaseName);
-
-        LinkedList<String> genres1 = getGenresByUser(name1, databaseName);
-        LinkedList<String> genres2 = getGenresByUser(name2, databaseName);
-
-        int countSeries = series1.size() + series2.size();
-        int countGenres = genres1.size() + genres2.size();
-
+        String mostSimilarUser = "";
+        double highestJaccardIndex = 0.0;
+    
+        try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
+            Result result = session.readTransaction(new TransactionWork<Result>() {
+                @Override
+                public Result execute(Transaction tx) {
+                    return tx.run("MATCH (u:User) WHERE u.name <> $name RETURN u.name", 
+                                   parameters("name", name));
+                }
+            });
+    
+            List<Record> users = result.list();
+            for (Record record : users) {
+                String userName = record.get("u.name").asString();
+                LinkedList<String> seriesByOtherUser = getSeriesByUser(userName, databaseName);
+                LinkedList<String> genresByOtherUser = getGenresByUser(userName, databaseName);
+    
+                double jaccardIndex = calculateJaccardIndex(seriesByUser, seriesByOtherUser, genresByUser, genresByOtherUser);
+                if (jaccardIndex > highestJaccardIndex) {
+                    highestJaccardIndex = jaccardIndex;
+                    mostSimilarUser = userName;
+                }
+            }
+        }
+    
+        return mostSimilarUser;
+    }
+    
+    public double calculateJaccardIndex(LinkedList<String> series1, LinkedList<String> series2, LinkedList<String> genres1, LinkedList<String> genres2) {
+        int seriesIntersection = 0;
+        int seriesUnion = series1.size() + series2.size();
+    
         for (String serie : series1) {
             if (series2.contains(serie)) {
-                countSeries--;
+                seriesIntersection++;
+                seriesUnion--;
             }
         }
-
+    
+        int genresIntersection = 0;
+        int genresUnion = genres1.size() + genres2.size();
+    
         for (String genre : genres1) {
             if (genres2.contains(genre)) {
-                countGenres--;
+                genresIntersection++;
+                genresUnion--;
             }
         }
-
-        return (double) connections / (countSeries + countGenres + connections);
+    
+        double jaccardIndex = (double) (seriesIntersection + genresIntersection) / (seriesUnion + genresUnion + seriesIntersection + genresIntersection);
+        return jaccardIndex;
     }
 }

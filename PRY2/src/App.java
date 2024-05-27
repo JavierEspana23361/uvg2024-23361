@@ -54,11 +54,11 @@ public class App {
 						App app = new App();
 						
 						System.out.println("Opciones: ");
-						System.out.println("1. Ver series recomendadas"); //obtiene una linkdelist de series
-						System.out.println("2. Insertar serie"); //obtiene una linkdelist de series
-						System.out.println("3. Unir serie a género"); //no obtiene nada, solo hace la relación
-						System.out.println("4. Añadir series a usuario"); //no obtiene nada, solo hace la relación
-						System.out.println("5. Añadir género a usuario"); //no obtiene nada, solo hace la relación
+						System.out.println("1. Ver series recomendadas");
+						System.out.println("2. Insertar serie");
+						System.out.println("3. Unir serie a género"); 
+						System.out.println("4. Añadir series a usuario"); 
+						System.out.println("5. Añadir género a usuario");
 						System.out.println("6. Salir");
 						
 						int opcion = 0;
@@ -71,16 +71,47 @@ public class App {
 
 						switch (opcion) {
 							case 1: // Recomendación de series
-								LinkedList<String> series = app.recomendation(uri, user, password, databaseName, username); // Lista de series recomendadas
-								System.out.println("Series recomendadas: ");
-								for (String serie : series) {
-									System.out.println(serie);
-								}
+								db.recomend(uri, username, password, username, databaseName);
 								break;
-							/*case 2: // Insertar serie
+							case 2: // Agregar una serie a la base de datos
 								System.out.println("Ingrese el nombre de la serie: ");
-								String serie = System.console().readLine();
-								db.insertSerie(uri, user, password, databaseName, serie);
+								String title = System.console().readLine();
+								System.out.println("Ingrese el año de la serie: ");
+								String releaseYear = System.console().readLine();
+								System.out.println("Ingrese la tagline de la serie: ");
+								String tagline = System.console().readLine();
+
+								db.insertSeries(title, releaseYear, tagline, databaseName);
+								
+								Boolean connectSeriesGenre = true;
+
+								while (connectSeriesGenre) {
+									int option2 = 0;
+									System.out.println("¿Desea agregar un género a la serie?");
+									System.out.println("1. Sí");
+									System.out.println("2. No");
+									try {
+										option2 = Integer.parseInt(System.console().readLine());
+									} catch (Exception e) {
+										System.out.println("Ingrese un número.");
+									}
+
+									switch (option2) {
+										case 1:
+											System.out.println("Ingrese el género: ");
+											String genre = System.console().readLine();
+											db.insertGenre(uri, user, password, databaseName, title, genre);
+											break;
+										case 2:
+											connectSeriesGenre = false;
+											break;
+										case 0:
+											continue;
+										default:
+											System.out.println("Opción no válida");
+											break;
+									}
+								}
 								break;
 							case 3: // Unir serie a género
 								System.out.println("Ingrese el nombre de la serie: ");
@@ -98,7 +129,7 @@ public class App {
 								System.out.println("Ingrese el género: ");
 								String genre2 = System.console().readLine();
 								db.insertGenreToUser(uri, user, password, databaseName, username, genre2);
-								break;*/
+								break;
 							case 6:
 								System.out.println("Sesión cerrada");
 								break;
@@ -126,103 +157,5 @@ public class App {
 					break;
 			}
 		}
-	}
-
-	public String getMostrelatedUser(String uri, String user, String password, String databaseName, String name) {
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password))
-		{
-			LinkedList<String> users = db.getallusers(databaseName);
-			users.remove(name);
-			int maxConnections = 0;
-			String mostRelatedUser = "";
-
-			for (String useri : users) {
-				int connections = db.countConnectionsByUser(useri, databaseName);
-				if (connections > maxConnections) {
-					maxConnections = connections;
-					mostRelatedUser = useri;
-				}
-			}
-			System.out.println("Usuario con más relaciones: " + mostRelatedUser);
-			return mostRelatedUser;	
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-		return null;
-	}
-
-	public LinkedList<String> recomendation(String uri, String user, String password, String databaseName, String name) {
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
-			String mostRelatedUser = getMostrelatedUser(uri, user, password, databaseName, name);
-			LinkedList<String> seriesMostRelated = db.getSeriesByUser(mostRelatedUser, databaseName);
-			LinkedList<String> seriesRecommended = new LinkedList<String>();
-			for (String serie : seriesMostRelated) {
-				if (!serie.contains(serie)) {
-					seriesRecommended.add(serie);
-				}
-			}
-			if (seriesRecommended.size() > 1) {
-				return seriesRecommended;
-			} else {
-				String rngenre = getuserGenre(uri, user, password, databaseName, name);
-				seriesRecommended = getSeriesByGenre(uri, user, password, databaseName, rngenre);
-				LinkedList<String> existingSeries = getSeriesByUser(uri, user, password, databaseName, name);
-				for (String serie : existingSeries) {
-					if (seriesRecommended.contains(serie)) {
-						seriesRecommended.remove(serie);
-					}
-				}	
-				Collections.shuffle(seriesRecommended);
-				if (seriesRecommended.size() > 3) {
-					seriesRecommended.subList(3, seriesRecommended.size()).clear();
-				}
-				return seriesRecommended;
-			}
-		}
-		 catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public String getuserGenre(String uri, String user, String password, String databaseName, String name) {
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
-			LinkedList<String> genres = db.getGenresByUser(name, databaseName);
-			String randomGenre;
-			if (genres.size() == 0){
-				LinkedList<String> allGenres = db.getGenres(databaseName);
-				randomGenre = allGenres.get((int) (Math.random() * allGenres.size()));
-			} else {
-				Collections.shuffle(genres);
-				randomGenre = genres.get(0);
-				System.out.println("Género del usuario: " + randomGenre);
-			}
-			return randomGenre;
-		}
-		 catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public LinkedList<String> getSeriesByGenre(String uri, String user, String password, String databaseName, String genre) {
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
-			LinkedList<String> series = db.getSeriesByGenre(genre, databaseName);
-			return series;
-		}
-		 catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public LinkedList<String> getSeriesByUser(String uri, String user, String password, String databaseName, String name) {
-		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
-			LinkedList<String> series = db.getSeriesByUser(name, databaseName);
-			return series;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 }
