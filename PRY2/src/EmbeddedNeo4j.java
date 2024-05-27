@@ -1,4 +1,4 @@
-package web;
+
 import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
 import static org.neo4j.driver.Values.parameters;
