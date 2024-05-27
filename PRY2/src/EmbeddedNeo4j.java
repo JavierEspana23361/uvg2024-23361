@@ -22,7 +22,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
     public LinkedList<String> recomend(String uri, String name, String password, String username, String databaseName) {
         LinkedList<String> recommendations = new LinkedList<String>();
         try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, name, password)) {
-            while (true) {
+            Boolean menu = true;
+            while (menu) {
                 System.out.println("\nSeleccione el tipo de recomendación que desea:");
                 System.out.println("1. Recomendaciones para usted");
                 System.out.println("2. Recomendaciones por tendencia");
@@ -67,6 +68,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
                         break;
                     case 4:
                         System.out.println("Saliendo...");
+                        menu = false;
                         break;
                     default:
                         System.out.println("Opción no válida.");
@@ -574,7 +576,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
                 @Override
                 public LinkedList<String> execute( Transaction tx )
                 {
-                    Result result = tx.run( "MATCH (u:Usuario {nombre:'"+ name + "'})-[:VIO]->(s:Serie) RETURN s.title");
+                    Result result = tx.run( "MATCH (u:User {name:'"+ name + "'})-[:LE_GUSTA]->(s:Series) RETURN s.title");
                     LinkedList<String> seriesList = new LinkedList<String>();
                     List<Record> records = result.list();
                     for (Record record : records) {
@@ -667,15 +669,19 @@ public class EmbeddedNeo4j implements AutoCloseable{
         double highestJaccardIndex = 0.0;
     
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
-            Result result = session.readTransaction(new TransactionWork<Result>() {
+            List<Record> users = session.readTransaction(new TransactionWork<List<Record>>() {
                 @Override
-                public Result execute(Transaction tx) {
-                    return tx.run("MATCH (u:User) WHERE u.name <> $name RETURN u.name", 
-                                   parameters("name", name));
+                public List<Record> execute(Transaction tx) {
+                    Result result = tx.run("MATCH (u:User) WHERE u.name <> $name RETURN u.name", 
+                                           parameters("name", name));
+                    return result.list(); // Consume the result within the transaction
                 }
             });
     
-            List<Record> users = result.list();
+            if (users.isEmpty()) {
+                return "No other users found";
+            }
+    
             for (Record record : users) {
                 String userName = record.get("u.name").asString();
                 LinkedList<String> seriesByOtherUser = getSeriesByUser(userName, databaseName);
@@ -687,10 +693,12 @@ public class EmbeddedNeo4j implements AutoCloseable{
                     mostSimilarUser = userName;
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     
-        return mostSimilarUser;
-    }
+        return mostSimilarUser.isEmpty() ? "No similar user found" : mostSimilarUser;
+    }   
     
     public double calculateJaccardIndex(LinkedList<String> series1, LinkedList<String> series2, LinkedList<String> genres1, LinkedList<String> genres2) {
         int seriesIntersection = 0;
