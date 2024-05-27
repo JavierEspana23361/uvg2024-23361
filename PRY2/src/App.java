@@ -98,9 +98,21 @@ public class App {
 
 									switch (option2) {
 										case 1:
-											System.out.println("Ingrese el género: ");
-											String genre = System.console().readLine();
-											db.insertGenre(uri, user, password, databaseName, title, genre);
+											System.out.println("Seleccione el género de la serie:");
+											LinkedList<String> genres = db.getGenres(databaseName);
+											for (int i = 0; i < genres.size(); i++) {
+												System.out.println(i + 1 + ". " + genres.get(i));
+											}
+											int genreOption = 0;
+											try {
+												genreOption = Integer.parseInt(System.console().readLine());
+											} catch (Exception e) {
+												System.out.println("Ingrese un número.");
+											}
+
+											String genre = genres.get(genreOption - 1);
+
+											db.CreateSeriesGenresConnection(title, genre, databaseName);
 											break;
 										case 2:
 											connectSeriesGenre = false;
@@ -118,17 +130,13 @@ public class App {
 								String serie1 = System.console().readLine();
 								System.out.println("Ingrese el género de la serie: ");
 								String genre = System.console().readLine();
-								db.insertGenre(uri, user, password, databaseName, serie1, genre);
+								db.CreateSeriesGenresConnection(serie1, genre, databaseName);
 								break;
 							case 4: // Añadir series a usuario
-								System.out.println("Ingrese el nombre de la serie: ");
-								String serie2 = System.console().readLine();
-								db.insertSerieToUser(uri, user, password, databaseName, username, serie2);
+								db.BucleCreateUserSeriesConnection(username, databaseName);
 								break;
 							case 5: // Añadir género a usuario
-								System.out.println("Ingrese el género: ");
-								String genre2 = System.console().readLine();
-								db.insertGenreToUser(uri, user, password, databaseName, username, genre2);
+								db.BucleCreateUserGenreConnection(username, databaseName);
 								break;
 							case 6:
 								System.out.println("Sesión cerrada");

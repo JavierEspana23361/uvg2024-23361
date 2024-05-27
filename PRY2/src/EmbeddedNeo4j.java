@@ -173,7 +173,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
 
 
                 if (option == 1) {
-                    result = db.BucleCreateUserGenreConnetion(name, pass, databaseName);
+                    result = db.BucleCreateUserGenreConnection(name, databaseName);
                 }
 
                 System.out.println("Desea añadir series a su perfil?");
@@ -187,7 +187,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
                 }
 
                 if (option == 1) {
-                    result = db.BucleCreateUserSeriesConnetion(name, pass, databaseName);
+                    result = db.BucleCreateUserSeriesConnection(name, databaseName);
                 }
                 return result;
             } else {
@@ -200,7 +200,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
 		return null;
 	}
 
-    public String BucleCreateUserGenreConnetion(String name, String password, String databaseName) {
+    public String BucleCreateUserGenreConnection(String name, String databaseName) {
         try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             String result = session.writeTransaction( new TransactionWork<String>()
             {
@@ -226,8 +226,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
                         if (genreOption == n) {
                             boolGenres = false;
                         } else {
-                            tx.run("MATCH (u:User {name: $name, password: $password}), (g:Genero {nombre: $genre}) CREATE (u)-[:LE_GUSTA]->(g)",
-                                    parameters("name", name, "password", password, "genre", genres.get(genreOption - 1)));
+                            tx.run("MATCH (u:User {name: $name}), (g:Genero {nombre: $genre}) CREATE (u)-[:LE_GUSTA]->(g)",
+                                    parameters("name", name, "genre", genres.get(genreOption - 1)));
                         }
                     }
                     return "Gusto de género añadido";
@@ -237,7 +237,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    public String BucleCreateUserSeriesConnetion(String name, String password, String databaseName) {
+    public String BucleCreateUserSeriesConnection(String name, String databaseName) {
         try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             String result = session.writeTransaction( new TransactionWork<String>()
             {
@@ -263,8 +263,8 @@ public class EmbeddedNeo4j implements AutoCloseable{
                         if (serieOption == n) {
                             boolSeries = false;
                         } else {
-                            tx.run("MATCH (u:User {name: $name, password: $password}), (s:Series {title: $title}) CREATE (u)-[:LE_GUSTA]->(s)",
-                                    parameters("name", name, "password", password, "title", series.get(serieOption - 1)));
+                            tx.run("MATCH (u:User {name: $name}), (s:Series {title: $title}) CREATE (u)-[:LE_GUSTA]->(s)",
+                                    parameters("name", name, "title", series.get(serieOption - 1)));
                         }
                     }
                     return "Serie añadida";
@@ -466,7 +466,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
     
-
     public String MatchGenretoSeries(String genre, String title, String databaseName) {
     	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
