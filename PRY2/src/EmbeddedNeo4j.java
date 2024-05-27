@@ -131,16 +131,17 @@ public class EmbeddedNeo4j implements AutoCloseable{
 
     public LinkedList<String> recommendationsFromMostSimilarUser(String name, String databaseName) {
         String mostSimilarUser = findMostSimilarUser(name, databaseName);
-        LinkedList<String> seriesByUser = getSeriesByUser(name, databaseName);
-        LinkedList<String> seriesByMostSimilarUser = getSeriesByUser(mostSimilarUser, databaseName);
-    
         LinkedList<String> recommendations = new LinkedList<String>();
-        for (String serie : seriesByMostSimilarUser) {
-            if (!seriesByUser.contains(serie)) {
-                recommendations.add(serie);
+        if (mostSimilarUser != "No similar user found") {        
+            LinkedList<String> seriesByUser = getSeriesByUser(name, databaseName);
+            LinkedList<String> seriesByMostSimilarUser = getSeriesByUser(mostSimilarUser, databaseName);
+        
+            for (String serie : seriesByMostSimilarUser) {
+                if (!seriesByUser.contains(serie)) {
+                    recommendations.add(serie);
+                }
             }
         }
-    
         return recommendations;
     }
 

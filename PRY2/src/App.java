@@ -51,7 +51,6 @@ public class App {
 
 					if (found) {
 						System.out.println("\nBienvenido " + username);
-						App app = new App();
 						
 						System.out.println("Opciones: ");
 						System.out.println("1. Ver series recomendadas");
