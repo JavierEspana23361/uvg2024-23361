@@ -9,6 +9,8 @@
 <body>
     <div class="container">
         <h2>Sistema de Recomendación de Series</h2>
+
+        <!-- Formulario de Inicio de Sesión -->
         <div id="loginForm">
             <form id="login">
                 <div class="form-group">
@@ -26,6 +28,7 @@
             <p>¿No tienes una cuenta? <a href="#" id="registerLink">Regístrate aquí</a></p>
         </div>
 
+        <!-- Formulario de Registro -->
         <div id="registerForm" style="display: none;">
             <form id="register">
                 <div class="form-group">
@@ -43,6 +46,7 @@
             <p>¿Ya tienes una cuenta? <a href="#" id="loginLink">Inicia sesión aquí</a></p>
         </div>
 
+        <!-- Menú de Usuario -->
         <div id="menu" style="display: none;">
             <h3>Bienvenido <span id="loggedInUser"></span></h3>
             <h4>Opciones:</h4>
@@ -56,18 +60,33 @@
             </ul>
         </div>
     </div>
-
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
             const registerForm = document.getElementById('registerForm');
             const menu = document.getElementById('menu');
-
-            const loginLink = document.getElementById('loginLink');
-            const registerLink = document.getElementById('registerLink');
-
             const loggedInUser = document.getElementById('loggedInUser');
 
+            // Mostrar el formulario de registro al hacer clic en "Regístrate aquí"
+            const registerLink = document.getElementById('registerLink');
+            registerLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                menu.style.display = 'none';
+            });
+
+            // Mostrar el formulario de inicio de sesión al hacer clic en "Inicia sesión aquí"
+            const loginLink = document.getElementById('loginLink');
+            loginLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                menu.style.display = 'none';
+            });
+
+            // Procesar el inicio de sesión
             loginForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 const username = document.getElementById('username').value;
@@ -96,6 +115,7 @@
                 });
             });
 
+            // Procesar el registro
             registerForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 const newUsername = document.getElementById('newUsername').value;
@@ -123,10 +143,10 @@
                 });
             });
 
+            // Procesar el cierre de sesión
             const logoutLink = document.getElementById('option6');
             logoutLink.addEventListener('click', function(event) {
                 event.preventDefault();
-
                 fetch('/logout', {
                     method: 'POST',
                     headers: {
@@ -148,10 +168,10 @@
                 });
             });
 
+            // Funcionalidad para las opciones del menú
             const option1 = document.getElementById('option1');
             option1.addEventListener('click', function(event) {
                 event.preventDefault();
-
                 fetch('/recommendations', {
                     method: 'GET',
                     headers: {
@@ -161,7 +181,6 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Aquí puedes mostrar las series recomendadas en la interfaz
                         alert('Series recomendadas:\n' + data.recommendations.join('\n'));
                     } else {
                         alert('Error al obtener las series recomendadas');
@@ -175,11 +194,9 @@
             const option2 = document.getElementById('option2');
             option2.addEventListener('click', function(event) {
                 event.preventDefault();
-
                 const title = prompt('Ingrese el nombre de la serie:');
                 const releaseYear = prompt('Ingrese el año de la serie:');
                 const tagline = prompt('Ingrese la tagline de la serie:');
-
                 fetch('/series', {
                     method: 'POST',
                     headers: {
@@ -203,10 +220,8 @@
             const option3 = document.getElementById('option3');
             option3.addEventListener('click', function(event) {
                 event.preventDefault();
-
                 const serie1 = prompt('Ingrese el nombre de la serie:');
                 const genre = prompt('Ingrese el género de la serie:');
-
                 fetch('/series/genres', {
                     method: 'POST',
                     headers: {
@@ -230,7 +245,6 @@
             const option4 = document.getElementById('option4');
             option4.addEventListener('click', function(event) {
                 event.preventDefault();
-
                 fetch('/series', {
                     method: 'GET',
                     headers: {
@@ -279,7 +293,6 @@
             const option5 = document.getElementById('option5');
             option5.addEventListener('click', function(event) {
                 event.preventDefault();
-
                 fetch('/genres', {
                     method: 'GET',
                     headers: {
