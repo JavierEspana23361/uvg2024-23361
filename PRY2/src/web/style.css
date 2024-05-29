@@ -1,93 +1,113 @@
 /* Estilos generales */
+
+/* Estilos generales para todo el cuerpo del documento */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 0;
+    font-family: Arial, sans-serif; /* Fuente y familia de fuentes para todo el cuerpo */
+    background: url('ruta/a/tu/imagen-de-fondo.jpg') no-repeat center center fixed; /* Fondo con imagen centrada */
+    background-size: cover; /* Ajuste para cubrir todo el fondo */
+    margin: 0; /* Elimina los márgenes por defecto */
+    padding: 0; /* Elimina el relleno por defecto */
 }
 
+/* Contenedor de fondo para ajustar la imagen de fondo */
+.background-container {
+    position: absolute; /* Posición absoluta en relación con el viewport */
+    top: 0; /* Alineado arriba */
+    left: 0; /* Alineado a la izquierda */
+    width: 100%; /* Ancho completo del viewport */
+    height: 100%; /* Alto completo del viewport */
+    overflow: hidden; /* Oculta el desbordamiento */
+    z-index: -1; /* Coloca detrás de otros contenidos */
+}
+
+/* Contenedor principal */
 .container {
-    max-width: 600px;
-    margin: 50px auto;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px; /* Ancho máximo del contenedor */
+    margin: 50px auto; /* Márgenes superior e inferior automáticos, centrado horizontal */
+    background-color: rgba(255, 255, 255, 0.8); /* Color de fondo con transparencia */
+    padding: 20px; /* Relleno interno */
+    border-radius: 8px; /* Borde redondeado */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra ligera */
 }
 
+/* Encabezado principal */
 h2 {
-    text-align: center;
-    color: #333;
+    text-align: center; /* Alineación centrada */
+    color: #333; /* Color del texto */
 }
 
+/* Grupo de formulario */
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 15px; /* Márgen inferior */
 }
 
+/* Etiqueta del formulario */
 label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+    display: block; /* Mostrar como bloque */
+    margin-bottom: 5px; /* Márgen inferior */
+    font-weight: bold; /* Negrita */
 }
 
+/* Entradas de texto y contraseñas */
 input[type="text"],
 input[type="password"] {
-    width: calc(100% - 20px);
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    width: calc(100% - 20px); /* Ancho ajustado */
+    padding: 10px; /* Relleno */
+    font-size: 16px; /* Tamaño de la fuente */
+    border: 1px solid #ccc; /* Borde con color */
+    border-radius: 4px; /* Borde redondeado */
 }
 
+/* Botones de envío */
 button[type="submit"] {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 4px;
+    background-color: #007bff; /* Color de fondo del botón */
+    color: #fff; /* Color del texto */
+    border: none; /* Sin borde */
+    padding: 10px 20px; /* Relleno */
+    cursor: pointer; /* Cursor apuntador */
+    font-size: 16px; /* Tamaño de la fuente */
+    border-radius: 4px; /* Borde redondeado */
 }
 
+/* Cambio de color al pasar el ratón por encima del botón */
 button[type="submit"]:hover {
-    background-color: #0056b3;
+    background-color: #0056b3; /* Color de fondo al pasar el ratón */
 }
 
 /* Estilos específicos para el menú */
 #menu {
-    margin-top: 20px;
+    margin-top: 20px; /* Márgen superior */
 }
 
+/* Encabezado del menú */
 #menu h3 {
-    text-align: center;
+    text-align: center; /* Alineación centrada */
 }
 
+/* Título del menú */
 #menu h4 {
-    margin-top: 20px;
+    margin-top: 20px; /* Márgen superior */
 }
 
+/* Lista de elementos del menú */
 #menu ul {
-    list-style-type: none;
-    padding: 0;
+    list-style-type: none; /* Sin viñetas */
+    padding: 0; /* Sin relleno */
 }
 
+/* Elementos de la lista del menú */
 #menu ul li {
-    margin-bottom: 10px;
+    margin-bottom: 10px; /* Márgen inferior */
 }
 
+/* Enlaces de la lista del menú */
 #menu ul li a {
-    color: #007bff;
-    text-decoration: none;
+    color: #007bff; /* Color del texto */
+    text-decoration: none; /* Sin subrayado */
 }
 
+/* Cambio de subrayado al pasar el ratón por encima del enlace */
 #menu ul li a:hover {
-    text-decoration: underline;
+    text-decoration: underline; /* Subrayado al pasar el ratón */
 }
 
-/* Media query para dispositivos móviles */
-@media screen and (max-width: 600px) {
-    .container {
-        margin: 20px;
-        padding: 10px;
-    }
-}
