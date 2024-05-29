@@ -8,6 +8,17 @@ function toggleLoginForm() {
     }
 }
 
+function toggleRegisterForm() {
+    var registerPopup = document.getElementById("registerPopup");
+    if (registerPopup.style.display === "none" || registerPopup.style.display === "") {
+        registerPopup.style.display = "block";
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("welcome").style.display = "none";
+    } else {
+        registerPopup.style.display = "none";
+    }
+}
+
 function login() {
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
@@ -19,23 +30,55 @@ function login() {
         },
         body: JSON.stringify({ username: username, password: password }),
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.name) {
-            document.getElementById("usernameDisplay").textContent = data.name;
-            document.getElementById("loginForm").style.display = "none";
-            document.getElementById("welcome").style.display = "block";
-        } else {
-            alert("Usuario o contraseña incorrectos");
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Usuario o contraseña incorrectos');
         }
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById("usernameDisplay").textContent = data.username;
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("welcome").style.display = "block";
+        // Redireccionar a menu.html después de iniciar sesión
+        window.location.href = "menu.html";
     })
     .catch((error) => {
+        alert(error.message);
+        console.error('Error:', error);
+    });
+}
+
+function register() {
+    let username = document.getElementById("regUsername").value;
+    let password = document.getElementById("regPassword").value;
+
+    fetch('/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: username, password: password }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en el registro. Inténtelo de nuevo.');
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert("Registro exitoso. Inicie sesión para continuar.");
+        toggleRegisterForm(); // Ocultar el popup de registro
+    })
+    .catch((error) => {
+        alert(error.message);
         console.error('Error:', error);
     });
 }
 
 function showMenu() {
-    document.getElementById("menuOptions").style.display = "block";
+    // Redirigir a menu.html después de iniciar sesión
+    window.location.href = "menu.html";
 }
 
 function showRecommendations() {

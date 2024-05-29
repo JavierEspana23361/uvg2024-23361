@@ -7,17 +7,15 @@
     <link rel="stylesheet" href="menu.css">
 </head>
 <body>
-    <div id="menuContainer">
-        <div id="menuOptions">
-            <button onclick="showRecommendations()">Ver Series Recomendadas</button>
-            <button onclick="insertSeries()">Insertar Serie</button>
-            <button onclick="connectSeriesToGenre()">Unir Serie a Género</button>
-            <button onclick="addSeriesToUser()">Añadir Series a Usuario</button>
-            <button onclick="addGenreToUser()">Añadir Género a Usuario</button>
-        </div>
-
-        <div id="recommendations"></div>
+    <div id="menuOptions">
+        <button onclick="showRecommendations()">Ver Recomendaciones</button>
+        <button onclick="insertSeries()">Insertar Serie</button>
+        <button onclick="connectSeriesToGenre()">Conectar Serie a Género</button>
+        <button onclick="addSeriesToUser()">Agregar Serie a Usuario</button>
+        <button onclick="addGenreToUser()">Agregar Género a Usuario</button>
     </div>
+
+    <div id="recommendations" style="display: none;"></div>
 
     <script src="script.js"></script>
 </body>
