@@ -1,9 +1,10 @@
-package web;
+
 import java.util.LinkedList;
 import java.util.Scanner;
 
 import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
+
 
 import java.util.Collections;
 import java.util.InputMismatchException;
