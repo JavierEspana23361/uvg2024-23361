@@ -60,7 +60,8 @@ public class App {
 							System.out.println("5. Añadir género a usuario");
 							System.out.println("6. Eliminar serie de usuario");
 							System.out.println("7. Eliminar género de usuario");
-							System.out.println("8. Salir");
+							System.out.println("8. Mostrar series y géneros de usuario");
+							System.out.println("9. Salir");
 							
 							int opcion = 0;
 	
@@ -211,8 +212,11 @@ public class App {
 									db.deleteGenreUserConnection(username, genre, databaseName);
 									break;
 								case 8:
+									db.showConnectionsUser(username, databaseName);
+									break;
+								case 9:
 									System.out.println("Saliendo...");
-									menu = false;
+									menu2 = false;
 									break;
 								case 0:
 									continue;		

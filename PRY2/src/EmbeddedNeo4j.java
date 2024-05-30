@@ -772,4 +772,32 @@ public class EmbeddedNeo4j implements AutoCloseable{
             return e.getMessage();
         }
     }
+
+    public String showConnectionsUser(String name, String databaseName) {
+        try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
+            String result = session.readTransaction(new TransactionWork<String>() {
+                @Override
+                public String execute(Transaction tx) {
+                    Result seriesResult = tx.run("MATCH (u:User {name: $name})-[:LE_GUSTA]->(s:Series) RETURN s.title",
+                            parameters("name", name));
+                    Result genresResult = tx.run("MATCH (u:User {name: $name})-[:LE_GUSTA]->(g:Genero) RETURN g.nombre",
+                            parameters("name", name));
+                    String series = "Series: \n";
+                    String genres = "Géneros: \n";
+                    List<Record> seriesRecords = seriesResult.list();
+                    List<Record> genresRecords = genresResult.list();
+                    for (Record record : seriesRecords) {
+                        series += record.get("s.title").asString() + "\n";
+                    }
+                    for (Record record : genresRecords) {
+                        genres += record.get("g.nombre").asString() + "\n";
+                    }
+                    return series + "\n" + genres;
+                }
+            });
+            return result;
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
 }
