@@ -82,43 +82,36 @@ public class EmbeddedNeo4j implements AutoCloseable{
         return recommendations;
     }
     
-    /**
-     * Retrieves a list of recommended series for a given user based on their preferences.
-     *
-     * @param name          the name of the user
-     * @param databaseName  the name of the database to connect to
-     * @return              a LinkedList of recommended series titles
-     */
     public LinkedList<String> recommendationsForYou(String name, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             LinkedList<String> series = session.readTransaction(new TransactionWork<LinkedList<String>>() {
                 @Override
                 public LinkedList<String> execute(Transaction tx) {
                     Result result = tx.run(
-                        "MATCH (u:User {name: $name})-[:LE_GUSTA]->(g:Genero)<-[:PERTENECE_A]-(s:Series) " +
-                        "WHERE NOT (u)-[:LE_GUSTA]->(s) " +
-                        "RETURN s.title " +
+                        "MATCH (u:User {name: $name}) " +
+                        "OPTIONAL MATCH (u)-[:LE_GUSTA]->(:Serie)-[:PERTENECE_A]->(g1:Genero)<-[:PERTENECE_A]-(s1:Serie) " +
+                        "WHERE NOT (u)-[:LE_GUSTA]->(s1) " +
+                        "WITH u, s1 " +
+                        "OPTIONAL MATCH (u)-[:LE_GUSTA]->(g2:Genero)<-[:PERTENECE_A]-(s2:Serie) " +
+                        "WHERE NOT (u)-[:LE_GUSTA]->(s2) " +
+                        "WITH u, s1, collect(DISTINCT s2) AS s2List " +
+                        "UNWIND s2List AS s2 " +
+                        "RETURN DISTINCT coalesce(s1.title, s2.title) AS title " +
                         "LIMIT 10",
                         parameters("name", name)
                     );
-                    LinkedList<String> seriesList = new LinkedList<String>();
+                    LinkedList<String> seriesList = new LinkedList<>();
                     List<Record> records = result.list();
                     for (Record record : records) {
-                        seriesList.add(record.get("s.title").asString());
+                        seriesList.add(record.get("title").asString());
                     }
                     return seriesList;
                 }
             });
             return series;
         }
-    }    
+    }   
 
-    /**
-     * Retrieves a list of recommended series based on trending connections in the specified database.
-     *
-     * @param databaseName the name of the database to query
-     * @return a LinkedList of recommended series titles
-     */
     public LinkedList<String> recomendationsTrend(String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             LinkedList<String> topSeries = session.readTransaction(new TransactionWork<LinkedList<String>>() {
@@ -143,13 +136,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Retrieves a list of recommendations for a given user based on the most similar user in the database.
-     * 
-     * @param name          the name of the user for whom recommendations are being generated
-     * @param databaseName  the name of the database containing user and series information
-     * @return              a LinkedList of recommended series for the user
-     */
     public LinkedList<String> recommendationsFromMostSimilarUser(String name, String databaseName) {
         String mostSimilarUser = findMostSimilarUser(name, databaseName);
         LinkedList<String> recommendations = new LinkedList<String>();
@@ -166,17 +152,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         return recommendations;
     }
 
-    /**
-     * Logs in the user with the provided credentials.
-     * 
-     * @param uri the URI of the Neo4j database
-     * @param name the name of the Neo4j database
-     * @param password the password of the Neo4j database
-     * @param username the username of the user to log in
-     * @param pass the password of the user to log in
-     * @param databaseName the name of the database to search for the user
-     * @return true if the user is found and logged in successfully, false otherwise
-     */
     public Boolean login(String uri, String name, String password, String username, String pass, String databaseName) {
         try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, name, password)) {
             return db.foundUser(username, pass, databaseName);
@@ -187,14 +162,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         return null;
     }
 
-    /**
-     * Checks if a user with the given name and password exists in the specified database.
-     * 
-     * @param name          the name of the user to check
-     * @param password      the password of the user to check
-     * @param databaseName  the name of the database to search in
-     * @return              true if a user with the given name and password is found, false otherwise
-     */
     public Boolean foundUser(String name, String password, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             Boolean result = session.readTransaction(new TransactionWork<Boolean>() {
@@ -209,15 +176,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Signs in a user and creates a user profile in the Neo4j database.
-     * 
-     * @param uri           the URI of the Neo4j database
-     * @param user          the username for authentication
-     * @param password      the password for authentication
-     * @param databaseName  the name of the database
-     * @return              the result of the user creation process
-     */
     public String signin(String uri, String user, String password, String databaseName) {
 		try (EmbeddedNeo4j db = new EmbeddedNeo4j(uri, user, password)) {
 			System.out.println("\nIngrese su nombre de usuario: ");
@@ -273,13 +231,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
 		return null;
 	}
 
-    /**
-     * Creates a connection between a user and their preferred genre(s).
-     * 
-     * @param name          the name of the user
-     * @param databaseName  the name of the database
-     * @return              a message indicating that the genre preference has been added
-     */
     public String BucleCreateUserGenreConnection(String name, String databaseName) {
         try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             String result = session.writeTransaction( new TransactionWork<String>()
@@ -317,13 +268,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Creates a connection between a user and a series.
-     * 
-     * @param name The name of the user.
-     * @param databaseName The name of the database.
-     * @return A string indicating the result of the operation.
-     */
     public String BucleCreateUserSeriesConnection(String name, String databaseName) {
         try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             String result = session.writeTransaction( new TransactionWork<String>()
@@ -361,15 +305,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Creates a user with the specified name and password in the given database.
-     * 
-     * @param name          the name of the user
-     * @param password      the password of the user
-     * @param databaseName  the name of the database
-     * @return              true if the user was created successfully, false if the user already exists
-     *                      or an error occurred during the creation process
-     */
     public Boolean CreateUsers(String name, String password, String databaseName) {
     	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
@@ -402,18 +337,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Creates a connection between a user and a series in the Neo4j database.
-     * If the connection does not already exist, it will be created.
-     * 
-     * @param name          the name of the user
-     * @param title         the title of the series
-     * @param databaseName  the name of the database
-     * @return              a string indicating the result of the operation:
-     *                      - "Serie añadida" if the connection was successfully created
-     *                      - "Ya existe la conexión" if the connection already exists
-     *                      - the error message if an exception occurs
-     */
     public String CreateUserSeriesConnection(String name, String title, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             String result = session.writeTransaction(new TransactionWork<String>() {
@@ -437,14 +360,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
     
-    /**
-     * Creates a connection between a user and a genre in the specified database.
-     * 
-     * @param name          the name of the user
-     * @param genre         the name of the genre
-     * @param databaseName  the name of the database
-     * @return              a string indicating the result of the operation
-     */
     public String CreateUserGenreConnection(String name, String genre, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             String result = session.writeTransaction(new TransactionWork<String>() {
@@ -468,12 +383,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
     
-    /**
-     * Retrieves a list of all users from the specified database.
-     *
-     * @param databaseName the name of the database to retrieve users from
-     * @return a LinkedList containing the names of all users in the database
-     */
     public LinkedList<String> getallusers(String databaseName){
         try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             LinkedList<String> users = session.readTransaction( new TransactionWork<LinkedList<String>>()
@@ -495,12 +404,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Retrieves a list of genres from the specified database.
-     *
-     * @param databaseName the name of the database to retrieve genres from
-     * @return a LinkedList containing the names of the genres
-     */
     public LinkedList<String> getGenres(String databaseName){
         try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             LinkedList<String> genres = session.readTransaction( new TransactionWork<LinkedList<String>>()
@@ -521,12 +424,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
     
-    /**
-     * Retrieves a list of series titles from the specified database.
-     *
-     * @param databaseName the name of the database to retrieve series from
-     * @return a LinkedList containing the titles of the series
-     */
     public LinkedList<String> getSeries(String databaseName){
         try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             LinkedList<String> series = session.readTransaction( new TransactionWork<LinkedList<String>>()
@@ -547,15 +444,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Inserts a series into the Neo4j database.
-     *
-     * @param title         the title of the series
-     * @param releaseYear   the release year of the series
-     * @param tagline       the tagline of the series
-     * @param databaseName  the name of the Neo4j database
-     * @return              a message indicating the success or failure of the insertion
-     */
     public String insertSeries(String title, String releaseYear, String tagline, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             session.writeTransaction(new TransactionWork<Void>() {
@@ -572,16 +460,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Creates a connection between a series and a genre in the specified database.
-     * If the connection already exists, returns "La relación ya existe".
-     * If the connection is successfully created, returns "Género añadido a serie".
-     *
-     * @param title        the title of the series
-     * @param genre        the name of the genre
-     * @param databaseName the name of the database
-     * @return a string indicating the result of the operation
-     */
     public String CreateSeriesGenresConnection(String title, String genre, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             String result = session.writeTransaction(new TransactionWork<String>() {
@@ -607,14 +485,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
     
-    /**
-     * Matches a genre to a series and creates a relationship between them in the specified database.
-     *
-     * @param genre         the genre to match
-     * @param title         the title of the series
-     * @param databaseName  the name of the database
-     * @return              a message indicating the success of the operation or an error message
-     */
     public String MatchGenretoSeries(String genre, String title, String databaseName) {
     	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
@@ -639,14 +509,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Matches a user to a series and creates a relationship between them in the specified database.
-     * 
-     * @param name The name of the user.
-     * @param title The title of the series.
-     * @param databaseName The name of the database.
-     * @return A string representing the result of the operation.
-     */
     public String MatchUserToSeries(String name, String title, String databaseName) {
     	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
@@ -671,14 +533,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Matches a user to a genre in the specified database.
-     * 
-     * @param name          the name of the user
-     * @param genre         the name of the genre
-     * @param databaseName  the name of the database
-     * @return              the result of the transaction, or an error message if an exception occurs
-     */
     public String MatchUserToGenre(String name, String genre, String databaseName) {
     	try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) )
         {
@@ -703,13 +557,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Retrieves a list of series titles based on the specified genre and database name.
-     *
-     * @param genre         the genre of the series
-     * @param databaseName  the name of the database
-     * @return              a LinkedList containing the titles of the series
-     */
     public LinkedList<String> getSeriesByGenre(String genre, String databaseName){
         try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             LinkedList<String> series = session.readTransaction( new TransactionWork<LinkedList<String>>()
@@ -730,13 +577,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Retrieves a list of series titles that are liked by a specific user from the specified database.
-     *
-     * @param name          the name of the user
-     * @param databaseName  the name of the database
-     * @return              a LinkedList of series titles liked by the user
-     */
     public LinkedList<String> getSeriesByUser(String name, String databaseName){
         try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             LinkedList<String> series = session.readTransaction( new TransactionWork<LinkedList<String>>()
@@ -757,13 +597,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Retrieves the genres liked by a user from the specified database.
-     *
-     * @param name          the name of the user
-     * @param databaseName  the name of the database
-     * @return              a LinkedList containing the names of the genres liked by the user
-     */
     public LinkedList<String> getGenresByUser(String name, String databaseName){
         try ( Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             LinkedList<String> genres = session.readTransaction( new TransactionWork<LinkedList<String>>()
@@ -784,13 +617,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Counts the number of series liked by a user.
-     *
-     * @param name          the name of the user
-     * @param databaseName  the name of the database
-     * @return the number of series liked by the user
-     */
     public int countSeriesByUser(String name, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             return session.readTransaction(tx -> {
@@ -801,13 +627,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
     
-    /**
-     * Counts the number of genres liked by a user.
-     *
-     * @param name          the name of the user
-     * @param databaseName  the name of the database
-     * @return the number of genres liked by the user
-     */
     public int countGenresByUser(String name, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             return session.readTransaction(tx -> {
@@ -818,27 +637,12 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
     
-    /**
-     * Counts the total number of connections (series and genres) for a given user in a specified database.
-     *
-     * @param name          the name of the user
-     * @param databaseName  the name of the database
-     * @return the total number of connections for the user
-     */
     public int countConnectionsByUser(String name, String databaseName) {
         int series = countSeriesByUser(name, databaseName);
         int genres = countGenresByUser(name, databaseName);
         return series + genres;
     }
 
-    /**
-     * Compares the number of series liked by two users.
-     *
-     * @param name1         the name of the first user
-     * @param name2         the name of the second user
-     * @param databaseName  the name of the database to connect to
-     * @return              the number of series liked by both users
-     */
     public int compareSeriesByUser(String name1, String name2, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             return session.readTransaction(tx -> {
@@ -849,14 +653,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Compares the number of genres liked by two users.
-     *
-     * @param name1         the name of the first user
-     * @param name2         the name of the second user
-     * @param databaseName  the name of the database to connect to
-     * @return              the number of genres liked by both users
-     */
     public int compareGenresByUser(String name1, String name2, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName)) ) {
             return session.readTransaction(tx -> {
@@ -867,27 +663,12 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Compares the connections between two users based on their names and the specified database.
-     * 
-     * @param name1         the name of the first user
-     * @param name2         the name of the second user
-     * @param databaseName  the name of the database to compare the connections from
-     * @return              the sum of the comparisons between the series and genres connections
-     */
     public int compareConnectionsByUser(String name1, String name2, String databaseName) {
         int series = compareSeriesByUser(name1, name2, databaseName);
         int genres = compareGenresByUser(name1, name2, databaseName);
         return series + genres;
     }
 
-    /**
-     * Finds the most similar user to the given user based on series and genres.
-     *
-     * @param name          the name of the user
-     * @param databaseName  the name of the database
-     * @return              the name of the most similar user, or a message if no similar user is found
-     */
     public String findMostSimilarUser(String name, String databaseName) {
         LinkedList<String> seriesByUser = getSeriesByUser(name, databaseName);
         LinkedList<String> genresByUser = getGenresByUser(name, databaseName);
@@ -927,15 +708,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         return mostSimilarUser.isEmpty() ? "No similar user found" : mostSimilarUser;
     }   
     
-    /**
-     * Calculates the Jaccard Index between two series and two genres.
-     *
-     * @param series1 the first series
-     * @param series2 the second series
-     * @param genres1 the first genres
-     * @param genres2 the second genres
-     * @return the Jaccard Index between the series and genres
-     */
     public double calculateJaccardIndex(LinkedList<String> series1, LinkedList<String> series2, LinkedList<String> genres1, LinkedList<String> genres2) {
         int seriesIntersection = 0;
         int seriesUnion = series1.size() + series2.size();
@@ -961,17 +733,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         return jaccardIndex;
     }
 
-    /**
-     * Deletes the connection between a user and a series in the specified database.
-     * 
-     * @param name          the name of the user
-     * @param title         the title of the series
-     * @param databaseName  the name of the database
-     * @return              a string indicating the result of the operation:
-     *                      - "No existe la conexión" if the connection does not exist
-     *                      - "Conexión eliminada" if the connection was successfully deleted
-     *                      - the error message if an exception occurs
-     */
     public String deleteSeriesUserConnection(String name, String title, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             String result = session.writeTransaction(new TransactionWork<String>() {
@@ -995,14 +756,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Deletes the connection between a user and a genre in the specified database.
-     * 
-     * @param name          the name of the user
-     * @param genre         the name of the genre
-     * @param databaseName  the name of the database
-     * @return              a string indicating the result of the operation
-     */
     public String deleteGenreUserConnection(String name, String genre, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             String result = session.writeTransaction(new TransactionWork<String>() {
@@ -1026,13 +779,6 @@ public class EmbeddedNeo4j implements AutoCloseable{
         }
     }
 
-    /**
-     * Retrieves the connections of a user from the specified database and returns them as a formatted string.
-     *
-     * @param name          the name of the user
-     * @param databaseName  the name of the database
-     * @return              a string containing the user's connections, including series and genres
-     */
     public String showConnectionsUser(String name, String databaseName) {
         try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
             String result = session.readTransaction(new TransactionWork<String>() {
