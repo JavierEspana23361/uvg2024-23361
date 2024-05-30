@@ -726,4 +726,50 @@ public class EmbeddedNeo4j implements AutoCloseable{
         double jaccardIndex = (double) (seriesIntersection + genresIntersection) / (seriesUnion + genresUnion + seriesIntersection + genresIntersection);
         return jaccardIndex;
     }
+
+    public String deleteSeriesUserConnection(String name, String title, String databaseName) {
+        try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
+            String result = session.writeTransaction(new TransactionWork<String>() {
+                @Override
+                public String execute(Transaction tx) {
+                    Result userSeriesConnectionResult = tx.run("MATCH (u:User {name: $name})-[r:LE_GUSTA]->(s:Series {title: $title}) RETURN u, s, r",
+                            parameters("name", name, "title", title));
+                    if (userSeriesConnectionResult.list().isEmpty()) {
+                        return "No existe la conexión";
+                    } else {
+                        tx.run("MATCH (u:User {name: $name})-[r:LE_GUSTA]->(s:Series {title: $title}) DELETE r",
+                                parameters("name", name, "title", title));
+                        return "Conexión eliminada";
+                    }
+                }
+            });
+    
+            return result;
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+
+    public String deleteGenreUserConnection(String name, String genre, String databaseName) {
+        try (Session session = driver.session(SessionConfig.forDatabase(databaseName))) {
+            String result = session.writeTransaction(new TransactionWork<String>() {
+                @Override
+                public String execute(Transaction tx) {
+                    Result userGenreConnectionResult = tx.run("MATCH (u:User {name: $name})-[r:LE_GUSTA]->(g:Genero {nombre: $genre}) RETURN u, g, r",
+                            parameters("name", name, "genre", genre));
+                    if (userGenreConnectionResult.list().isEmpty()) {
+                        return "No existe la conexión";
+                    } else {
+                        tx.run("MATCH (u:User {name: $name})-[r:LE_GUSTA]->(g:Genero {nombre: $genre}) DELETE r",
+                                parameters("name", name, "genre", genre));
+                        return "Conexión eliminada";
+                    }
+                }
+            });
+    
+            return result;
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
 }

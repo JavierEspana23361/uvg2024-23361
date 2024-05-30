@@ -58,7 +58,9 @@ public class App {
 						System.out.println("3. Unir serie a género"); 
 						System.out.println("4. Añadir series a usuario"); 
 						System.out.println("5. Añadir género a usuario");
-						System.out.println("6. Salir");
+						System.out.println("6. Eliminar serie de usuario");
+						System.out.println("7. Eliminar género de usuario");
+						System.out.println("8. Salir");
 						
 						int opcion = 0;
 
@@ -168,8 +170,39 @@ public class App {
 								genre = genres.get(genreOption - 1);
 								db.CreateUserGenreConnection(username, genre, databaseName);
 								break;
-							case 6:
-								System.out.println("Sesión cerrada");
+							case 6: // Eliminar serie de usuario
+								System.out.println("Seleccione la serie que desea eliminar: ");
+								LinkedList<String> series2 = db.getSeriesByUser(username, databaseName);
+								for (int i = 0; i < series2.size(); i++) {
+									System.out.println(i + 1 + ". " + series2.get(i));
+								}
+								int serieOption2 = 0;
+								try {
+									serieOption2 = Integer.parseInt(System.console().readLine());
+								} catch (Exception e) {
+									System.out.println("Ingrese un número.");
+								}
+								title = series2.get(serieOption2 - 1);
+								db.deleteSeriesUserConnection(username, title, databaseName);
+								break;
+							case 7: // Eliminar género de usuario
+								System.out.println("Seleccione el género que desea eliminar: ");
+								LinkedList<String> genres2 = db.getGenresByUser(username, databaseName);
+								for (int i = 0; i < genres2.size(); i++) {
+									System.out.println(i + 1 + ". " + genres2.get(i));
+								}
+								int genreOption2 = 0;
+								try {
+									genreOption2 = Integer.parseInt(System.console().readLine());
+								} catch (Exception e) {
+									System.out.println("Ingrese un número.");
+								}
+								genre = genres2.get(genreOption2 - 1);
+								db.deleteGenreUserConnection(username, genre, databaseName);
+								break;
+							case 8:
+								System.out.println("Saliendo...");
+								menu = false;
 								break;
 							case 0:
 								continue;		
