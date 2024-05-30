@@ -1,343 +1,192 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Recomendación de Series</title>
-    <link rel="stylesheet" href="style.css">
+    <title>TV Series Recommendation System</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-
-        <!-- Formulario de Inicio de Sesión -->
-        <div id="loginForm">
-            <form id="login">
-                <div class="form-group">
-                    <label for="username">Nombre de usuario:</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Contraseña:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <div class="form-group">
-                    <button type="submit">Iniciar sesión</button>
-                </div>
-            </form>
-            <p>¿No tienes una cuenta? <a href="#" id="registerLink">Regístrate aquí</a></p>
+        <h2>TV Series Recommendation System</h2>
+        <div id="login" class="options">
+            <button onclick="showLogin()">Iniciar sesión</button>
         </div>
-
-        <!-- Formulario de Registro -->
+        <div id="register" class="options">
+            <button onclick="showRegister()">Registrarse</button>
+        </div>
+        <div id="loginForm" style="display: none;">
+            <input type="text" id="username" placeholder="Nombre de usuario">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button onclick="login()">Iniciar sesión</button>
+        </div>
         <div id="registerForm" style="display: none;">
-            <form id="register">
-                <div class="form-group">
-                    <label for="newUsername">Nombre de usuario:</label>
-                    <input type="text" id="newUsername" name="newUsername" required>
-                </div>
-                <div class="form-group">
-                    <label for="newPassword">Contraseña:</label>
-                    <input type="password" id="newPassword" name="newPassword" required>
-                </div>
-                <div class="form-group">
-                    <button type="submit">Registrarse</button>
-                </div>
-            </form>
-            <p>¿Ya tienes una cuenta? <a href="#" id="loginLink">Inicia sesión aquí</a></p>
+            <input type="text" id="newUsername" placeholder="Nuevo nombre de usuario">
+            <input type="password" id="newPassword" placeholder="Nueva contraseña">
+            <button onclick="register()">Registrarse</button>
         </div>
-
-        <!-- Menú de Usuario -->
-        <div id="menu" style="display: none;">
+        <div id="userOptions" style="display: none;" class="options">
             <h3>Bienvenido <span id="loggedInUser"></span></h3>
-            <h4>Opciones:</h4>
-            <ul>
-                <li><a href="#" id="option1">Ver series recomendadas</a></li>
-                <li><a href="#" id="option2">Insertar serie</a></li>
-                <li><a href="#" id="option3">Unir serie a género</a></li>
-                <li><a href="#" id="option4">Añadir series a usuario</a></li>
-                <li><a href="#" id="option5">Añadir género a usuario</a></li>
-                <li><a href="#" id="option6">Cerrar sesión</a></li>
-            </ul>
+            <div>
+                <button onclick="recommend()">Ver series recomendadas</button>
+            </div>
+            <div>
+                <button onclick="insertSeries()">Insertar serie</button>
+            </div>
+            <div>
+                <button onclick="connectSeriesGenre()">Unir serie a género</button>
+            </div>
+            <div>
+                <button onclick="addSeriesToUser()">Añadir series a usuario</button>
+            </div>
+            <div>
+                <button onclick="addGenreToUser()">Añadir género a usuario</button>
+            </div>
+            <div>
+                <button onclick="logout()">Salir</button>
+            </div>
         </div>
     </div>
-    
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const menu = document.getElementById('menu');
-            const loggedInUser = document.getElementById('loggedInUser');
+        const uri = "bolt://localhost:7687";
+        const user = "neo4j";
+        const password = "password";
+        const databaseName = "neo4j2";
 
-            // Mostrar el formulario de registro al hacer clic en "Regístrate aquí"
-            const registerLink = document.getElementById('registerLink');
-            registerLink.addEventListener('click', function(event) {
-                event.preventDefault();
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-                menu.style.display = 'none';
-            });
+        function showLogin() {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('register').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
 
-            // Mostrar el formulario de inicio de sesión al hacer clic en "Inicia sesión aquí"
-            const loginLink = document.getElementById('loginLink');
-            loginLink.addEventListener('click', function(event) {
-                event.preventDefault();
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
-                menu.style.display = 'none';
-            });
+        function showRegister() {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('register').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
 
-            // Procesar el inicio de sesión
-            loginForm.addEventListener('submit', function(event) {
-                event.preventDefault();
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-                fetch('/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username: username, password: password }),
-                })
+            fetch(`/login?username=${username}&password=${password}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        loggedInUser.textContent = username;
-                        loginForm.style.display = 'none';
-                        registerForm.style.display = 'none';
-                        menu.style.display = 'block';
+                        document.getElementById('loggedInUser').innerText = username;
+                        document.getElementById('loginForm').style.display = 'none';
+                        document.getElementById('userOptions').style.display = 'block';
                     } else {
-                        alert('Usuario o contraseña incorrectos');
+                        alert('Usuario no encontrado');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
+                .catch(error => console.error('Error:', error));
+        }
 
-            // Procesar el registro
-            registerForm.addEventListener('submit', function(event) {
-                event.preventDefault();
-                const newUsername = document.getElementById('newUsername').value;
-                const newPassword = document.getElementById('newPassword').value;
+        function register() {
+            const newUsername = document.getElementById('newUsername').value;
+            const newPassword = document.getElementById('newPassword').value;
 
-                fetch('/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username: newUsername, password: newPassword }),
-                })
+            fetch(`/register?username=${newUsername}&password=${newPassword}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Usuario registrado exitosamente');
-                        loginForm.style.display = 'block';
-                        registerForm.style.display = 'none';
+                        alert('Registrado exitosamente. Por favor inicie sesión.');
+                        showLogin();
                     } else {
                         alert('Error al registrar usuario');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
+                .catch(error => console.error('Error:', error));
+        }
 
-            // Procesar el cierre de sesión
-            const logoutLink = document.getElementById('option6');
-            logoutLink.addEventListener('click', function(event) {
-                event.preventDefault();
-                fetch('/logout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
+        function recommend() {
+            const username = document.getElementById('loggedInUser').innerText;
+
+            fetch(`/recommend?username=${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    const recommendations = data.recommendations;
+                    if (recommendations.length === 0) {
+                        alert('No hay series recomendadas');
+                    } else {
+                        alert('Series recomendadas: ' + recommendations.join(', '));
                     }
                 })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function insertSeries() {
+            const title = prompt('Ingrese el nombre de la serie:');
+            const releaseYear = prompt('Ingrese el año de la serie:');
+            const tagline = prompt('Ingrese la tagline de la serie:');
+
+            fetch(`/insertSeries?title=${title}&releaseYear=${releaseYear}&tagline=${tagline}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        loggedInUser.textContent = '';
-                        menu.style.display = 'none';
-                        loginForm.style.display = 'block';
+                        alert('Serie insertada correctamente.');
                     } else {
-                        alert('Error al cerrar sesión');
+                        alert('Error al insertar la serie.');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
+                .catch(error => console.error('Error:', error));
+        }
 
-            // Funcionalidad para las opciones del menú
-            const option1 = document.getElementById('option1');
-            option1.addEventListener('click', function(event) {
-                event.preventDefault();
-                fetch('/recommendations', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
+        function connectSeriesGenre() {
+            const title = prompt('Ingrese el nombre de la serie:');
+            const genre = prompt('Ingrese el género de la serie:');
+
+            fetch(`/connectSeriesGenre?title=${title}&genre=${genre}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Series recomendadas:\n' + data.recommendations.join('\n'));
+                        alert('Serie conectada al género correctamente.');
                     } else {
-                        alert('Error al obtener las series recomendadas');
+                        alert('Error al conectar serie y género.');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
+                .catch(error => console.error('Error:', error));
+        }
 
-            const option2 = document.getElementById('option2');
-            option2.addEventListener('click', function(event) {
-                event.preventDefault();
-                const title = prompt('Ingrese el nombre de la serie:');
-                const releaseYear = prompt('Ingrese el año de la serie:');
-                const tagline = prompt('Ingrese la tagline de la serie:');
-                fetch('/series', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ title: title, releaseYear: releaseYear, tagline: tagline }),
-                })
+        function addSeriesToUser() {
+            const title = prompt('Seleccione la serie que desea agregar:');
+
+            fetch(`/addSeriesToUser?username=${username}&title=${title}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Serie insertada correctamente');
+                        alert('Serie añadida al usuario correctamente.');
                     } else {
-                        alert('Error al insertar la serie');
+                        alert('Error al añadir serie al usuario.');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
+                .catch(error => console.error('Error:', error));
+        }
 
-            const option3 = document.getElementById('option3');
-            option3.addEventListener('click', function(event) {
-                event.preventDefault();
-                const serie1 = prompt('Ingrese el nombre de la serie:');
-                const genre = prompt('Ingrese el género de la serie:');
-                fetch('/series/genres', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ serie1: serie1, genre: genre }),
-                })
+        function addGenreToUser() {
+            const genre = prompt('Seleccione el género que desea agregar:');
+
+            fetch(`/addGenreToUser?username=${username}&genre=${genre}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Género agregado correctamente a la serie');
+                        alert('Género añadido al usuario correctamente.');
                     } else {
-                        alert('Error al agregar el género a la serie');
+                        alert('Error al añadir género al usuario.');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
+                .catch(error => console.error('Error:', error));
+        }
 
-            const option4 = document.getElementById('option4');
-            option4.addEventListener('click', function(event) {
-                event.preventDefault();
-                fetch('/series', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const seriesList = data.series;
-                        let seriesOptions = '';
-                        seriesList.forEach((serie, index) => {
-                            seriesOptions += `${index + 1}. ${serie.title}\n`;
-                        });
-
-                        const serieOption = prompt(`Seleccione la serie que desea agregar:\n${seriesOptions}`);
-                        const selectedSerie = seriesList[parseInt(serieOption) - 1];
-
-                        fetch('/user/series', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ username: loggedInUser.textContent, title: selectedSerie.title }),
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert(`Serie "${selectedSerie.title}" agregada al usuario correctamente`);
-                            } else {
-                                alert('Error al agregar la serie al usuario');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                    } else {
-                        alert('Error al obtener las series');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
-
-            const option5 = document.getElementById('option5');
-            option5.addEventListener('click', function(event) {
-                event.preventDefault();
-                fetch('/genres', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const genresList = data.genres;
-                        let genresOptions = '';
-                        genresList.forEach((genre, index) => {
-                            genresOptions += `${index + 1}. ${genre}\n`;
-                        });
-
-                        const genreOption = prompt(`Seleccione el género que desea agregar:\n${genresOptions}`);
-                        const selectedGenre = genresList[parseInt(genreOption) - 1];
-
-                        fetch('/user/genres', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ username: loggedInUser.textContent, genre: selectedGenre }),
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert(`Género "${selectedGenre}" agregado al usuario correctamente`);
-                            } else {
-                                alert('Error al agregar el género al usuario');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                    } else {
-                        alert('Error al obtener los géneros');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
-
-        });
+        function logout() {
+            document.getElementById('userOptions').style.display = 'none';
+            document.getElementById('login').style.display = 'block';
+            document.getElementById('register').style.display = 'block';
+        }
     </script>
 </body>
 </html>
