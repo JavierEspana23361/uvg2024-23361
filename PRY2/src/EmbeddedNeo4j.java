@@ -443,7 +443,7 @@ public class EmbeddedNeo4j implements AutoCloseable{
             session.writeTransaction(new TransactionWork<Void>() {
                 @Override
                 public Void execute(Transaction tx) {
-                    tx.run("CREATE (s:Serie {title: $title, released: $releaseYear, tagline: $tagline})",
+                    tx.run("CREATE (s:Series {title: $title, released: $releaseYear, tagline: $tagline})",
                             parameters("title", title, "releaseYear", releaseYear, "tagline", tagline));
                     return null;
                 }
@@ -460,13 +460,13 @@ public class EmbeddedNeo4j implements AutoCloseable{
                 @Override
                 public String execute(Transaction tx) {
                     Result existingRelationResult = tx.run(
-                            "MATCH (s:Serie {title: $title})-[:PERTENECE_A]->(g:Genero {nombre: $genre}) RETURN count(*)",
+                            "MATCH (s:Series {title: $title})-[:PERTENECE_A]->(g:Genero {nombre: $genre}) RETURN count(*)",
                             parameters("title", title, "genre", genre)
                     );
                     if (existingRelationResult.hasNext() && existingRelationResult.next().get(0).asInt() > 0) {
                         return "La relación ya existe";
                     } else {
-                        tx.run("MATCH (s:Serie {title: $title}), (g:Genero {nombre: $genre}) CREATE (s)-[:PERTENECE_A]->(g)",
+                        tx.run("MATCH (s:Series {title: $title}), (g:Genero {nombre: $genre}) CREATE (s)-[:PERTENECE_A]->(g)",
                                 parameters("title", title, "genre", genre));
                         return "Género añadido a serie";
                     }

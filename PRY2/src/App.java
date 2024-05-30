@@ -137,7 +137,17 @@ public class App {
 									System.out.println("Ingrese el nombre de la serie: ");
 									String serie1 = System.console().readLine();
 									System.out.println("Ingrese el género de la serie: ");
-									String genre = System.console().readLine();
+									LinkedList<String> genres = db.getGenres(databaseName);
+									for (int i = 0; i < genres.size(); i++) {
+										System.out.println(i + 1 + ". " + genres.get(i));
+									}
+									int genreOption = 0;
+									try {
+										genreOption = Integer.parseInt(System.console().readLine());
+									} catch (Exception e) {
+										System.out.println("Ingrese un número.");
+									}
+									String genre = genres.get(genreOption - 1);
 									db.CreateSeriesGenresConnection(serie1, genre, databaseName);
 									break;
 								case 4: // Añadir series a usuario
@@ -157,17 +167,17 @@ public class App {
 									break;
 								case 5: // Añadir género a usuario
 									System.out.println("Seleccione el género que desea agregar: ");
-									LinkedList<String> genres = db.getGenres(databaseName);
-									for (int i = 0; i < genres.size(); i++) {
-										System.out.println(i + 1 + ". " + genres.get(i));
+									LinkedList<String> genres5 = db.getGenres(databaseName);
+									for (int i = 0; i < genres5.size(); i++) {
+										System.out.println(i + 1 + ". " + genres5.get(i));
 									}
-									int genreOption = 0;
+									int genreOption5 = 0;
 									try {
-										genreOption = Integer.parseInt(System.console().readLine());
+										genreOption5 = Integer.parseInt(System.console().readLine());
 									} catch (Exception e) {
 										System.out.println("Ingrese un número.");
 									}
-									genre = genres.get(genreOption - 1);
+									genre = genres5.get(genreOption5 - 1);
 									db.CreateUserGenreConnection(username, genre, databaseName);
 									break;
 								case 6: // Eliminar serie de usuario
