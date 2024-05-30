@@ -53,10 +53,10 @@ public class App {
 					String pass = System.console().readLine();
 					Boolean found = db.login(uri, user, password, username, pass, databaseName);
 
-					while (menu2) {
-						if (found) {
-							System.out.println("\nBienvenido " + username);
-							
+					if (found) {
+						System.out.println("\nBienvenido " + username);
+
+						while (menu2) {
 							System.out.println("Opciones: ");
 							System.out.println("1. Ver series recomendadas");
 							System.out.println("2. Insertar serie");
@@ -67,15 +67,15 @@ public class App {
 							System.out.println("7. Eliminar género de usuario");
 							System.out.println("8. Mostrar series y géneros de usuario");
 							System.out.println("9. Salir");
-							
+
 							int opcion = 0;
-	
+
 							try {
 								opcion = Integer.parseInt(System.console().readLine());
 							} catch (Exception e) {
 								System.out.println("Ingrese un número.");
 							}
-	
+
 							switch (opcion) {
 								case 1: // Recomendación de series
 									LinkedList<String> recomendations = db.recomend(uri, user, password, username, databaseName);
@@ -84,7 +84,7 @@ public class App {
 										System.out.println("No hay series recomendadas");
 									} else {
 										for (int i = 0; i < recomendations.size(); i++) 
-										System.out.println(recomendations.get(i));
+											System.out.println(recomendations.get(i));
 									}
 									break;
 								case 2: // Agregar una serie a la base de datos
@@ -94,11 +94,11 @@ public class App {
 									String releaseYear = System.console().readLine();
 									System.out.println("Ingrese la tagline de la serie: ");
 									String tagline = System.console().readLine();
-	
+
 									db.insertSeries(title, releaseYear, tagline, databaseName);
-									
+
 									Boolean connectSeriesGenre = true;
-	
+
 									while (connectSeriesGenre) {
 										int option2 = 0;
 										System.out.println("¿Desea agregar un género a la serie?");
@@ -109,7 +109,7 @@ public class App {
 										} catch (Exception e) {
 											System.out.println("Ingrese un número.");
 										}
-	
+
 										switch (option2) {
 											case 1:
 												System.out.println("Seleccione el género de la serie:");
@@ -123,9 +123,9 @@ public class App {
 												} catch (Exception e) {
 													System.out.println("Ingrese un número.");
 												}
-	
+
 												String genre = genres.get(genreOption - 1);
-	
+
 												db.CreateSeriesGenresConnection(title, genre, databaseName);
 												break;
 											case 2:
@@ -230,11 +230,12 @@ public class App {
 									System.out.println("Opción no válida");
 									break;
 							}
-						} else {
-							System.out.println("\nUsuario no encontrado");
 						}
+					} else {
+						System.out.println("\nUsuario no encontrado");
 					}
 					break;
+
 				case 2:
 					db.signin(uri, user, password, databaseName);
 					break;
