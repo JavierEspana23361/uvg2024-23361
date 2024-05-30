@@ -212,7 +212,8 @@ public class App {
 									db.deleteGenreUserConnection(username, genre, databaseName);
 									break;
 								case 8:
-									db.showConnectionsUser(username, databaseName);
+									String connections = db.showConnectionsUser(username, databaseName);
+									System.out.println(connections);
 									break;
 								case 9:
 									System.out.println("Saliendo...");
