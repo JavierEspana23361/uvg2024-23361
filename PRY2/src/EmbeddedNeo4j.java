@@ -89,10 +89,10 @@ public class EmbeddedNeo4j implements AutoCloseable{
                 public LinkedList<String> execute(Transaction tx) {
                     Result result = tx.run(
                         "MATCH (u:User {name: $name}) " +
-                        "OPTIONAL MATCH (u)-[:LE_GUSTA]->(:Serie)-[:PERTENECE_A]->(g1:Genero)<-[:PERTENECE_A]-(s1:Serie) " +
+                        "OPTIONAL MATCH (u)-[:LE_GUSTA]->(:Series)-[:PERTENECE_A]->(g1:Genero)<-[:PERTENECE_A]-(s1:Series) " +
                         "WHERE NOT (u)-[:LE_GUSTA]->(s1) " +
                         "WITH u, s1 " +
-                        "OPTIONAL MATCH (u)-[:LE_GUSTA]->(g2:Genero)<-[:PERTENECE_A]-(s2:Serie) " +
+                        "OPTIONAL MATCH (u)-[:LE_GUSTA]->(g2:Genero)<-[:PERTENECE_A]-(s2:Series) " +
                         "WHERE NOT (u)-[:LE_GUSTA]->(s2) " +
                         "WITH u, s1, collect(DISTINCT s2) AS s2List " +
                         "UNWIND s2List AS s2 " +
