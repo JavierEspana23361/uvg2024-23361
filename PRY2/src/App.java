@@ -5,6 +5,11 @@ import org.neo4j.driver.SessionConfig;
 import java.util.Collections;
 import java.util.InputMismatchException;
 
+/**
+ * The main class of the application.
+ * This class contains the main method that serves as the entry point of the program.
+ * It provides a menu-driven interface for users to interact with the application.
+ */
 public class App {
 
 	/**
